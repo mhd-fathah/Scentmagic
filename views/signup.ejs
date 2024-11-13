@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fresh Store Sign-Up</title>
+  <link rel="stylesheet" href="css/signup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-section">
+      <div class="logo">
+        <img src="img/login/logo.png" alt="Fresh Store Logo">
+        <!-- <h1>FRESH STORE</h1> -->
+      </div>
+      <h2>Start Your</h2>
+      <h2 class="heading">Scent Journey</h2>
+      <p class="subheading">Find Your Signature Scent</p>
+
+      <button class="google-signup">
+        <img src="img/login/google-logo.png" alt="Google Icon">
+        Sign up with Google
+      </button>
+
+      <p class="or">Or use Email</p>
+
+      <form id="signup-form" method="post">
+        <label for="fullname">FULLNAME</label>
+        <input type="text" id="fullname" placeholder="johndoe">
+
+        <label for="phone">PHONE NUMBER</label>
+        <input type="tel" id="phone" placeholder="**********">
+
+        <label for="email">EMAIL</label>
+        <input type="email" id="email" placeholder="johndoe@email.com">
+
+        <label for="password">PASSWORD</label>
+        <input type="password" id="password" placeholder="***************">
+
+        <label for="confirm-password">CONFIRM PASSWORD</label>
+        <div class="password-wrapper">
+          <input type="password" id="confirm-password" placeholder="***************">
+          <span id="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+        <div id="error-message" style="color: red;"></div>
+        <button type="submit" class="submit-btn">SIGNUP</button>
+      </form>
+
+      <p class="terms">
+        By Signing up to uBrand, means you agree to our <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>
+      </p>
+    </div>
+    <div class="image-section">
+      <img src="img/login/hero-bg.jpeg" alt="Fresh Vegetables">
+    </div>
+  </div>
+
+  <script>
+     function togglePassword() {
+      const password = document.getElementById('confirm-password');
+      const toggle = document.getElementById('toggle-password');
+      if (password.type === "password") {
+        password.type = "text";
+        toggle.textContent = "🙈";
+      } else {
+        password.type = "password";
+        toggle.textContent = "👁️";
+      }
+    }
+
+const signupForm = document.getElementById('signup-form');
+const errorMessageContainer = document.getElementById('error-message');
+const fullnameInput = document.getElementById('fullname');
+const phoneInput = document.getElementById('phone');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirm-password');
+
+function togglePassword() {
+    const passwordFields = [passwordInput, confirmPasswordInput];
+    passwordFields.forEach(field => {
+        if (field.type === "password") {
+            field.type = "text";
+        } else {
+            field.type = "password";
+        }
+    });
+}
+
+function validateFullname() {
+    const fullname = fullnameInput.value;
+    const nameRegex = /^[a-zA-Z\s]+$/; 
+    if (!fullname || !nameRegex.test(fullname)) {
+        return 'Full name is required and can only contain letters and spaces.';
+    }
+    return '';
+}
+
+function validatePhone() {
+    const phone = phoneInput.value;
+    const phoneRegex = /^[0-9]{10}$/; 
+    if (!phone || !phoneRegex.test(phone)) {
+        return 'Please enter a valid 10-digit phone number.';
+    }
+    return '';
+}
+
+function validateEmail() {
+    const email = emailInput.value;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+    if (!email || !emailRegex.test(email)) {
+        return 'Please enter a valid email address.';
+    }
+    return '';
+}
+
+function validatePassword() {
+    const password = passwordInput.value;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/ 
+    if (!password || !passwordRegex.test(password)) {
+        return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).";
+    }
+    return '';
+}
+
+function validateConfirmPassword() {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    if (confirmPassword !== password) {
+        return 'Password and Confirm Password must match.';
+    }
+    return '';
+}
+
+function updateErrorMessages() {
+    let errors = [];
+
+    const fullnameError = validateFullname();
+    if (fullnameError) errors.push(fullnameError);
+
+    const phoneError = validatePhone();
+    if (phoneError) errors.push(phoneError);
+
+    const emailError = validateEmail();
+    if (emailError) errors.push(emailError);
+
+    const passwordError = validatePassword();
+    if (passwordError) errors.push(passwordError);
+
+    const confirmPasswordError = validateConfirmPassword();
+    if (confirmPasswordError) errors.push(confirmPasswordError);
+
+    errorMessageContainer.innerHTML = '';
+    if (errors.length > 0) {
+        errors.forEach(msg => {
+            const messageElement = document.createElement('p');
+            messageElement.textContent = msg;
+            errorMessageContainer.appendChild(messageElement);
+        });
+    } else {
+        
+        errorMessageContainer.innerHTML = '';
+    }
+}
+
+
+fullnameInput.addEventListener('input', updateErrorMessages);
+phoneInput.addEventListener('input', updateErrorMessages);
+emailInput.addEventListener('input', updateErrorMessages);
+passwordInput.addEventListener('input', updateErrorMessages);
+confirmPasswordInput.addEventListener('input', updateErrorMessages);
+
+
+signupForm.addEventListener('submit', (e) => {
+    const fullnameError = validateFullname();
+    const phoneError = validatePhone();
+    const emailError = validateEmail();
+    const passwordError = validatePassword();
+    const confirmPasswordError = validateConfirmPassword();
+
+  
+    if (fullnameError || phoneError || emailError || passwordError || confirmPasswordError) {
+        e.preventDefault();
+        updateErrorMessages(); 
+    }
+});
+
+  </script>
+</body>
+</html>
