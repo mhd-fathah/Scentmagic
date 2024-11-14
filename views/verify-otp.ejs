@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="css/verification.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="otp-section">
+        <div class="logo">
+          <img src="img/login/logo.png" alt="Fresh Store Logo" />
+          <!-- <h1>FRESH STORE</h1> -->
+        </div>
+        <h2>Verify OTP</h2>
+        <p>Enter your OTP and continue</p>
+        <form action="/verify-otp" method="POST">
+          <input type="text" placeholder="Enter your OTP" name="otp" required />
+          <button type="submit">Verify</button>
+        </form>
+        <p><%= message %></p>
+        <p id="resend-message">
+          You can resend OTP in <span id="timer">60</span> seconds
+        </p>
+        <button id="resend-otp" disabled>
+          <span id="spinner" class="spinner" style="display: none"></span>
+          Resend OTP
+        </button>
+        <p id="otp-resend-message"></p>
+      </div>
+      <div class="image-section">
+        <img
+          src="img/login/hero-bg.jpeg"
+          alt="Perfume Bottle with Cherry Blossoms"
+        />
+      </div>
+    </div>
+
+    <script>
+      let countdown = 60;
+      let interval;
+      const timerElement = document.getElementById("timer");
+      const resendButton = document.getElementById("resend-otp");
+      const otpResendMessage = document.getElementById("otp-resend-message");
+      const spinner = document.getElementById("spinner");
+
+      function startCountdown() {
+        timerElement.textContent = countdown;
+        interval = setInterval(() => {
+          countdown--;
+          timerElement.textContent = countdown;
+          if (countdown <= 0) {
+            clearInterval(interval);
+            resendButton.disabled = false;
+            document.getElementById("resend-message").style.display = "none";
+          }
+        }, 1000);
+      }
+
+      startCountdown();
+
+      resendButton.addEventListener("click", async () => {
+        try {
+          otpResendMessage.textContent = "";
+          resendButton.disabled = true;
+          spinner.style.display = "inline-block";
+
+          await fetch("/resend-otp", { method: "POST" });
+
+          otpResendMessage.textContent =
+            "A new OTP has been sent to your email.";
+
+          clearInterval(interval);
+          countdown = 60;
+          document.getElementById("resend-message").style.display = "block";
+          startCountdown();
+        } catch (error) {
+          otpResendMessage.textContent =
+            "Failed to resend OTP. Please try again.";
+        } finally {
+          spinner.style.display = "none";
+          resendButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

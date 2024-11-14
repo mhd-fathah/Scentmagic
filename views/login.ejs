@@ -1,121 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fresh Store Login</title>
-  <link rel="stylesheet" href="css/login.css">
-</head>
-<body>
-  <div class="container">
-    <div class="login-section">
-      <div class="logo"> 
-        <img src="img/login/logo.png" alt="Fresh Store Logo"> <!-- Add your logo image here -->
-        <!-- <h1>FRESH STORE</h1> -->
-      </div>
-      <p>WELCOME BACK 👋</p>
-      <h2>Continue to your Account.</h2>
-      <button class="google-btn">
-        <img src="img/login/google-logo.png" alt="Google Icon"> <!-- Add a Google icon here -->
-        Log in with Google
-      </button>
-      <p class="or">Or use Email</p>
-      
-      <form id="login-form" method="post">
-        <div class="input-group">
-          <label for="email">EMAIL</label>
-          <input type="email" id="email" placeholder="johndoe@email.com" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fresh Store Login</title>
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="login-section">
+        <div class="logo">
+          <img src="img/login/logo.png" alt="Fresh Store Logo" />
+          <!-- Add your logo image here -->
+          <!-- <h1>FRESH STORE</h1> -->
         </div>
-        <div class="input-group">
-          <label for="password">PASSWORD</label>
-          <div class="password-container">
-            <input type="password" id="password" placeholder="••••••••" >
-            <span id="toggle-password" onclick="togglePassword()">👁️</span>
+
+        <p>WELCOME BACK 👋</p>
+        <h2>Continue to your Account.</h2>
+        <button class="google-btn">
+          <img src="img/login/google-logo.png" alt="Google Icon" />
+          <!-- Add a Google icon here -->
+          Log in with Google
+        </button>
+        <p class="or">Or use Email</p>
+
+        <form id="login-form" method="post" action="/login">
+          <div class="input-group">
+            <label for="email">EMAIL</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="johndoe@email.com"
+            />
           </div>
-        </div>
-        <div id="error-message" style="color: red;"></div>
-        <a href="#" class="forgot-password"><p>forgot password?</p></a>
-        <button type="submit" class="continue-btn">LOGIN</button>
-      </form>
-      <p class="newbie">Are you a Newbie? <a href="#">GET STARTED</a></p>
-    </div>
-    
-    <div class="image-section">
-      <img src="img/login/hero-bg.jpeg" alt="Vegetables"> <!-- Add your vegetable image here -->
-    </div>
-  </div>
+          <div class="input-group">
+            <label for="password">PASSWORD</label>
+            <div class="password-container">
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="••••••••"
+              />
+              <span id="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+          </div>
+          <% if (message) { %>
+            <div id="error-message" style="color: red;"><%= message %></div>
+          <% } %>
+          <a href="#" class="forgot-password"><p>forgot password?</p></a>
+          <button type="submit" class="continue-btn">LOGIN</button>
+        </form>
+        <p class="newbie">Are you a Newbie? <a href="/signup">GET STARTED</a></p>
+      </div>
 
-  <script>
-    function togglePassword() {
-      const password = document.getElementById('password');
-      const toggle = document.getElementById('toggle-password');
-      if (password.type === "password") {
-        password.type = "text";
-        toggle.textContent = "🙈";
-      } else {
-        password.type = "password";
-        toggle.textContent = "👁️";
+      <div class="image-section">
+        <img src="img/login/hero-bg.jpeg" alt="Vegetables" />
+        <!-- Add your vegetable image here -->
+      </div>
+    </div>
+
+    <script>
+      function togglePassword() {
+        const password = document.getElementById("password");
+        const toggle = document.getElementById("toggle-password");
+        if (password.type === "password") {
+          password.type = "text";
+          toggle.textContent = "🙈";
+        } else {
+          password.type = "password";
+          toggle.textContent = "👁️";
+        }
       }
-    }
 
-    const loginForm = document.getElementById('login-form');
-const errorMessageContainer = document.getElementById('error-message');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
+      const loginForm = document.getElementById("login-form");
+      const errorMessageContainer = document.getElementById("error-message");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
 
-function validateEmail() {
-    const email = emailInput.value;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-        return 'Please enter a valid email address.';
-    }
-    return '';
-}
+      function validateEmail() {
+        const email = emailInput.value;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          return "Please enter a valid email address.";
+        }
+        return "";
+      }
 
-function validatePassword() {
-    const password = passwordInput.value;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-    if (!passwordRegex.test(password)) {
-        return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).";
-    }
-    return '';
-}
+      function validatePassword() {
+        const password = passwordInput.value;
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+          return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).";
+        }
+        return "";
+      }
 
-function updateErrorMessages() {
-    let errors = [];
+      function updateErrorMessages() {
+        let errors = [];
 
-    const emailError = validateEmail();
-    if (emailError) errors.push(emailError);
+        const emailError = validateEmail();
+        if (emailError) errors.push(emailError);
 
-    const passwordError = validatePassword();
-    if (passwordError) errors.push(passwordError);
+        const passwordError = validatePassword();
+        if (passwordError) errors.push(passwordError);
 
-    errorMessageContainer.innerHTML = '';
-    if (errors.length > 0) {
-        errors.forEach(msg => {
-            const messageElement = document.createElement('p');
+        errorMessageContainer.innerHTML = "";
+        if (errors.length > 0) {
+          errors.forEach((msg) => {
+            const messageElement = document.createElement("p");
             messageElement.textContent = msg;
             errorMessageContainer.appendChild(messageElement);
-        });
-    } else {
-        errorMessageContainer.innerHTML = '';
-    }
-}
+          });
+        } else {
+          errorMessageContainer.innerHTML = "";
+        }
+      }
 
-emailInput.addEventListener('input', updateErrorMessages);
-passwordInput.addEventListener('input', updateErrorMessages);
+      emailInput.addEventListener("input", updateErrorMessages);
+      passwordInput.addEventListener("input", updateErrorMessages);
 
+      loginForm.addEventListener("submit", (e) => {
+        const emailError = validateEmail();
+        const passwordError = validatePassword();
 
-loginForm.addEventListener('submit', (e) => {
-    const emailError = validateEmail();
-    const passwordError = validatePassword();
-
-    if (emailError || passwordError) {
-        e.preventDefault();
-        updateErrorMessages(); 
-    }
-});
-
-  </script>
-</body>
+        if (emailError || passwordError) {
+          e.preventDefault();
+          updateErrorMessages();
+        }
+      });
+    </script>
+  </body>
 </html>
