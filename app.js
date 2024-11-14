@@ -8,6 +8,8 @@ const connectDB = require("./config/db");
 const session = require("express-session");
 const nocache = require('nocache')
 const cookieParser = require("cookie-parser")
+const passport = require("passport");
+require("./config/passport");
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -21,6 +23,9 @@ app.use(
     cookie: { maxAge: 1000 * 60 * 60 * 24 },
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));

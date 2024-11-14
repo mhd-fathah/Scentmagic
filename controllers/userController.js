@@ -2,6 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const saltRound = 10;
 const { sendOTPEmail, generateOTP } = require("../utils/otpService");
+const passport = require("passport")
 
 const signupUser = async (req, res) => {
   try {
@@ -131,6 +132,38 @@ const loginUser = async (req, res) => {
   }
 };
 
+const googleAuth = passport.authenticate("google", { scope: ["profile", "email"] });
+const googleAuthCallback = (req, res, next) => {
+  passport.authenticate("google", { failureRedirect: "/login" }, (err, user) => {
+    if (err) {
+      console.error("Google Auth Error:", err);
+      return next(err);
+    }
+    if (!user) {
+      console.log("No user found, redirecting to login.");
+      return res.redirect("/login");
+    }
+
+    req.logIn(user, (loginErr) => {
+      if (loginErr) {
+        console.error("Error logging in user:", loginErr);
+        return next(loginErr);
+      }
+
+      // Ensure session is saved before redirect
+      req.session.user = user;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session Save Error:", saveErr);
+          return next(saveErr);
+        }
+        console.log("Session saved successfully, redirecting to home.");
+        res.redirect("/");  // Redirect to home after successful login
+      });
+    });
+  })(req, res, next);
+};
+
 const logout = (req, res) => {
   req.session.user = null;
   req.session.message = "You are Successfully Logged Out.";
@@ -175,5 +208,7 @@ module.exports = {
   loadLogin,
   loadHome,
   verifyOTP,
-  resendOTP
+  resendOTP,
+  googleAuth,
+  googleAuthCallback
 };

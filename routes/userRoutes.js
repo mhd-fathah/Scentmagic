@@ -8,14 +8,14 @@ router.post("/login", userController.loginUser);
 router.get("/signup", auth.isLogin, userController.loadSignup);
 router.post("/signup", userController.signupUser);
 
-// Home route protected by checkSession middleware
 router.get("/", auth.checkSession, userController.loadHome);
 router.get("/logout", auth.checkSession, userController.logout);
 
-// OTP verification routes
 router.get('/verify-otp', (req, res) => res.render('verify-otp', { layout: false }));
 router.post('/verify-otp', userController.verifyOTP);
 router.post("/resend-otp", auth.checkSession, userController.resendOTP);
 
+router.get("/auth/google", userController.googleAuth);
+router.get("/auth/google/callback", userController.googleAuthCallback);
 
 module.exports = router
