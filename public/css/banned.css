@@ -1,0 +1,103 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Body and Background */
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* Container for centering content */
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  /* Styling the message */
+  .message {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message h1 {
+    color: #e74c3c;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+  
+  .message p {
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .message .btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .message .btn:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .message {
+      padding: 30px;
+    }
+  
+    .message h1 {
+      font-size: 28px;
+    }
+  
+    .message p {
+      font-size: 16px;
+    }
+  
+    .message .btn {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .message {
+      padding: 20px;
+    }
+  
+    .message h1 {
+      font-size: 24px;
+    }
+  
+    .message p {
+      font-size: 14px;
+    }
+  
+    .message .btn {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+  }
+  

@@ -3,6 +3,7 @@ const app = express();
 const ejs = require("ejs");
 const ejsLayouts = require("express-ejs-layouts");
 const path = require("path");
+const adminRoutes = require('./routes/adminRoutes')
 const userRoutes = require("./routes/userRoutes");
 const connectDB = require("./config/db");
 const session = require("express-session");
@@ -10,6 +11,7 @@ const nocache = require('nocache')
 const cookieParser = require("cookie-parser")
 const passport = require("passport");
 require("./config/passport");
+
 
 
 app.use(ejsLayouts);
@@ -36,6 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.use("/admin",adminRoutes)
 app.use("/", userRoutes);
 
 connectDB();

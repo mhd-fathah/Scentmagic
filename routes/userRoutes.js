@@ -8,7 +8,7 @@ router.post("/login", userController.loginUser);
 router.get("/signup", auth.isLogin, userController.loadSignup);
 router.post("/signup", userController.signupUser);
 
-router.get("/", auth.checkSession, userController.loadHome);
+router.get("/", auth.checkSession,auth.checkBlocked, userController.loadHome);
 router.get("/logout", auth.checkSession, userController.logout);
 
 router.get('/verify-otp', (req, res) => res.render('verify-otp', { layout: false }));
@@ -26,5 +26,6 @@ router.get("/reset-password/:token", userController.loadResetPasswordForm);
 
 router.post("/reset-password/:token", userController.resetPassword);
 
+router.get('/banned', userController.getBannedPage);
 
 module.exports = router

@@ -105,34 +105,43 @@ const resendOTP = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(400)
-        .render("login", {
-          layout: false,
-          message: "Invalid email or password",
-        });
-    }
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res
-        .status(400)
-        .render("login", {
-          layout: false,
-          message: "Invalid email or password",
-        });
+      return res.status(400).render("login", {
+        layout: false,
+        message: "Invalid email or password",
+      });
     }
 
+    // Check if the user is blocked
+    if (user.isBlocked) {
+      return res.redirect('/banned'); // Redirect to banned page if blocked
+    }
+
+    // Compare the password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(400).render("login", {
+        layout: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // Save the user session
     req.session.user = user;
     console.log("Session after login:", req.session);
 
-    res.render("home", { user, message: "Logged in successfully" });
+    // Redirect to the home page with a success message
+    return res.render("home", { user, message: "Logged in successfully" });
+
   } catch (error) {
     console.error("Error during login:", error);
-    res
-      .status(500)
-      .render("login", { layout: false, message: "Internal Server Error" });
+    return res.status(500).render("login", {
+      layout: false,
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -300,6 +309,17 @@ const loadForgotPassword = (req, res) => {
 };
 
 
+const getBannedPage = (req, res) => {
+  if (req.session.user) {
+    if (!req.session.user.isBlocked) {
+      return res.redirect('/'); 
+    }
+  }
+  res.render('banned'); 
+};
+
+
+
 module.exports = {
   signupUser,
   loginUser,
@@ -314,5 +334,6 @@ module.exports = {
   forgotPassword,
   loadResetPasswordForm,
   resetPassword,
-  loadForgotPassword
+  loadForgotPassword,
+  getBannedPage
 };

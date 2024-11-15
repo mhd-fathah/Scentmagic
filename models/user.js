@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String }, 
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  isBlocked:{type:Boolean,default:false}
 });
 
 module.exports = mongoose.model('User', userSchema);
