@@ -11,6 +11,7 @@ const cookieParser = require("cookie-parser")
 const passport = require("passport");
 require("./config/passport");
 
+
 app.use(ejsLayouts);
 app.use(cookieParser())
 app.use(nocache())

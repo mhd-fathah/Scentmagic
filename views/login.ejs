@@ -17,9 +17,11 @@
 
         <p>WELCOME BACK 👋</p>
         <h2>Continue to your Account.</h2>
+        
+
+        <!-- Google login button -->
         <button onclick="window.location.href='/auth/google'" class="google-btn">
           <img src="img/login/google-logo.png" alt="Google Icon" />
-          <!-- Add a Google icon here -->
           Log in with Google
         </button>
         <p class="or">Or use Email</p>
@@ -27,29 +29,28 @@
         <form id="login-form" method="post" action="/login">
           <div class="input-group">
             <label for="email">EMAIL</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="johndoe@email.com"
-            />
+            <input type="email" id="email" name="email" placeholder="johndoe@email.com" required />
           </div>
           <div class="input-group">
             <label for="password">PASSWORD</label>
             <div class="password-container">
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="••••••••"
-              />
+              <input type="password" name="password" id="password" placeholder="••••••••" required />
               <span id="toggle-password" onclick="togglePassword()">👁️</span>
             </div>
           </div>
+
+          <!-- Display message if passed from the backend -->
           <% if (message) { %>
-            <div id="error-message" style="color: red;"><%= message %></div>
+            <div id="error-message" style="color: red;">
+              <%= message %>
+            </div>
           <% } %>
-          <a href="#" class="forgot-password"><p>forgot password?</p></a>
+          
+
+          <a href="/forgot-password" class="forgot-password">
+            <p>Forgot password?</p>
+          </a>
+
           <button type="submit" class="continue-btn">LOGIN</button>
         </form>
         <p class="newbie">Are you a Newbie? <a href="/signup">GET STARTED</a></p>
@@ -57,7 +58,6 @@
 
       <div class="image-section">
         <img src="img/login/hero-bg.jpeg" alt="Vegetables" />
-        <!-- Add your vegetable image here -->
       </div>
     </div>
 

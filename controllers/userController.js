@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt");
 const saltRound = 10;
 const { sendOTPEmail, generateOTP } = require("../utils/otpService");
 const passport = require("passport")
+const crypto = require("crypto");
+require('dotenv').config();
+const nodemailer = require('nodemailer');
+
 
 const signupUser = async (req, res) => {
   try {
@@ -184,12 +188,19 @@ const loadLogin = (req, res) => {
   try {
     const message = req.session.message;
     req.session.message = null;
-    res.render("login", { layout: false , message});
+    
+    // Ensure query is always passed (even if it's empty or undefined)
+    res.render("login", {
+      layout: false,
+      message,
+      query: req.query || {}  // Default to empty object if query is not present
+    });
   } catch (error) {
     console.error("Error loading login page:", error);
     res.status(500).send("Error loading login page");
   }
 };
+
 
 const loadHome = (req, res) => {
   try {
@@ -199,6 +210,95 @@ const loadHome = (req, res) => {
     res.status(500).send("Error loading home page");
   }
 };
+
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).render("forgot-password", { message: "Email not found", layout: false });
+    }
+
+    const token = crypto.randomBytes(20).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; 
+    await user.save();
+
+    // Send email with the token
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "fathu6214@gmail.com", 
+        pass: process.env.EMAIL_PASSWORD, 
+      },
+    });
+
+    const mailOptions = {
+      to: user.email,
+      from: "password-reset@scentmagic.com",
+      subject: "Scentmagic Password Reset",
+      text: `Please click the following link to reset your password:\n\nhttp://localhost:3000/reset-password/${token}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.render("forgot-password", { message: "Reset link sent to your email.", layout: false });
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
+    res.status(500).render("forgot-password", { message: "Internal Server Error", layout: false });
+  }
+};
+
+const loadResetPasswordForm = async (req, res) => {
+  const { token } = req.params; // Extract token from URL params
+  const user = await User.findOne({ 
+    resetPasswordToken: token, 
+    resetPasswordExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).render("reset-password", { message: "Invalid or expired token.", layout: false });
+  }
+
+  // Pass token to the view
+  res.render("reset-password", { token, layout: false });
+};
+
+
+async function resetPassword(req, res) {
+  try {
+    const { password } = req.body;
+    const token = req.params.token;
+
+    const hashedPassword = await bcrypt.hash(password, saltRound);
+
+    const user = await User.findOne({ resetPasswordToken: token });
+
+    if (!user) {
+      return res.status(400).send('Invalid or expired token');
+    }
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined; 
+    user.resetPasswordExpires = undefined; 
+
+    await user.save();
+
+    res.locals.message = 'Password successfully reset. You can now log in with your new password.';
+
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+}
+
+
+
+const loadForgotPassword = (req, res) => {
+  res.render("forgot-password", { message: "", layout: false });
+};
+
 
 module.exports = {
   signupUser,
@@ -210,5 +310,9 @@ module.exports = {
   verifyOTP,
   resendOTP,
   googleAuth,
-  googleAuthCallback
+  googleAuthCallback,
+  forgotPassword,
+  loadResetPasswordForm,
+  resetPassword,
+  loadForgotPassword
 };

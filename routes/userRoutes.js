@@ -18,4 +18,13 @@ router.post("/resend-otp", auth.checkSession, userController.resendOTP);
 router.get("/auth/google", userController.googleAuth);
 router.get("/auth/google/callback", userController.googleAuthCallback);
 
+router.post("/forgot-password", userController.forgotPassword);
+
+router.get("/forgot-password", userController.loadForgotPassword);
+
+router.get("/reset-password/:token", userController.loadResetPasswordForm);
+
+router.post("/reset-password/:token", userController.resetPassword);
+
+
 module.exports = router
