@@ -23,15 +23,14 @@ function checkOTPVerified(req, res, next) {
   next();
 }
 
-// Middleware to check if the user is blocked
 const checkBlocked = (req, res, next) => {
   if (req.user) {
     User.findById(req.user._id)
       .then(user => {
         if (user.isBlocked) {
-          return res.redirect('/banned'); // Redirect to banned page if the user is blocked
+          return res.render('banned'); 
         } else {
-          return next(); // Continue to the next middleware or route if the user is not blocked
+          return next(); 
         }
       })
       .catch(err => {
@@ -39,7 +38,7 @@ const checkBlocked = (req, res, next) => {
         res.status(500).send("Server Error");
       });
   } else {
-    return next(); // If no user is authenticated, proceed with other middleware
+    return next();
   }
 };
 

@@ -162,6 +162,10 @@ const googleAuthCallback = (req, res, next) => {
         console.error("Error logging in user:", loginErr);
         return next(loginErr);
       }
+      
+      if (user.isBlocked) {
+        return res.redirect("/banned"); // Redirect to the banned page if the user is blocked
+      }
 
       // Ensure session is saved before redirect
       req.session.user = user;

@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require('../controllers/userController')
 const auth = require("../middleware/authMiddleware")
 
+
 router.get("/login", auth.isLogin, userController.loadLogin);
 router.post("/login", userController.loginUser);
 router.get("/signup", auth.isLogin, userController.loadSignup);

@@ -11,6 +11,8 @@ const nocache = require('nocache')
 const cookieParser = require("cookie-parser")
 const passport = require("passport");
 require("./config/passport");
+const categoryRoutes = require('./routes/categoryRoutes')
+const auth = require("./middleware/authMiddleware")
 
 
 
@@ -34,12 +36,15 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.set("layout", "layouts/main");
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/public/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json()); 
 
-app.use("/admin",adminRoutes)
+app.use("/admin",adminRoutes,categoryRoutes)
 app.use("/", userRoutes);
+
+app.use(auth.checkBlocked)
 
 connectDB();
 
