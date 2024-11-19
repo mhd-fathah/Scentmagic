@@ -1,136 +1,120 @@
 const Category = require("../models/categories");
 const fs = require("fs");
 const path = require("path");
-const getCategories = async (req, res) => {
-  try {
-    const categories = await Category.find();
 
-    res.render("admin/categories", {
-      message: req.query.message || null,
-      status: req.query.status || null,
-      categories: categories,
-      layout: false,
-    });
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    res.status(500).send("Server Error");
-  }
+// Fetch categories
+const getCategories = async (req, res) => {
+    try {
+        const categories = await Category.find();
+        res.render("admin/categories", {
+            message: req.query.message || null,
+            status: req.query.status || null,
+            categories,
+            layout: false,
+        });
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        res.status(500).send("Server Error");
+    }
 };
 
+// Add new category
 const addCategory = async (req, res) => {
     try {
-      const { name, description } = req.body;
-      const image = req.file.filename;
-      const oldPath = path.join("public", "uploads", req.file.filename);
-      const newPath = path.join(
-        "public",
-        "uploads",
-        "categories",
-        req.file.filename
-      );
-      fs.renameSync(oldPath, newPath);
-  
-      if (!name || !description) {
-        return res.status(400).send("Name, description, and image are required");
-      }
-  
-      const category = new Category({ name, description, image });
-      await category.save();
+        const { name, description } = req.body;
 
-      res.redirect("/admin/categories?message=Category added successfully&status=success");
+        if (!name || !description || !req.file) {
+            return res.status(400).send("Name, description, and image are required");
+        }
+
+        const image = req.file.filename;
+        const uploadDir = path.join("public", "uploads", "categories");
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const newPath = path.join(uploadDir, image);
+        fs.renameSync(req.file.path, newPath);
+
+        const category = new Category({ name, description, image });
+        await category.save();
+
+        res.redirect("/admin/categories?message=Category added successfully&status=success");
     } catch (error) {
-      console.error("Error adding category:", error);
-      res.status(500).send(error.message || "Server Error");
+        console.error("Error adding category:", error);
+        res.status(500).send("Server Error");
     }
-  };
-  
-  
-
-const editCategory = async (req, res) => {
-  try {
-    const categoryId = req.params.id;
-    const category = await Category.findById(categoryId);
-
-    if (!category) {
-      return res.status(404).send("Category not found");
-    }
-
-    res.render("admin/editCategory", { category, layout: false });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Server error");
-  }
 };
 
+// Edit category
+const editCategory = async (req, res) => {
+    try {
+        const category = await Category.findById(req.params.id);
+        if (!category) return res.status(404).send("Category not found");
+
+        res.render("admin/editCategory", { category, layout: false });
+    } catch (error) {
+        console.error("Error editing category:", error);
+        res.status(500).send("Server Error");
+    }
+};
+
+// Update category
 const updateCategory = async (req, res) => {
     try {
-      const categoryId = req.params.id;
-      const { name, description } = req.body;
-      let image = null;
-  
-      const category = await Category.findById(categoryId);
-  
-      if (req.file) {
-        image = req.file.filename;
-  
-        if (category.image) {
-          const oldImagePath = path.join("public", "uploads", "categories", category.image);
-          
-          if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
-          }
-        }
-  
-        const oldPath = req.file.path; 
-        const newPath = path.join("public", "uploads", "categories", req.file.filename);
+        const { name, description } = req.body;
+        const category = await Category.findById(req.params.id);
 
-        const targetDir = path.dirname(newPath);
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-  
-        fs.renameSync(oldPath, newPath);
-      }
-      const updatedCategory = await Category.findByIdAndUpdate(
-        categoryId,
-        { name, description, image },
-        { new: true }
-      );
+        if (!category) return res.status(404).send("Category not found");
 
-      res.redirect("/admin/categories");
-    } catch (err) {
-      console.log(err);
-      res.status(500).send("Server error");
+        if (req.file) {
+            const newImage = req.file.filename;
+            const uploadDir = path.join("public", "uploads", "categories");
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            const newPath = path.join(uploadDir, newImage);
+            fs.renameSync(req.file.path, newPath);
+
+            if (category.image) {
+                const oldImagePath = path.join(uploadDir, category.image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            category.image = newImage;
+        }
+
+        category.name = name;
+        category.description = description;
+        await category.save();
+
+        res.redirect("/admin/categories");
+    } catch (error) {
+        console.error("Error updating category:", error);
+        res.status(500).send("Server Error");
     }
-  };
-  
+};
 
-  const deleteCategory = async (req, res) => {
+// Soft delete category
+const deleteCategory = async (req, res) => {
     try {
-      const categoryId = req.params.id;
+        const category = await Category.findById(req.params.id);
+        if (!category) return res.status(404).send("Category not found");
 
-      const category = await Category.findById(categoryId);
-      if (!category) {
-        return res.status(404).send("Category not found");
-      }
-  
-      const isDeleted = category.isDeleted ? false : true;
-  
-      await Category.findByIdAndUpdate(categoryId, { isDeleted });
-  
-      res.redirect("/admin/categories");
-  
-    } catch (err) {
-      console.error("Error in deleteCategory:", err.stack);
-      res.status(500).send("Server error");
+        category.isDeleted = !category.isDeleted;
+        await category.save();
+
+        res.redirect("/admin/categories");
+    } catch (error) {
+        console.error("Error deleting category:", error);
+        res.status(500).send("Server Error");
     }
-  };
-  
-  
+};
+
 module.exports = {
-  getCategories,
-  addCategory,
-  updateCategory,
-  deleteCategory,
-  editCategory,
+    getCategories,
+    addCategory,
+    editCategory,
+    updateCategory,
+    deleteCategory,
 };
