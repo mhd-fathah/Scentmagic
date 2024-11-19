@@ -201,12 +201,11 @@ const loadLogin = (req, res) => {
   try {
     const message = req.session.message;
     req.session.message = null;
-    
-    // Ensure query is always passed (even if it's empty or undefined)
+
     res.render("login", {
       layout: false,
       message,
-      query: req.query || {}  // Default to empty object if query is not present
+      query: req.query || {}  
     });
   } catch (error) {
     console.error("Error loading login page:", error);
@@ -339,5 +338,5 @@ module.exports = {
   loadResetPasswordForm,
   resetPassword,
   loadForgotPassword,
-  getBannedPage
+  getBannedPage,
 };

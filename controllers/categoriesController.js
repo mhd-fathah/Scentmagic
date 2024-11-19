@@ -51,7 +51,7 @@ const editCategory = async (req, res) => {
         const category = await Category.findById(req.params.id);
         if (!category) return res.status(404).send("Category not found");
 
-        res.render("admin/editCategory", { category, layout: false });
+        res.render("admin/editCategory", { category, layout: false, message: req.query.message });
     } catch (error) {
         console.error("Error editing category:", error);
         res.status(500).send("Server Error");
@@ -88,7 +88,7 @@ const updateCategory = async (req, res) => {
         category.description = description;
         await category.save();
 
-        res.redirect("/admin/categories");
+        res.redirect("/admin/categories?message=Category updated successfully&status=success");
     } catch (error) {
         console.error("Error updating category:", error);
         res.status(500).send("Server Error");
@@ -104,7 +104,7 @@ const deleteCategory = async (req, res) => {
         category.isDeleted = !category.isDeleted;
         await category.save();
 
-        res.redirect("/admin/categories");
+        res.redirect("/admin/categories?message=Category deleted successfully&status=success");
     } catch (error) {
         console.error("Error deleting category:", error);
         res.status(500).send("Server Error");

@@ -38,4 +38,7 @@ router.post('/products/edit/:id',
 
 router.post('/products/delete/:id', productController.toggleDeleteProduct);
 
+router.get('/products/details/:id', productController.getProductDetails);
+
+
 module.exports = router;

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const Admin = require("../models/adminModel");
 const User = require("../models/user");
+const { search } = require("../routes/adminRoutes");
 
 
 const loadLoginPage = (req, res) => {
@@ -58,13 +59,34 @@ const logoutAdmin = (req, res) => {
 // Fetch all users
 const listUsers = async (req, res) => {
   try {
-    const users = await User.find();
-    res.render("admin/user-management", { users, layout: false }); // Render the view
+    // Get the current page and limit (defaults to 1 page, 10 users per page)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    // Get the total number of users in the database
+    const totalUsers = await User.countDocuments();
+    
+    // Fetch the users with pagination
+    const users = await User.find()
+      .skip((page - 1) * limit) // Skip users based on the page number
+      .limit(limit); // Limit the number of users per page
+    
+    // Calculate total pages
+    const totalPages = Math.ceil(totalUsers / limit);
+    
+    // Render the page with users and pagination data
+    res.render("admin/user-management", {
+      users,
+      currentPage: page,
+      totalPages: totalPages,
+      layout: false
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
 };
+
 
 // Block a user
 const blockUser = async (req, res) => {
@@ -92,6 +114,24 @@ const unblockUser = async (req, res) => {
 
 
 
+const viewUserDetails = async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user ID from the URL params
+    const user = await User.findById(userId); // Fetch user details by ID
+
+    if (!user) {
+      return res.status(404).send("User not found"); // Return 404 if the user is not found
+    }
+
+    // Render the user details page, passing the user object to the view
+    res.render('admin/user-details', { user, layout: false });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
+
+
 module.exports = {
   loadLoginPage,
   handleLogin,
@@ -100,4 +140,5 @@ module.exports = {
   listUsers,
   blockUser,
   unblockUser,
+  viewUserDetails
 };
