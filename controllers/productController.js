@@ -36,10 +36,10 @@ const addProduct = async (req, res) => {
     const imagePaths = [];
 
     // Check for each individual file field (image1, image2, etc.)
-    if (files.image1) imagePaths.push(files.image1[0].path);
-    if (files.image2) imagePaths.push(files.image2[0].path);
-    if (files.image3) imagePaths.push(files.image3[0].path);
-    if (files.image4) imagePaths.push(files.image4[0].path);
+    if (files.image1) imagePaths.push(files.image1[0].filename);
+    if (files.image2) imagePaths.push(files.image2[0].filename);
+    if (files.image3) imagePaths.push(files.image3[0].filename);
+    if (files.image4) imagePaths.push(files.image4[0].filename);
 
     if (imagePaths.length === 0) {
       return res.status(400).send({ error: "At least one product image is required" });
@@ -92,10 +92,10 @@ const updateProduct = async (req, res) => {
     const imagePaths = [];
 
     // Check if the files exist before accessing them
-    if (files.image1) imagePaths.push(files.image1[0].path);
-    if (files.image2) imagePaths.push(files.image2[0].path);
-    if (files.image3) imagePaths.push(files.image3[0].path);
-    if (files.image4) imagePaths.push(files.image4[0].path);
+    if (files.image1) imagePaths.push(files.image1[0].filename);
+    if (files.image2) imagePaths.push(files.image2[0].filename);
+    if (files.image3) imagePaths.push(files.image3[0].filename);
+    if (files.image4) imagePaths.push(files.image4[0].filename);
 
     // Fetch the existing product from the database
     const existingProduct = await Product.findById(productId);
