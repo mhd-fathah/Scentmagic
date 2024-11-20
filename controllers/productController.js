@@ -39,40 +39,44 @@ const showAddProducts = async (req, res) => {
 
 const addProduct = async (req, res) => {
   try {
-    const files = req.files;
+    const files = req.files || {};
     const imagePaths = [];
 
+    // Collect image paths
     if (files.image1) imagePaths.push(files.image1[0].filename);
     if (files.image2) imagePaths.push(files.image2[0].filename);
     if (files.image3) imagePaths.push(files.image3[0].filename);
     if (files.image4) imagePaths.push(files.image4[0].filename);
 
     if (imagePaths.length === 0) {
-      return res
-        .status(400)
-        .send({ error: "At least one product image is required" });
+      return res.status(400).send({ error: "At least one product image is required" });
     }
 
-    console.log("Image Paths:", imagePaths);
-
+    // Create a new product document
     const productData = new Product({
-      product_name: req.body.product_name,
-      description: req.body.description,
-      regular_price: req.body.regular_price,
-      discount_price: req.body.discount_price,
+      product_name: req.body.product_name || "Unnamed Product",
+      shortDescription: req.body.shortDescription || "No short description provided.",
+      longDescription: req.body.longDescription || "No long description provided.",
+      regular_price: req.body.regular_price || 0,
+      discount_price: req.body.discount_price || 0,
       category: req.body.category,
-      quantity: req.body.quantity,
-      stock_status: req.body.stock_status,
+      netQuantity: req.body.netQuantity || "Not specified",
+      stock_status: req.body.stock_status || "In stock",
       product_images: imagePaths,
+      highlights: req.body.highlights || "No highlights provided.",
+      quantity: req.body.quantity || "0",
+      salesPackage: req.body.salesPackage || 0,
+      leftStock: req.body.leftStock || 0,
     });
 
     await productData.save();
     res.redirect("/admin/products?successMessage=Product added successfully");
   } catch (error) {
     console.error("Error adding product:", error);
-    res.status(500).send("Error adding product");
+    res.status(500).send({ error: "Error adding product" });
   }
 };
+
 
 const editProduct = async (req, res) => {
   try {
@@ -109,39 +113,49 @@ const updateProduct = async (req, res) => {
       return res.status(404).send({ error: "Product not found" });
     }
 
-    const updatedImages = [...existingProduct.product_images];
-    for (let i = 0; i < imagePaths.length; i++) {
-      if (imagePaths[i]) {
-        const oldImagePath = updatedImages[i];
+    const updatedImages = [...(existingProduct.product_images || [])];
+
+    // Replace old images if new ones are provided
+    imagePaths.forEach((newImage, index) => {
+      if (newImage) {
+        const oldImagePath = updatedImages[index];
         if (oldImagePath) {
           const fs = require("fs");
-          if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
+          const path = `./public/uploads/products/${oldImagePath}`;
+          if (fs.existsSync(path)) {
+            fs.unlinkSync(path);
           }
         }
-
-        updatedImages[i] = imagePaths[i];
+        updatedImages[index] = newImage;
       }
-    }
+    });
 
+    // Prepare updated data
     const updatedData = {
-      product_name: req.body.product_name,
-      description: req.body.description,
-      regular_price: req.body.regular_price,
-      discount_price: req.body.discount_price,
-      category: req.body.category,
-      quantity: req.body.quantity,
-      stock_status: req.body.stock_status,
+      product_name: req.body.product_name || existingProduct.product_name,
+      shortDescription: req.body.shortDescription || existingProduct.shortDescription,
+      longDescription: req.body.longDescription || existingProduct.longDescription,
+      regular_price: req.body.regular_price || existingProduct.regular_price,
+      discount_price: req.body.discount_price || existingProduct.discount_price,
+      category: req.body.category || existingProduct.category,
+      netQuantity: req.body.netQuantity || existingProduct.netQuantity,
+      stock_status: req.body.stock_status || existingProduct.stock_status,
       product_images: updatedImages,
+      highlights: req.body.highlights || existingProduct.highlights,
+      quantity: req.body.quantity || existingProduct.quantity,
+      salesPackage: req.body.salesPackage || existingProduct.salesPackage,
+      leftStock: req.body.leftStock || existingProduct.leftStock,
     };
 
     await Product.findByIdAndUpdate(productId, updatedData, { new: true });
     res.redirect("/admin/products?successMessage=Product updated successfully");
   } catch (error) {
     console.error("Error updating product:", error);
-    res.status(500).send("Error updating product");
+    res.status(500).send({ error: "Error updating product" });
   }
 };
+
+
 
 const toggleDeleteProduct = async (req, res) => {
   try {

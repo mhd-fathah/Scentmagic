@@ -1,4 +1,13 @@
 <footer class="footer spad">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        #loadingSpinner {
+            margin-left: 10px;
+            display: none;
+        }
+    </style>
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6">
@@ -28,28 +37,131 @@
                 <div class="footer__widget">
                     <h6>Join Our Newsletter Now</h6>
                     <p>Get E-mail updates about our latest shop and special offers.</p>
-                    <form action="#">
-                        <input type="text" placeholder="Enter your mail">
-                        <button type="submit" class="site-btn">Subscribe</button>
+                    <form id="subscribeForm" action="/subscribe" method="POST"
+                        onsubmit="event.preventDefault(); submitForm();">
+                        <input type="email" name="email" id="email" placeholder="Enter your mail" required>
+                        <button type="submit" class="site-btn" id="subscribeBtn">
+                            Subscribe
+                            <span id="loadingSpinner" class="spinner-border spinner-border-sm"
+                                style="display: none;"></span>
+                        </button>
                     </form>
-                    <div class="footer__widget__social">
-                        <a href="#"><i class="fa fa-facebook"></i></a>
-                        <a href="#"><i class="fa fa-instagram"></i></a>
-                        <a href="#"><i class="fa fa-twitter"></i></a>
-                        <a href="#"><i class="fa fa-pinterest"></i></a>
-                    </div>
                 </div>
             </div>
+
+
+
+
+
         </div>
         <div class="row">
             <div class="col-lg-12">
                 <div class="footer__copyright">
                     <div class="footer__copyright__text">
-                        <p>Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved <i class="fa fa-heart" aria-hidden="true"></i> by <a href="#" target="_blank">Scentmagic</a></p>
+                        <p>Copyright &copy;
+                            <script>document.write(new Date().getFullYear());</script> All rights reserved <i
+                                class="fa fa-heart" aria-hidden="true"></i> by <a href="#"
+                                target="_blank">Scentmagic</a>
+                        </p>
                     </div>
                     <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+
+
+        function showLoading() {
+            const submitButton = document.getElementById("subscribeBtn");
+            const spinner = document.getElementById("loadingSpinner");
+
+            spinner.style.display = "inline-block";
+            submitButton.disabled = true;
+        }
+
+        function hideLoading() {
+            const submitButton = document.getElementById("subscribeBtn");
+            const spinner = document.getElementById("loadingSpinner");
+
+            spinner.style.display = "none";
+            submitButton.disabled = false;
+        }
+
+        function handleResponse(isSuccess, message) {
+            hideLoading();
+
+            if (isSuccess) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'Try Again'
+                });
+            }
+        }
+
+        async function submitForm() {
+            const email = document.getElementById("email").value;
+
+            showLoading();
+
+            try {
+                const response = await fetch('/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+
+                if (data.success) {
+                    handleResponse(true, data.message);
+                } else {
+                    handleResponse(false, data.message);
+                }
+            } catch (error) {
+
+                handleResponse(false, 'An error occurred. Please try again later.');
+            }
+        }
+
+
+
+        const form = document.querySelector("form");
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const email = form.querySelector("input[name='email']").value;
+
+            fetch("/subscribe", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `email=${email}`,
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        alert("You are subscribed to our channel. Thank you!");
+                        form.reset();
+                    } else {
+                        alert("There was an issue with the subscription. Please try again.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Error during subscription process. Please try again.");
+                });
+        });
+    </script>
+
 </footer>

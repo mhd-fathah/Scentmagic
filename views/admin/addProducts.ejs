@@ -190,12 +190,30 @@
                     />
                   </div>
                   <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea
+                      placeholder="Type here"
+                      class="form-control"
+                      rows="4"
+                      name="shortDescription"
+                    ></textarea>
+                  </div>
+                  <div class="mb-4">
                     <label class="form-label">Full description</label>
                     <textarea
                       placeholder="Type here"
                       class="form-control"
                       rows="4"
-                      name="description"
+                      name="longDescription"
+                    ></textarea>
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label">Highlights</label>
+                    <textarea
+                      placeholder="Type here"
+                      class="form-control"
+                      rows="4"
+                      name="highlights"
                     ></textarea>
                   </div>
                   <div class="row">
@@ -284,12 +302,45 @@
                   <div class="row">
                     <div class="col-lg-6">
                       <div class="mb-4">
-                        <label class="form-label">Quantity</label>
+                        <label class="form-label">Stock</label>
                         <input
                           type="number"
+                          placeholder="Enter left stock"
+                          class="form-control"
+                          name="leftStock"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="mb-4">
+                        <label class="form-label">Quantity</label>
+                        <input
+                          type="text"
                           placeholder="Enter quantity"
                           class="form-control"
                           name="quantity"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="mb-4">
+                        <label class="form-label">Net Quantity</label>
+                        <input
+                          type="text"
+                          placeholder="Enter net quantity"
+                          class="form-control"
+                          name="netQuantity"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="mb-4">
+                        <label class="form-label">Sales Package</label>
+                        <input
+                          type="text"
+                          placeholder="Enter sales package"
+                          class="form-control"
+                          name="salesPackage"
                         />
                       </div>
                     </div>

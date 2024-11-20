@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
 const auth = require("../middleware/adminAuth");
+const reviewController = require('../controllers/reviewController')
 // const categoriesController = require('../controllers/categoriesController')
 
 
@@ -19,7 +20,7 @@ router.get('/users/unblock/:id', auth.isAdminAuthenticated, adminController.unbl
 
 router.get('/users/details/:id', auth.isAdminAuthenticated, adminController.viewUserDetails);
 
-
+router.post("/add-review",  reviewController.addReview);
 // router.get("/categories",categoriesController.loadCategories)
 
 module.exports = router;

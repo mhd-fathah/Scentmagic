@@ -192,16 +192,35 @@
                     
                     <!-- Full Description -->
                     <div class="mb-4">
-                      <label class="form-label">Full Description</label>
+                      <label class="form-label">Description</label>
                       <textarea
                         placeholder="Type here"
                         class="form-control"
                         rows="4"
-                        name="description"
-                      ><%= product.description %></textarea> <!-- Use product.description -->
+                        name="shortDescription"
+                      ><%= product.shortDescription %></textarea>
                     </div>
                     
-                  
+                    <div class="mb-4">
+                      <label class="form-label">Full description</label>
+                      <textarea
+                        placeholder="Type here"
+                        class="form-control"
+                        rows="4"
+                        name="longDescription"
+                      ><%= product.longDescription %></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                      <label class="form-label">Highlights</label>
+                      <textarea
+                        placeholder="Type here"
+                        class="form-control"
+                        rows="4"
+                        name="highlights"
+                      ><%= product.highlights %></textarea>
+                    </div>
+                    
                     <!-- Price Fields -->
                     <div class="row">
                       <div class="col-lg-4">
@@ -335,13 +354,49 @@
                     <div class="row">
                       <div class="col-lg-6">
                         <div class="mb-4">
-                          <label class="form-label">Quantity</label>
+                          <label class="form-label">Stock</label>
                           <input
                             type="number"
+                            placeholder="Enter left stock"
+                            class="form-control"
+                            name="leftStock"
+                            value="<%= product.leftStock %>"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-lg-6">
+                        <div class="mb-4">
+                          <label class="form-label">Quantity</label>
+                          <input
+                            type="text"
                             placeholder="Enter quantity"
                             class="form-control"
                             name="quantity"
                             value="<%= product.quantity %>"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-lg-6">
+                        <div class="mb-4">
+                          <label class="form-label">Net Quantity</label>
+                          <input
+                            type="text"
+                            placeholder="Enter net quantity"
+                            class="form-control"
+                            name="netQuantity"
+                            value="<%= product.netQuantity %>"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-lg-6">
+                        <div class="mb-4">
+                          <label class="form-label">Sales Package</label>
+                          <input
+                            type="text"
+                            placeholder="Enter sales package"
+                            class="form-control"
+                            name="salesPackage"
+                            value="<%= product.salesPackage %>"
                           />
                         </div>
                       </div>

@@ -12,10 +12,6 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="header__top__right">
-                        <div class="header__top__right__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-linkedin"></i></a>
-                        </div>
                         <div class="header__top__right__language">
                             <img src="img/language.png" alt="">
                             <div>English</div>
@@ -25,8 +21,12 @@
                             </ul>
                         </div>
                         <div class="header__top__right__auth">
-                            <a href="#"><i class="fa fa-user"></i> Login</a>
-                        </div>
+                            <% if (isAuthenticated) { %>
+                              <a href="/logout"><i class="fa fa-user"></i> Logout</a>
+                            <% } else { %>
+                              <a href="/login"><i class="fa fa-user"></i> Login</a>
+                            <% } %>
+                          </div>
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="header__logo">
-                    <a href="./index.html"><img src="img/login/scentmagic-logo.png" alt=""></a>
+                    <a href="/"><img src="/img/logo.png" alt=""></a>
                 </div>
             </div>
             <div class="col-lg-6">

@@ -8,6 +8,11 @@ const checkSession = (req, res, next) => {
   }
 };
 
+const setAuthStatus = (req, res, next) => {
+  res.locals.isAuthenticated = !!req.session.user; 
+  next();
+};
+
 const isLogin = (req, res, next) => {
   if (req.session.user) {
     res.redirect("/");
@@ -45,4 +50,4 @@ const checkBlocked = (req, res, next) => {
 
 
 
-module.exports = { checkSession, isLogin, checkOTPVerified , checkBlocked};
+module.exports = { checkSession, setAuthStatus , isLogin, checkOTPVerified , checkBlocked};

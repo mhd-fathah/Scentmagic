@@ -28,4 +28,4 @@ async function sendOTPEmail(email, otp) {
   }
 }
 
-module.exports = { sendOTPEmail, generateOTP };
+module.exports = { sendOTPEmail, generateOTP  };
