@@ -66,16 +66,21 @@
     <div class="row">
       <div class="col-lg-3">
         <div class="hero__categories">
-          <div class="hero__categories__all">
-            <i class="fa fa-bars"></i>
-            <span>All CATEGORIES</span>
+            <div class="hero__categories__all">
+              <i class="fa fa-bars"></i>
+              <span>All CATEGORIES</span>
+            </div>
+            <ul>
+              <% categories.forEach(category => { %>
+                <li>
+                  <a href="/shop?category=<%= category._id %>">
+                    <%= category.name %>
+                  </a>
+                </li>
+              <% }); %>
+            </ul>
           </div>
-          <ul>
-            <% categories.forEach(category=> { %>
-            <li><a href="#"> <%= category.name %> </a></li>
-            <% }); %>
-          </ul>
-        </div>
+          
       </div>
       <div class="col-lg-9">
         <div class="hero__search">
@@ -113,24 +118,25 @@
 
 <!-- Categories Section Begin -->
 <section class="categories">
-  <div class="container">
-    <div class="row">
-      <div class="categories__slider owl-carousel">
-        <% categories.forEach(category=> { %>
-        <div class="col-lg-3">
-          <div class="categories__item set-bg">
-            <img
-              src="http://localhost:3000/public/uploads/categories/<%= category.image%>"
-              alt="Category Image"
-            />
-            <h5><a href="#"> <%= category.name %> </a></h5>
+    <div class="container">
+      <div class="row">
+        <div class="categories__slider owl-carousel">
+          <% categories.forEach(category => { %>
+          <div class="col-lg-3">
+            <div class="categories__item set-bg">
+              <img
+                src="http://localhost:3000/public/uploads/categories/<%= category.image %>"
+                alt="Category Image"
+              />
+              <h5><a href="/shop?category=<%= category._id %>"> <%= category.name %> </a></h5> <!-- Added link to the shop page with category parameter -->
+            </div>
           </div>
+          <% }); %>
         </div>
-        <% }); %>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+  
 
 <!-- Categories Section End -->
 

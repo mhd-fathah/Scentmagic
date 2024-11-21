@@ -436,7 +436,6 @@ const addReview = async (req, res) => {
   }
 };
 
-// Define the subscribeNewsletter controller
 const subscribeNewsletter = async (req, res) => {
   const userEmail = req.body.email;
 
@@ -491,12 +490,18 @@ const subscribeNewsletter = async (req, res) => {
   }
 };
 
-const searchProducts = async (query) => {
+const searchProducts = async (query, categoryId = null) => {
   try {
-    const products = await Product.find({
+    let conditions = {
       product_name: { $regex: query, $options: "i" },
       isDeleted: false,
-    });
+    };
+
+    if (categoryId) {
+      conditions.category = categoryId;
+    }
+
+    const products = await Product.find(conditions);
 
     return products;
   } catch (error) {
@@ -507,44 +512,43 @@ const searchProducts = async (query) => {
 
 const getProductsPage = async (req, res) => {
   try {
-    // Fetch all non-deleted categories
     const categories = await Category.find({ isDeleted: false });
 
-    // Get the sort option and page number from the query string
-    const sortOption = req.query.sort || 'price_asc'; // Default to 'price_asc' if no sort is provided
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = 10; // Number of products per page
-    const skip = (page - 1) * limit; // Calculate the number of products to skip
+    const sortOption = req.query.sort || "price_asc";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
 
-    const categoryId = req.query.category; // Get the category from query params
-    const category = categoryId ? await Category.findById(categoryId) : null; // Fetch the category if provided
+    const categoryId = req.query.category;
+    const category = categoryId ? await Category.findById(categoryId) : null;
+
+    let filter = { isDeleted: false };
+
+    if (categoryId) {
+      filter.category = categoryId;
+    }
 
     let sortCriteria = {};
 
-    // Set sorting criteria based on the sort option
-    if (sortOption === 'price_asc') sortCriteria = { regular_price: 1 };
-    if (sortOption === 'price_desc') sortCriteria = { regular_price: -1 };
-    if (sortOption === 'name_asc') sortCriteria = { product_name: 1 };
-    if (sortOption === 'name_desc') sortCriteria = { product_name: -1 };
+    if (sortOption === "price_asc") sortCriteria = { regular_price: 1 };
+    if (sortOption === "price_desc") sortCriteria = { regular_price: -1 };
+    if (sortOption === "name_asc") sortCriteria = { product_name: 1 };
+    if (sortOption === "name_desc") sortCriteria = { product_name: -1 };
 
-    // Fetch products based on sort criteria and pagination
-    const products = await Product.find({ isDeleted: false })
+    const products = await Product.find(filter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
-      .populate('category');
+      .populate("category");
 
-    // Fetch only discounted products (where discount_price is less than regular_price)
     const discountedProducts = await Product.find({
       isDeleted: false,
-      discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") }
-    }).populate('category');
+      discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") },
+    }).populate("category");
 
-    // Get the total number of products
-    const totalProducts = await Product.countDocuments({ isDeleted: false });
-    const totalPages = Math.ceil(totalProducts / limit); // Calculate the total number of pages
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
 
-    // If the request is from an AJAX call, send JSON response
     if (req.xhr) {
       return res.json({
         products,
@@ -552,29 +556,25 @@ const getProductsPage = async (req, res) => {
         totalProducts,
         totalPages,
         currentPage: page,
-        sortOption: sortOption // Send the sortOption as part of the response
+        sortOption: sortOption,
       });
     }
 
-    // Render the shop page with categories, products, discounted products, and pagination details
-    res.render('shop', {
+    res.render("shop", {
       categories,
       products,
       discountedProducts,
       totalProducts,
       totalPages,
       currentPage: page,
-      sortOption: sortOption ,
-      category
-      // Pass the sortOption to the view
+      sortOption: sortOption,
+      category,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 };
-
-
 
 module.exports = {
   signupUser,
@@ -596,5 +596,5 @@ module.exports = {
   addReview,
   subscribeNewsletter,
   searchProducts,
-  getProductsPage
+  getProductsPage,
 };

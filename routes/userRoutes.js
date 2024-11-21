@@ -41,26 +41,25 @@ router.post("/add-review", auth.checkSession, userController.addReview);
 router.post("/subscribe", userController.subscribeNewsletter);
 
 // Search route
-router.get(
-  "/search",
-  auth.checkBlocked, 
-  async (req, res) => {
-    const query = req.query.q;
+router.get("/search", auth.checkBlocked, async (req, res) => {
+  const query = req.query.q;
+  const categoryId = req.query.category || null;  
 
-    if (!query) {
-      return res.redirect("/");
-    }
-
-    try {
-      const products = await userController.searchProducts(query);
-
-      res.render("searchResults", { products, query, isDeleted: false });
-    } catch (error) {
-      console.error("Error during search:", error);
-      res.status(500).send("There was an error processing the search request.");
-    }
+  if (!query) {
+    return res.redirect("/");
   }
-);
+
+  try {
+    const products = await userController.searchProducts(query, categoryId);
+
+    const category = categoryId ? await Category.findById(categoryId) : null;
+
+    res.render("searchResults", { products, query, category });
+  } catch (error) {
+    console.error("Error during search:", error);
+    res.status(500).send("There was an error processing the search request.");
+  }
+});
 
 router.get('/shop',userController.getProductsPage)
 
