@@ -128,7 +128,7 @@
                 src="http://localhost:3000/public/uploads/categories/<%= category.image %>"
                 alt="Category Image"
               />
-              <h5><a href="/shop?category=<%= category._id %>"> <%= category.name %> </a></h5> <!-- Added link to the shop page with category parameter -->
+              <h5><a href="/shop?category=<%= category._id %>"> <%= category.name %> </a></h5>
             </div>
           </div>
           <% }); %>
@@ -157,7 +157,6 @@
       >
         <div class="featured__item">
           <div class="featured__item__pic set-bg">
-            <!-- Wrap the image with a link to the product details page -->
             <a href="/product/<%= product._id %>">
               <img
                 src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
@@ -177,7 +176,6 @@
             </ul>
           </div>
           <div class="featured__item__text">
-            <!-- Wrap the product name with a link to the product details page -->
             <h6>
               <a href="/product/<%= product._id %>">
                 <%= product.product_name.length> 50 ?
@@ -304,12 +302,11 @@
   document
     .getElementById("searchForm")
     .addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevent form submission and page reload
+      e.preventDefault(); 
 
       const query = document.getElementById("searchQuery").value.trim();
 
       if (query === "") {
-        // Show a message if the search query is empty
         Swal.fire({
           title: "Error!",
           text: "Please enter a search term.",
@@ -318,8 +315,6 @@
         });
         return;
       }
-
-      // Redirect to the search results page with the query as a parameter
       window.location.href = `/search?q=${encodeURIComponent(query)}`;
     });
 </script>

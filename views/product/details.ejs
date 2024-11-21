@@ -1,42 +1,40 @@
 <style>
-    #mainImageContainer {
+  #mainImageContainer {
     position: relative;
-    overflow: hidden; 
-}
+    overflow: hidden;
+  }
 
-#mainImage {
+  #mainImage {
     transition: transform 0.2s ease;
-    cursor: zoom-in; 
+    cursor: zoom-in;
     width: 100%;
     height: auto;
-}
+  }
 
-.zoomed {
-    transform: scale(2); 
-    cursor: zoom-out; 
-}
+  .zoomed {
+    transform: scale(2);
+    cursor: zoom-out;
+  }
 
-.breadcrumb {
-  font-size: 1.1rem;
-  letter-spacing: 0.6px;
-}
+  .breadcrumb {
+    font-size: 1.1rem;
+    letter-spacing: 0.6px;
+  }
 
-.breadcrumb a {
-  transition: color 0.3s ease-in-out;
-}
+  .breadcrumb a {
+    transition: color 0.3s ease-in-out;
+  }
 
-.breadcrumb a:hover {
-  color: #ffc107; /* Gold hover effect */
-  text-decoration: none;
-}
+  .breadcrumb a:hover {
+    color: #ffc107;
+    /* Gold hover effect */
+    text-decoration: none;
+  }
 
-.breadcrumb li + li::before {
-  color: #6c757d; /* Muted separator color */
-}
-
-
-
-
+  .breadcrumb li+li::before {
+    color: #6c757d;
+    /* Muted separator color */
+  }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -44,27 +42,28 @@
 
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section py-4 bg-light">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm" style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
-              <li class="breadcrumb-item">
-                <a href="/" class="text-decoration-none text-dark fw-bold">
-                  <i class="bi bi-house-door"></i> Home
-                </a>
-              </li>
-              <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                <%= categories.name %>
-              </li>
-            </ol>
-          </nav>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
+            style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+            <li class="breadcrumb-item">
+              <a href="/" class="text-decoration-none text-dark fw-bold">
+                <i class="bi bi-house-door"></i> Home
+              </a>
+            </li>
+            <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+              <%= categories.name %>
+            </li>
+          </ol>
+        </nav>
       </div>
     </div>
-  </section>
-  
-  
+  </div>
+</section>
+
+
 
 
 
@@ -72,178 +71,201 @@
 
 <!-- Product Details Section Begin -->
 <section class="product-details spad">
-    <div class="container">
-        <!-- Product Name -->
-        <div class="row mb-4">
-            <div class="col-lg-12">
-                <div class="product__details__header text-center">
-                    <h3 class="product__name"><%= product.product_name %></h3>
-                </div>
-            </div>
+  <div class="container">
+    <!-- Product Name -->
+    <div class="row mb-4">
+      <div class="col-lg-12">
+        <div class="product__details__header text-center">
+          <h3 class="product__name">
+            <%= product.product_name %>
+          </h3>
         </div>
-
-        <div class="row">
-            <!-- Product Image Section -->
-            <div class="col-lg-6 col-md-6">
-                <div class="product__details__pic">
-                    <!-- Main Image -->
-                    <div class="product__details__pic__item" id="mainImageContainer">
-                        <img id="mainImage" class="product__details__pic__item--large" 
-                             src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>" 
-                             alt="<%= product.product_name %>">
-                    </div>
-                    
-                    <!-- Image Carousel -->
-                    <% if (product.product_images && product.product_images.length > 0) { %>
-                        <div class="product__details__pic__slider owl-carousel">
-                            <% product.product_images.forEach((img, index) => { %>
-                                <img class="carousel-image" 
-                                     data-imgbigurl="http://localhost:3000/public/uploads/products/<%= img %>" 
-                                     src="http://localhost:3000/public/uploads/products/<%= img %>" 
-                                     alt="Image <%= index + 1 %>">
-                            <% }) %>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-
-            <!-- Product Details Section -->
-            <div class="col-lg-6 col-md-6">
-                <div class="product__details__text">
-                    <div class="product__details__rating">
-                        <% for (let i = 1; i <= 5; i++) { %>
-                            <i class="fa <%= i <= product.rating ? 'fa-star' : (i - product.rating <= 0.5 ? 'fa-star-half-o' : 'fa-star-o') %>"></i>
-                        <% } %>
-                        <span>(<%= product.reviewsCount || 0 %> reviews)</span><br>
-                        <p><%= product.shortDescription || 'No description available.' %></p>
-                      
-                        <span class="text-success">stock lefts :<span class="text-secondary"> <%= product.leftStock || 0 %> bottles</span></span>
-                    </div>
-                    <div class="product__details__price">
-                        <span style="text-decoration: line-through; color: gray; margin-right: 10px;">
-                            ₹<%= product.regular_price.toFixed(2) || '0.00' %>
-                        </span>
-                      <span class="text-dark">
-                        ₹<%= product.discount_price.toFixed(2) || '0.00' %>
-                      </span> 
-                    </div>
-                    
-                    
-                    <div class="product__details__quantity">
-                        <div class="quantity">
-                            <div class="pro-qty">
-                                <input type="text" value="1">
-                            </div>
-                        </div>
-                    </div>
-                    <a href="/cart/add/<%= product._id %>" class="primary-btn">ADD TO CART</a>
-                    <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
-                    <ul>
-                        <li><b>Availability</b> <span><%= product.leftStock > 0 ? 'In Stock' : 'Out of Stock' %></span></li>
-                        <li><b>Classification:</b> <span><%= categories.name || 'Standard Shipping' %></span></li>
-                        <li><b>Quantity</b> <span><%= product.quantity || 'N/A' %></span></li>
-                        <li><b>Net Quantity</b> <span><%= product.netQuantity || 'N/A' %></span></li>
-                        <li><b>Sales Package</b> <span><%= product.salesPackage || 'N/A' %></span></li>
-                       
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Tabs Section -->
-        <div class="row mt-4">
-            <div class="col-lg-12">
-                <div class="product__details__tab">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Information</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews <span>(<%= product.reviewsCount || 0 %>)</span></a>
-                        </li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tabs-1" role="tabpanel">
-                            <div class="product__details__tab__desc">
-                                <h6>Product Information</h6>
-                                <p>
-                                    <% if (product.longDescription && product.longDescription.trim() !== '') { %>
-                                        <%= product.longDescription %>
-                                    <% } else { %>
-                                        No additional information available.
-                                    <% } %>
-                                </p>
-                            </div>
-                        </div>
-                        
-
-                        <div class="tab-pane" id="tabs-2" role="tabpanel">
-                            <div class="product__details__tab__desc">
-                                <h6>Additional Information</h6>
-                                <p>
-                                    <% if (product.highlights && product.highlights.trim() !== '') { %>
-                                        <%= product.highlights %>
-                                    <% } else { %>
-                                        No extra details available.
-                                    <% } %>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="tab-pane" id="tabs-3" role="tabpanel">
-                            <div class="product__details__tab__desc">
-                              <h6>Customer Reviews</h6>
-                          
-                              <!-- Display Existing Reviews -->
-                              <% if (product.reviews && product.reviews.length > 0) { %>
-                                <ul>
-                                  <% product.reviews.forEach(review => { %>
-                                    <li>
-                                      <p><strong><%= review.user.name %></strong>: <%= review.comment %></p>
-                                      <p>Rating: <%= review.rating %> / 5</p>
-                                      <p><small><%= new Date(review.createdAt).toLocaleDateString() %></small></p>
-                                    </li>
-                                  <% }) %>
-                                </ul>
-                              <% } else { %>
-                                <p>No reviews yet. Be the first to review this product!</p>
-                              <% } %>
-                          
-                              <!-- Add Review Form -->
-                              <% if (userId) { %> <!-- Check if user is logged in -->
-                                <form id="reviewForm">
-                                  <input type="hidden" id="productId" value="<%= product._id %>">
-                                  <div class="form-group">
-                                    <label for="rating">Rating (1-5):</label>
-                                    <select id="rating" class="form-control" required>
-                                      <option value="" disabled selected>Choose a rating</option>
-                                      <option value="1">1</option>
-                                      <option value="2">2</option>
-                                      <option value="3">3</option>
-                                      <option value="4">4</option>
-                                      <option value="5">5</option>
-                                    </select>
-                                  </div>
-                                  <div class="form-group">
-                                    <label for="comment">Comment:</label>
-                                    <textarea id="comment" class="form-control" rows="4" required></textarea>
-                                  </div>
-                                  <button type="button" id="submitReview" class="btn btn-primary">Submit Review</button>
-                                </form>
-                              <% } else { %>
-                                <p><a href="/login">Log in</a> to leave a review.</p>
-                              <% } %>
-                            </div>
-                          </div>
-                          
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <div class="row">
+      <!-- Product Image Section -->
+      <div class="col-lg-6 col-md-6">
+        <div class="product__details__pic">
+          <!-- Main Image -->
+          <div class="product__details__pic__item" id="mainImageContainer">
+            <img id="mainImage" class="product__details__pic__item--large"
+              src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+              alt="<%= product.product_name %>">
+          </div>
+
+          <!-- Image Carousel -->
+          <% if (product.product_images && product.product_images.length> 0) { %>
+            <div class="product__details__pic__slider owl-carousel">
+              <% product.product_images.forEach((img, index)=> { %>
+                <img class="carousel-image" data-imgbigurl="http://localhost:3000/public/uploads/products/<%= img %>"
+                  src="http://localhost:3000/public/uploads/products/<%= img %>" alt="Image <%= index + 1 %>">
+                <% }) %>
+            </div>
+            <% } %>
+        </div>
+      </div>
+
+      <!-- Product Details Section -->
+      <div class="col-lg-6 col-md-6">
+        <div class="product__details__text">
+          <div class="product__details__rating">
+            <% for (let i=1; i <=5; i++) { %>
+              <i
+                class="fa <%= i <= product.rating ? 'fa-star' : (i - product.rating <= 0.5 ? 'fa-star-half-o' : 'fa-star-o') %>"></i>
+              <% } %>
+                <span>(<%= product.reviewsCount || 0 %> reviews)</span><br>
+                <p>
+                  <%= product.shortDescription || 'No description available.' %>
+                </p>
+
+                <span class="text-success">stock lefts :<span class="text-secondary">
+                    <%= product.leftStock || 0 %> bottles
+                  </span></span>
+          </div>
+          <div class="product__details__price">
+            <span style="text-decoration: line-through; color: gray; margin-right: 10px;">
+              ₹<%= product.regular_price.toFixed(2) || '0.00' %>
+            </span>
+            <span class="text-dark">
+              ₹<%= product.discount_price.toFixed(2) || '0.00' %>
+            </span>
+          </div>
+
+
+          <div class="product__details__quantity">
+            <div class="quantity">
+              <div class="pro-qty">
+                <input type="text" value="1">
+              </div>
+            </div>
+          </div>
+          <% if (isOutOfStock) { %>
+            <p class="sold-out-message text-danger">Sold Out</p>
+            <a href="#" class="primary-btn disabled">Notify Me</a>
+            <% } else { %>
+              <a href="/cart/add/<%= product._id %>" class="primary-btn">ADD TO CART</a>
+              <% } %>
+
+                <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+                <ul>
+                  <li><b>Availability</b> <span>
+                      <%= product.leftStock> 0 ? 'In Stock' : 'Out of Stock' %>
+                    </span></li>
+                  <li><b>Classification:</b> <span>
+                      <%= categories.name || 'Standard Shipping' %>
+                    </span></li>
+                  <li><b>Quantity</b> <span>
+                      <%= product.quantity || 'N/A' %>
+                    </span></li>
+                  <li><b>Net Quantity</b> <span>
+                      <%= product.netQuantity || 'N/A' %>
+                    </span></li>
+                  <li><b>Sales Package</b> <span>
+                      <%= product.salesPackage || 'N/A' %>
+                    </span></li>
+
+                </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Tabs Section -->
+    <div class="row mt-4">
+      <div class="col-lg-12">
+        <div class="product__details__tab">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Information</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews <span>(<%= product.reviewsCount ||
+                    0 %>)</span></a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tabs-1" role="tabpanel">
+              <div class="product__details__tab__desc">
+                <h6>Product Information</h6>
+                <p>
+                  <% if (product.longDescription && product.longDescription.trim() !=='' ) { %>
+                    <%= product.longDescription %>
+                      <% } else { %>
+                        No additional information available.
+                        <% } %>
+                </p>
+              </div>
+            </div>
+
+
+            <div class="tab-pane" id="tabs-2" role="tabpanel">
+              <div class="product__details__tab__desc">
+                <h6>Additional Information</h6>
+                <p>
+                  <% if (product.highlights && product.highlights.trim() !=='' ) { %>
+                    <%= product.highlights %>
+                      <% } else { %>
+                        No extra details available.
+                        <% } %>
+                </p>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="tabs-3" role="tabpanel">
+              <div class="product__details__tab__desc">
+                <h6>Customer Reviews</h6>
+                <% if (product.reviews && product.reviews.length> 0) { %>
+                  <ul>
+                    <% product.reviews.forEach(review=> { %>
+                      <li>
+                        <p><strong>
+                            <%= review.user.name %>
+                          </strong>: <%= review.comment %>
+                        </p>
+                        <p>Rating: <%= review.rating %> / 5</p>
+                        <p><small>
+                            <%= new Date(review.createdAt).toLocaleDateString() %>
+                          </small></p>
+                      </li>
+                      <% }) %>
+                  </ul>
+                  <% } else { %>
+                    <p>No reviews yet. Be the first to review this product!</p>
+                    <% } %>
+                      <% if (userId) { %> 
+                        <form id="reviewForm">
+                          <input type="hidden" id="productId" value="<%= product._id %>">
+                          <div class="form-group">
+                            <label for="rating">Rating (1-5):</label>
+                            <select id="rating" class="form-control" required>
+                              <option value="" disabled selected>Choose a rating</option>
+                              <option value="1">1</option>
+                              <option value="2">2</option>
+                              <option value="3">3</option>
+                              <option value="4">4</option>
+                              <option value="5">5</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="comment">Comment:</label>
+                            <textarea id="comment" class="form-control" rows="4" required></textarea>
+                          </div>
+                          <button type="button" id="submitReview" class="btn btn-primary">Submit Review</button>
+                        </form>
+                        <% } else { %>
+                          <p><a href="/login">Log in</a> to leave a review.</p>
+                          <% } %>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 
@@ -251,128 +273,127 @@
 
 <!-- Related Products Section Begin -->
 <section class="related-product">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title related__product__title">
-                    <h2>Related Products</h2>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="section-title related__product__title">
+          <h2>Related Products</h2>
         </div>
-        <div class="row">
-            <% if (relatedProducts && relatedProducts.length > 0) { %>
-                <% relatedProducts.forEach(related => { %>
-                    <div class="col-lg-3 col-md-4 col-sm-6">
-                        <div class="product__item">
-                            <!-- Wrap the entire product item with an <a> tag to link to the product page -->
-                            <a href="/product/<%= related._id %>" class="product__item__pic set-bg">
-                                <img src="http://localhost:3000/public/uploads/products/<%= related.product_images[0] %>" alt="Category Image">
-                            </a>
-                            <div class="product__item__text">
-                                <h6><a href="/product/<%= related._id %>"><%= related.product_name %></a></h6>
-                                <h5>
-                                    <span style="text-decoration: line-through; color: gray; margin-right: 10px;">
-                                        ₹<%= related.regular_price.toFixed(2) || '0.00' %>
-                                    </span>
-                                    ₹<%= related.discount_price.toFixed(2) || '0.00' %>
-                                </h5>
-                                
-                            </div>
-                            
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <div class="col-lg-12">
-                    <p>No related products found.</p>
-                </div>
-            <% } %>
-        </div>
+      </div>
     </div>
+    <div class="row">
+      <% if (relatedProducts && relatedProducts.length> 0) { %>
+        <% relatedProducts.forEach(related=> { %>
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="product__item">
+              <a href="/product/<%= related._id %>" class="product__item__pic set-bg">
+                <img src="http://localhost:3000/public/uploads/products/<%= related.product_images[0] %>"
+                  alt="Category Image">
+              </a>
+              <div class="product__item__text">
+                <h6><a href="/product/<%= related._id %>">
+                    <%= related.product_name %>
+                  </a></h6>
+                <h5>
+                  <span style="text-decoration: line-through; color: gray; margin-right: 10px;">
+                    ₹<%= related.regular_price.toFixed(2) || '0.00' %>
+                  </span>
+                  ₹<%= related.discount_price.toFixed(2) || '0.00' %>
+                </h5>
+
+              </div>
+
+            </div>
+          </div>
+          <% }) %>
+            <% } else { %>
+              <div class="col-lg-12">
+                <p>No related products found.</p>
+              </div>
+              <% } %>
+    </div>
+  </div>
 </section>
 
 <!-- Related Products Section End -->
 
 <script>
-   document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const mainImageContainer = document.getElementById('mainImageContainer');
     const mainImage = document.getElementById('mainImage');
     const carouselImages = document.querySelectorAll('.carousel-image');
 
     carouselImages.forEach(image => {
-        image.addEventListener('click', () => {
-            const newSrc = image.getAttribute('data-imgbigurl');
-            
-            mainImage.src = newSrc;
-        });
+      image.addEventListener('click', () => {
+        const newSrc = image.getAttribute('data-imgbigurl');
+
+        mainImage.src = newSrc;
+      });
     });
 
     mainImageContainer.addEventListener('mouseenter', () => {
-        mainImage.classList.add('zoomed');  
+      mainImage.classList.add('zoomed');
     });
 
     mainImageContainer.addEventListener('mouseleave', () => {
-        mainImage.classList.remove('zoomed'); 
+      mainImage.classList.remove('zoomed');
     });
 
     mainImageContainer.addEventListener('mousemove', (e) => {
-        const containerRect = mainImageContainer.getBoundingClientRect();
-        const offsetX = e.clientX - containerRect.left;
-        const offsetY = e.clientY - containerRect.top;
+      const containerRect = mainImageContainer.getBoundingClientRect();
+      const offsetX = e.clientX - containerRect.left;
+      const offsetY = e.clientY - containerRect.top;
 
-        const xPercent = (offsetX / containerRect.width) * 100;
-        const yPercent = (offsetY / containerRect.height) * 100;
+      const xPercent = (offsetX / containerRect.width) * 100;
+      const yPercent = (offsetY / containerRect.height) * 100;
 
-        mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`; 
+      mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
     });
-});
+  });
 
 
-document.getElementById('submitReview').addEventListener('click', async () => {
-  const productId = document.getElementById('productId').value;
-  const rating = document.getElementById('rating').value;
-  const comment = document.getElementById('comment').value;
+  document.getElementById('submitReview').addEventListener('click', async () => {
+    const productId = document.getElementById('productId').value;
+    const rating = document.getElementById('rating').value;
+    const comment = document.getElementById('comment').value;
 
-  try {
-    const response = await fetch('/admin/add-review', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, rating, comment }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      // Success popup
-      Swal.fire({
-        icon: 'success',
-        title: 'Review Submitted!',
-        text: result.message, // Display message from backend
-        showConfirmButton: false, // Optional: hides the confirm button
-        timer: 1500, // Optional: auto-close after 1.5 seconds
-      }).then(() => {
-        location.reload(); // Reload the page after the popup closes
+    try {
+      const response = await fetch('/admin/add-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, rating, comment }),
       });
-    } else {
-      // Error popup
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Review Submitted!',
+          text: result.message, 
+          showConfirmButton: false, 
+          timer: 1500, 
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Submission Failed',
+          text: result.error,
+          showConfirmButton: true, 
+        });
+      }
+    } catch (err) {
+      console.error(err);
       Swal.fire({
         icon: 'error',
-        title: 'Submission Failed',
-        text: result.error, // Display error message from backend
-        showConfirmButton: true, // Show confirm button
+        title: 'Oops...',
+        text: "An error occurred while submitting the review.",
+        showConfirmButton: true,
       });
     }
-  } catch (err) {
-    console.error(err);
-    // General error popup
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: "An error occurred while submitting the review.",
-      showConfirmButton: true,
-    });
-  }
-});
+  });
 
 
 

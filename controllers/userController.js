@@ -385,6 +385,8 @@ const productDetails = async (req, res) => {
       return res.status(404).send("Product not found");
     }
 
+    const isOutOfStock = !product.leftStock || product.leftStock <= 0;
+
     const relatedProducts = await Product.find({
       category: product.category?._id,
       _id: { $ne: productId },
@@ -395,6 +397,7 @@ const productDetails = async (req, res) => {
 
     res.render("product/details", {
       product,
+      isOutOfStock, 
       relatedProducts,
       userId: req.user ? req.user._id : null,
       categories: product.category || {},
@@ -404,6 +407,7 @@ const productDetails = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
 
 const addReview = async (req, res) => {
   const { productId, rating, comment } = req.body;

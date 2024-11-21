@@ -17,9 +17,7 @@
 
         <p>WELCOME BACK 👋</p>
         <h2>Continue to your Account.</h2>
-        
 
-        <!-- Google login button -->
         <button onclick="window.location.href='/auth/google'" class="google-btn">
           <img src="img/login/google-logo.png" alt="Google Icon" />
           Log in with Google
@@ -38,8 +36,6 @@
               <span id="toggle-password" onclick="togglePassword()">👁️</span>
             </div>
           </div>
-
-          <!-- Display message if passed from the backend -->
           <% if (message) { %>
             <div id="error-message" style="color: red;">
               <%= message %>
