@@ -62,5 +62,6 @@ router.get(
   }
 );
 
+router.get('/shop',userController.getProductsPage)
 
 module.exports = router;
