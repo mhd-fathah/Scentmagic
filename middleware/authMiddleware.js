@@ -13,6 +13,8 @@ const setAuthStatus = (req, res, next) => {
   next();
 };
 
+
+
 const isLogin = (req, res, next) => {
   if (req.session.user) {
     res.redirect("/");

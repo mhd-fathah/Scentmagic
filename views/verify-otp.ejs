@@ -11,16 +11,15 @@
       <div class="otp-section">
         <div class="logo">
           <img src="img/login/logo.png" alt="Fresh Store Logo" />
-          <!-- <h1>FRESH STORE</h1> -->
         </div>
         <h2>Verify OTP</h2>
         <p>Enter your OTP and continue</p>
         <form action="/verify-otp" method="POST">
           <input type="text" placeholder="Enter your OTP" name="otp" required />
+          <p style="color: green;"><%= message %></p>
           <button type="submit">Verify</button>
         </form>
-        <p><%= message %></p>
-        <p id="resend-message">
+        <p style="color: red;" id="resend-message">
           You can resend OTP in <span id="timer">60</span> seconds
         </p>
         <button id="resend-otp" disabled>
@@ -28,6 +27,7 @@
           Resend OTP
         </button>
         <p id="otp-resend-message"></p>
+        <a href="/signup" class="back-button">Back to Signup</a>
       </div>
       <div class="image-section">
         <img
@@ -36,7 +36,6 @@
         />
       </div>
     </div>
-
     <script>
       let countdown = 60;
       let interval;
@@ -83,6 +82,8 @@
           resendButton.disabled = false;
         }
       });
+
+
     </script>
   </body>
 </html>

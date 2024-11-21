@@ -35,7 +35,7 @@ router.get("/banned", userController.getBannedPage);
 
 router.get("/product/:id", auth.checkBlocked , userController.productDetails);
 
-router.post("/add-review", auth.checkSession, userController.addReview);
+router.post("/add-review", auth.checkSession , userController.addReview);
 
 // Newsletter subscription route
 router.post("/subscribe", userController.subscribeNewsletter);

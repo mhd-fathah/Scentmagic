@@ -17,9 +17,10 @@ const signupUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .render("signup", { layout: false, message: "Email already exists" });
+      return res.status(400).render("signup", {
+        layout: false,
+        message: "Email already exists. Please try with a different email.",
+      });
     }
 
     const otp = generateOTP();
@@ -27,7 +28,7 @@ const signupUser = async (req, res) => {
 
     req.session.otp = otp;
     req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
-    req.session.user = { name, mobile, email, password };
+    req.session.tempUserData = { name, mobile, email, password };
 
     res.render("verify-otp", {
       layout: false,
@@ -35,42 +36,60 @@ const signupUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error);
-    res
-      .status(500)
-      .render("signup", { layout: false, message: "Internal Server Error" });
+    res.status(500).render("signup", {
+      layout: false,
+      message: "Internal Server Error. Please try again later.",
+    });
   }
 };
 
 const verifyOTP = async (req, res) => {
-  const { otp } = req.body;
+  try {
+    const { otp } = req.body;
 
-  if (!otp) {
-    return res.render("verify-otp", {
+    const { otp: storedOtp, otpExpiresAt, tempUserData } = req.session;
+
+    if (!otp) {
+      return res.render("verify-otp", {
+        layout: false,
+        message: "OTP is required.",
+      });
+    }
+
+    if (otp === storedOtp && Date.now() <= otpExpiresAt) {
+      const { name, mobile, email, password } = tempUserData;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = new User({
+        name,
+        mobile,
+        email,
+        password: hashedPassword,
+      });
+      await newUser.save();
+
+      req.session.user = newUser;
+      delete req.session.otp;
+      delete req.session.otpExpiresAt;
+      delete req.session.tempUserData;
+
+      res.redirect("/");
+    } else {
+      delete req.session.otp;
+      delete req.session.otpExpiresAt;
+      delete req.session.tempUserData;
+
+      res.render("verify-otp", {
+        layout: false,
+        message: "Invalid or expired OTP. Please try again.",
+      });
+    }
+  } catch (error) {
+    console.error("Error during OTP verification:", error);
+    res.status(500).render("verify-otp", {
       layout: false,
-      message: "OTP is required.",
-    });
-  }
-
-  if (otp === req.session.otp) {
-    req.session.isVerified = true;
-
-    const { name, mobile, email, password } = req.session.user;
-
-    const hashedPassword = await bcrypt.hash(password, saltRound);
-    const user = new User({ name, mobile, email, password: hashedPassword });
-    await user.save();
-
-    req.session.user = user;
-    delete req.session.otp;
-
-    res.redirect("/");
-  } else {
-    delete req.session.otp;
-    delete req.session.user;
-
-    res.render("verify-otp", {
-      layout: false,
-      message: "Invalid OTP. Please try again.",
+      message: "Internal Server Error. Please try again later.",
     });
   }
 };
@@ -397,7 +416,7 @@ const productDetails = async (req, res) => {
 
     res.render("product/details", {
       product,
-      isOutOfStock, 
+      isOutOfStock,
       relatedProducts,
       userId: req.user ? req.user._id : null,
       categories: product.category || {},
@@ -407,7 +426,6 @@ const productDetails = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
 
 const addReview = async (req, res) => {
   const { productId, rating, comment } = req.body;
