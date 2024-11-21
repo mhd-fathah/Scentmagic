@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const auth = require("../middleware/authMiddleware");
 
+
 router.use(auth.setAuthStatus);
 
 router.get("/login", auth.isLogin, userController.loadLogin);
@@ -32,7 +33,7 @@ router.post("/reset-password/:token", userController.resetPassword);
 
 router.get("/banned", userController.getBannedPage);
 
-router.get("/product/:id", userController.productDetails);
+router.get("/product/:id", auth.checkBlocked , userController.productDetails);
 
 router.post("/add-review", auth.checkSession, userController.addReview);
 
@@ -40,21 +41,26 @@ router.post("/add-review", auth.checkSession, userController.addReview);
 router.post("/subscribe", userController.subscribeNewsletter);
 
 // Search route
-router.get("/search", async (req, res) => {
-  const query = req.query.q;
+router.get(
+  "/search",
+  auth.checkBlocked, 
+  async (req, res) => {
+    const query = req.query.q;
 
-  if (!query) {
-    return res.redirect("/");
+    if (!query) {
+      return res.redirect("/");
+    }
+
+    try {
+      const products = await userController.searchProducts(query);
+
+      res.render("searchResults", { products, query, isDeleted: false });
+    } catch (error) {
+      console.error("Error during search:", error);
+      res.status(500).send("There was an error processing the search request.");
+    }
   }
+);
 
-  try {
-    const products = await userController.searchProducts(query);
-
-    res.render("searchResults", { products, query });
-  } catch (error) {
-    console.error("Error during search:", error);
-    res.status(500).send("There was an error processing the search request.");
-  }
-});
 
 module.exports = router;

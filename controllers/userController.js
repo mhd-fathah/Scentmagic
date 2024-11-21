@@ -11,7 +11,6 @@ const Product = require("../models/product");
 const mongoose = require("mongoose");
 const Reviews = require("../models/review");
 
-
 const signupUser = async (req, res) => {
   try {
     const { name, mobile, email, password } = req.body;
@@ -494,15 +493,15 @@ const subscribeNewsletter = async (req, res) => {
 
 const searchProducts = async (query) => {
   try {
-      // Search for products in the database using the query
-      const products = await Product.find({
-          product_name: { $regex: query, $options: 'i' }  // Case-insensitive search
-      });
+    const products = await Product.find({
+      product_name: { $regex: query, $options: "i" },
+      isDeleted: false,
+    });
 
-      return products;  // Return the products found
+    return products;
   } catch (error) {
-      console.error('Error during search:', error);
-      throw new Error('Error searching products');
+    console.error("Error during search:", error);
+    throw new Error("Error searching products");
   }
 };
 
@@ -525,5 +524,5 @@ module.exports = {
   productDetails,
   addReview,
   subscribeNewsletter,
-  searchProducts
+  searchProducts,
 };
