@@ -34,7 +34,7 @@ const checkBlocked = (req, res, next) => {
   if (req.user) {
     User.findById(req.user._id)
       .then(user => {
-        if (user.isBlocked) {
+        if (user.isBlocked === true) {
           return res.render('banned'); 
         } else {
           return next(); 

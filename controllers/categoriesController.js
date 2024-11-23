@@ -2,7 +2,6 @@ const Category = require("../models/categories");
 const fs = require("fs");
 const path = require("path");
 
-// Fetch categories
 const getCategories = async (req, res) => {
     try {
         const categories = await Category.find();
@@ -18,7 +17,6 @@ const getCategories = async (req, res) => {
     }
 };
 
-// Add new category
 const addCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -45,7 +43,6 @@ const addCategory = async (req, res) => {
     }
 };
 
-// Edit category
 const editCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -58,7 +55,6 @@ const editCategory = async (req, res) => {
     }
 };
 
-// Update category
 const updateCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -95,7 +91,6 @@ const updateCategory = async (req, res) => {
     }
 };
 
-// Soft delete category
 const deleteCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);

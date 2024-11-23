@@ -1,89 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OTP Verification</title>
-    <link rel="stylesheet" href="css/verification.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="otp-section">
-        <div class="logo">
-          <img src="img/login/logo.png" alt="Fresh Store Logo" />
-        </div>
-        <h2>Verify OTP</h2>
-        <p>Enter your OTP and continue</p>
-        <form action="/verify-otp" method="POST">
-          <input type="text" placeholder="Enter your OTP" name="otp" required />
-          <p style="color: green;"><%= message %></p>
-          <button type="submit">Verify</button>
-        </form>
-        <p style="color: red;" id="resend-message">
-          You can resend OTP in <span id="timer">60</span> seconds
-        </p>
-        <button id="resend-otp" disabled>
-          <span id="spinner" class="spinner" style="display: none"></span>
-          Resend OTP
-        </button>
-        <p id="otp-resend-message"></p>
-        <a href="/signup" class="back-button">Back to Signup</a>
-      </div>
-      <div class="image-section">
-        <img
-          src="img/login/hero-bg.jpeg"
-          alt="Perfume Bottle with Cherry Blossoms"
-        />
-      </div>
-    </div>
-    <script>
-      let countdown = 60;
-      let interval;
-      const timerElement = document.getElementById("timer");
-      const resendButton = document.getElementById("resend-otp");
-      const otpResendMessage = document.getElementById("otp-resend-message");
-      const spinner = document.getElementById("spinner");
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scentmagic - OTP Verification</title>
+  <link rel="stylesheet" href="css/verification.css" />
+  <style>
+    
+    #resend-otp[disabled] {
+      background-color: gray;
+      cursor: not-allowed;
+    }
 
-      function startCountdown() {
-        timerElement.textContent = countdown;
-        interval = setInterval(() => {
-          countdown--;
-          timerElement.textContent = countdown;
-          if (countdown <= 0) {
-            clearInterval(interval);
-            resendButton.disabled = false;
-            document.getElementById("resend-message").style.display = "none";
-          }
-        }, 1000);
+    #resend-message {
+      display: none;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .otp-section button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .otp-section button:hover:not([disabled]) {
+      background-color: #54565c;
+    }
+
+    .spinner {
+      display: inline-block;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #000;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="otp-section">
+      <div class="logo">
+        <img src="img/login/logo.png" alt="Scentmagic Logo" />
+      </div>
+      <h2>Verify OTP</h2>
+      <p>Enter your OTP and continue</p>
+      <form id="otp-form">
+        <input type="text" placeholder="Enter your OTP" name="otp" id="otp" required />
+        <p id="error-message" class="error"></p>
+        <p id="success-message" class="success"></p>
+        <button type="submit" id="submit-btn">Verify</button>
+      </form>
+      <p id="resend-message">You can resend OTP in <span id="timer">60</span> seconds</p>
+      <button id="resend-otp" disabled>
+        <span id="spinner" class="spinner" style="display: none;"></span>
+        Resend OTP
+      </button>
+      <p id="otp-resend-message"></p>
+      <a href="/signup" class="back-button">Back to Signup</a>
+    </div>
+    <div class="image-section">
+      <img src="img/login/hero-bg.jpeg" alt="Perfume Bottle with Cherry Blossoms" />
+    </div>
+  </div>
 
+  <script>
+   let countdown = 60;
+let interval;
+
+const timerElement = document.getElementById("timer");
+const resendButton = document.getElementById("resend-otp");
+const resendMessage = document.getElementById("resend-message");
+const otpForm = document.getElementById("otp-form");
+const errorMessage = document.getElementById("error-message");
+const successMessage = document.getElementById("success-message");
+const otpResendMessage = document.getElementById("otp-resend-message");
+const spinner = document.getElementById("spinner");
+
+function startCountdown() {
+  resendMessage.style.display = "block";
+  timerElement.textContent = countdown;
+  resendButton.disabled = true;
+
+  interval = setInterval(() => {
+    countdown--;
+    timerElement.textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(interval);
+      resendButton.disabled = false;
+      resendMessage.style.display = "none";
+      countdown = 60; 
+    }
+  }, 1000);
+}
+
+resendButton.addEventListener("click", async () => {
+  resendButton.disabled = true;
+  spinner.style.display = "inline-block";
+
+  try {
+    const response = await fetch("/resend-otp", { method: "POST" });
+
+    const data = await response.json();
+    if (data.success) {
+      otpResendMessage.textContent = "A new OTP has been sent to your email.";
+      otpResendMessage.classList.add("success");
+      otpResendMessage.classList.remove("error");
       startCountdown();
-
-      resendButton.addEventListener("click", async () => {
-        try {
-          otpResendMessage.textContent = "";
-          resendButton.disabled = true;
-          spinner.style.display = "inline-block";
-
-          await fetch("/resend-otp", { method: "POST" });
-
-          otpResendMessage.textContent =
-            "A new OTP has been sent to your email.";
-
-          clearInterval(interval);
-          countdown = 60;
-          document.getElementById("resend-message").style.display = "block";
-          startCountdown();
-        } catch (error) {
-          otpResendMessage.textContent =
-            "Failed to resend OTP. Please try again.";
-        } finally {
-          spinner.style.display = "none";
-          resendButton.disabled = false;
-        }
-      });
+    } else {
+      otpResendMessage.textContent = data.message || "Failed to resend OTP. Please try again.";
+      otpResendMessage.classList.add("error");
+      otpResendMessage.classList.remove("success");
+      resendButton.disabled = false;
+    }
+  } catch (error) {
+    otpResendMessage.textContent = "Error while resending OTP. Please try again.";
+    otpResendMessage.classList.add("error");
+    otpResendMessage.classList.remove("success");
+    resendButton.disabled = false;
+  } finally {
+    spinner.style.display = "none";
+  }
+});
 
 
-    </script>
-  </body>
+otpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorMessage.textContent = "";
+  successMessage.textContent = "";
+
+  const otp = document.getElementById("otp").value;
+  console.log(otp)
+
+  try {
+    const response = await fetch("/verify-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      successMessage.textContent = "OTP verified successfully! Redirecting...";
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+    } else if (data.expired) {
+      errorMessage.textContent = "OTP expired. Please request a new OTP.";
+    } else {
+      errorMessage.textContent = "Invalid OTP. Please try again.";
+    }
+  } catch (error) {
+    errorMessage.textContent = "Error verifying OTP. Please try again.";
+  }
+});
+
+resendButton.disabled = false;
+
+  </script>
+</body>
 </html>

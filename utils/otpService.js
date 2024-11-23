@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const crypto = require('crypto')
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -8,9 +9,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+
+const generateOTP = () => {
+  return crypto.randomInt(100000, 999999).toString(); 
+};
 
 async function sendOTPEmail(email, otp) {
   const mailOptions = {

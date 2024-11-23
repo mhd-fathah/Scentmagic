@@ -48,5 +48,5 @@ app.use(auth.checkBlocked)
 connectDB();
 
 app.listen(3000, () => {
-  console.log("Server Started : http://localhost:3000/signup");
+  console.log("Server Started : http://localhost:3000/");
 });

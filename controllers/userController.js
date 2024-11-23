@@ -9,7 +9,8 @@ const nodemailer = require("nodemailer");
 const Category = require("../models/categories");
 const Product = require("../models/product");
 const mongoose = require("mongoose");
-const Reviews = require("../models/review");
+const { title } = require("process");
+
 
 const signupUser = async (req, res) => {
   try {
@@ -25,8 +26,10 @@ const signupUser = async (req, res) => {
 
     const otp = generateOTP();
     await sendOTPEmail(email, otp);
+  
 
     req.session.otp = otp;
+    console.log(req.session.otp)
     req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
     req.session.tempUserData = { name, mobile, email, password };
 
@@ -46,90 +49,74 @@ const signupUser = async (req, res) => {
 const verifyOTP = async (req, res) => {
   try {
     const { otp } = req.body;
-
-    const { otp: storedOtp, otpExpiresAt, tempUserData } = req.session;
+    const { otp: storedOtp, otpExpiresAt } = req.session;
 
     if (!otp) {
-      return res.render("verify-otp", {
-        layout: false,
-        message: "OTP is required.",
-      });
+      return res.json({ success: false, message: "OTP is required." });
     }
 
-    if (otp === storedOtp && Date.now() <= otpExpiresAt) {
-      const { name, mobile, email, password } = tempUserData;
+    if (Date.now() > otpExpiresAt) {
+      return res.json({ success: false, expired: true });
+    }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+    if (otp === storedOtp) {
+      // OTP is correct, save user to database
+      const user = req.session.tempUserData;
 
+      // Assuming you have a User model (replace `User` with your actual model name)
       const newUser = new User({
-        name,
-        mobile,
-        email,
-        password: hashedPassword,
+        email: user.email,
+        name: user.name, // Replace with actual fields
+        // You can add other fields like password, etc. here
       });
-      await newUser.save();
 
+      await newUser.save(); // Save the user to the database
+
+      // Clean up the session after successful verification
       req.session.user = newUser;
       delete req.session.otp;
       delete req.session.otpExpiresAt;
       delete req.session.tempUserData;
 
-      res.redirect("/");
-    } else {
-      delete req.session.otp;
-      delete req.session.otpExpiresAt;
-      delete req.session.tempUserData;
-
-      res.render("verify-otp", {
-        layout: false,
-        message: "Invalid or expired OTP. Please try again.",
-      });
+      return res.json({ success: true });
     }
+
+    res.json({ success: false, message: "Invalid OTP." });
   } catch (error) {
-    console.error("Error during OTP verification:", error);
-    res.status(500).render("verify-otp", {
-      layout: false,
-      message: "Internal Server Error. Please try again later.",
-    });
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error." });
   }
 };
 
 const resendOTP = async (req, res) => {
-  try {
-    console.log("Resend OTP function called");
+  console.log("Resend OTP endpoint hit"); 
 
-    const { email } = req.session.user || {};
+  try {
+    const email = req.session.tempUserData?.email;
+    console.log("Email from session:", email); 
+
     if (!email) {
-      console.log("No email found in session.");
-      return res.status(400).render("verify-otp", {
-        layout: false,
-        message: "User not logged in or email missing.",
-      });
+      return res.status(400).json({ success: false, message: "User email not found in session." });
     }
 
-    console.log("Email for resend OTP:", email);
-
     const newOTP = generateOTP();
-    console.log("Generated new OTP:", newOTP);
+    console.log("Generated OTP:", newOTP); 
 
     await sendOTPEmail(email, newOTP);
-    console.log("OTP sent successfully to:", email);
+
 
     req.session.otp = newOTP;
-    req.session.lastOTPSend = Date.now();
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
 
-    res.render("verify-otp", {
-      layout: false,
-      message: "A new OTP has been sent to your email.",
-    });
+    return res.status(200).json({ success: true, message: "OTP resent successfully." });
   } catch (error) {
-    console.error("Error resending OTP:", error);
-    res.status(500).render("verify-otp", {
-      layout: false,
-      message: "Failed to resend OTP.",
-    });
+    console.error("Error in resendOTP function:", error);
+    return res.status(500).json({ success: false, message: "Failed to resend OTP." });
   }
 };
+
+
+
 
 const loginUser = async (req, res) => {
   try {
@@ -158,7 +145,7 @@ const loginUser = async (req, res) => {
     req.session.user = user;
     console.log("Session after login:", req.session);
 
-    return res.render("home", { user, message: "Logged in successfully" });
+    return res.redirect("/");
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).render("login", {
@@ -167,6 +154,8 @@ const loginUser = async (req, res) => {
     });
   }
 };
+
+
 
 const googleAuth = passport.authenticate("google", {
   scope: ["profile", "email"],
@@ -267,6 +256,7 @@ const loadHome = async (req, res) => {
       .lean();
 
     res.render("home", {
+      title : 'Home',
       categories,
       latestProducts,
       relatedProducts,
@@ -378,7 +368,9 @@ const getBannedPage = (req, res) => {
       return res.redirect("/");
     }
   }
-  res.render("banned");
+  res.render("banned",{
+    title : 'banned'
+  });
 };
 
 const productDetails = async (req, res) => {
@@ -415,6 +407,7 @@ const productDetails = async (req, res) => {
       .lean();
 
     res.render("product/details", {
+      title : 'Product Details',
       product,
       isOutOfStock,
       relatedProducts,
@@ -538,7 +531,7 @@ const getProductsPage = async (req, res) => {
 
     const sortOption = req.query.sort || "price_asc";
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const categoryId = req.query.category;
@@ -583,6 +576,7 @@ const getProductsPage = async (req, res) => {
     }
 
     res.render("shop", {
+      title : 'Shop',
       categories,
       products,
       discountedProducts,

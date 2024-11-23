@@ -18,10 +18,10 @@ router.get("/verify-otp", (req, res) =>
   res.render("verify-otp", { layout: false })
 );
 router.post("/verify-otp", userController.verifyOTP);
-router.post("/resend-otp", auth.checkSession, userController.resendOTP);
+router.post("/resend-otp",  userController.resendOTP);
 
 router.get("/auth/google", userController.googleAuth);
-router.get("/auth/google/callback", userController.googleAuthCallback);
+router.get("/auth/google/callback", auth.isLogin ,userController.googleAuthCallback);
 
 router.post("/forgot-password", userController.forgotPassword);
 
@@ -37,10 +37,8 @@ router.get("/product/:id", auth.checkBlocked , userController.productDetails);
 
 router.post("/add-review", auth.checkSession , userController.addReview);
 
-// Newsletter subscription route
 router.post("/subscribe", userController.subscribeNewsletter);
 
-// Search route
 router.get("/search", auth.checkBlocked, async (req, res) => {
   const query = req.query.q;
   const categoryId = req.query.category || null;  
@@ -54,13 +52,13 @@ router.get("/search", auth.checkBlocked, async (req, res) => {
 
     const category = categoryId ? await Category.findById(categoryId) : null;
 
-    res.render("searchResults", { products, query, category });
+    res.render("searchResults", {title : 'Search Results', products, query, category });
   } catch (error) {
     console.error("Error during search:", error);
     res.status(500).send("There was an error processing the search request.");
   }
 });
 
-router.get('/shop',userController.getProductsPage)
+router.get('/shop',auth.checkBlocked,userController.getProductsPage)
 
 module.exports = router;

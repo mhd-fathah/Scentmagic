@@ -3,7 +3,7 @@ const Category = require("../models/categories");
 
 const getProducts = async (req, res) => {
   try {
-    const perPage = 12;
+    const perPage = 10;
     const page = req.query.page || 1;
 
     const products = await Product.find({})
@@ -42,7 +42,6 @@ const addProduct = async (req, res) => {
     const files = req.files || {};
     const imagePaths = [];
 
-    // Collect image paths
     if (files.image1) imagePaths.push(files.image1[0].filename);
     if (files.image2) imagePaths.push(files.image2[0].filename);
     if (files.image3) imagePaths.push(files.image3[0].filename);
@@ -52,7 +51,6 @@ const addProduct = async (req, res) => {
       return res.status(400).send({ error: "At least one product image is required" });
     }
 
-    // Create a new product document
     const productData = new Product({
       product_name: req.body.product_name || "Unnamed Product",
       shortDescription: req.body.shortDescription || "No short description provided.",
@@ -115,7 +113,6 @@ const updateProduct = async (req, res) => {
 
     const updatedImages = [...(existingProduct.product_images || [])];
 
-    // Replace old images if new ones are provided
     imagePaths.forEach((newImage, index) => {
       if (newImage) {
         const oldImagePath = updatedImages[index];
@@ -130,7 +127,6 @@ const updateProduct = async (req, res) => {
       }
     });
 
-    // Prepare updated data
     const updatedData = {
       product_name: req.body.product_name || existingProduct.product_name,
       shortDescription: req.body.shortDescription || existingProduct.shortDescription,

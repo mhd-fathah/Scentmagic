@@ -189,7 +189,13 @@
                 ₹<%= product.regular_price %>
               </span>
             </h5>
-            <p><%= product.stock_status %></p>
+            <% if (product.stock_status === 'in_stock') { %>
+              <p style="color: green;">In Stock</p>
+            <% } else { %>
+              <p style="color: red;">Out of Stock</p>
+            <% } %>
+            
+            
           </div>
         </div>
       </div>
@@ -205,18 +211,32 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-6 col-md-6 col-sm-6">
-        <div class="banner__pic">
-          <a href="/shop">
-            <img src="img/banner/banner-1.jpg" alt="" />
-          </a>
+        <div
+          class="hero__item set-bg"
+          data-setbg="img/banner/banner-2.jpg"
+          onclick="window.location.href = '/shop'"
+        >
+          <div class="hero__text">
+            <span>SCENT MAGIC</span>
+            <h2>The <br />Fragrance Collection</h2>
+            <p>Discover Exquisite Scents Crafted for Every Moment</p>
+            <a href="#" class="primary-btn">SHOP NOW</a>
+          </div>
         </div>
       </div>
       <div class="col-lg-6 col-md-6 col-sm-6">
-        <div class="banner__pic">
-          <a href="/shop">
-            <img src="img/banner/banner-2.jpg" alt="" />
-          </a>
+        <div
+        class="hero__item set-bg"
+        data-setbg="img/banner/banner-1.jpg"
+        onclick="window.location.href = '/shop'"
+      >
+        <div class="hero__text">
+          <span>SCENT MAGIC</span>
+          <h2>The <br />Luxurious Essence</h2>
+          <p>Immerse Yourself in the Art of Perfume with Our Exquisite Creations</p>
+          <a href="#" class="primary-btn">SHOP NOW</a>
         </div>
+      </div>
       </div>
     </div>
   </div>
