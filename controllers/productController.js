@@ -7,6 +7,7 @@ const getProducts = async (req, res) => {
     const page = req.query.page || 1;
 
     const products = await Product.find({})
+      .sort({ createdAt: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
 
@@ -48,13 +49,17 @@ const addProduct = async (req, res) => {
     if (files.image4) imagePaths.push(files.image4[0].filename);
 
     if (imagePaths.length === 0) {
-      return res.status(400).send({ error: "At least one product image is required" });
+      return res
+        .status(400)
+        .send({ error: "At least one product image is required" });
     }
 
     const productData = new Product({
       product_name: req.body.product_name || "Unnamed Product",
-      shortDescription: req.body.shortDescription || "No short description provided.",
-      longDescription: req.body.longDescription || "No long description provided.",
+      shortDescription:
+        req.body.shortDescription || "No short description provided.",
+      longDescription:
+        req.body.longDescription || "No long description provided.",
       regular_price: req.body.regular_price || 0,
       discount_price: req.body.discount_price || 0,
       category: req.body.category,
@@ -75,10 +80,8 @@ const addProduct = async (req, res) => {
   }
 };
 
-
 const editProduct = async (req, res) => {
   try {
-    
     const productId = req.params.id;
 
     const product = await Product.findById(productId);
@@ -129,8 +132,10 @@ const updateProduct = async (req, res) => {
 
     const updatedData = {
       product_name: req.body.product_name || existingProduct.product_name,
-      shortDescription: req.body.shortDescription || existingProduct.shortDescription,
-      longDescription: req.body.longDescription || existingProduct.longDescription,
+      shortDescription:
+        req.body.shortDescription || existingProduct.shortDescription,
+      longDescription:
+        req.body.longDescription || existingProduct.longDescription,
       regular_price: req.body.regular_price || existingProduct.regular_price,
       discount_price: req.body.discount_price || existingProduct.discount_price,
       category: req.body.category || existingProduct.category,
@@ -150,8 +155,6 @@ const updateProduct = async (req, res) => {
     res.status(500).send({ error: "Error updating product" });
   }
 };
-
-
 
 const toggleDeleteProduct = async (req, res) => {
   try {
@@ -194,7 +197,6 @@ const getProductDetails = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getProducts,
   showAddProducts,
@@ -202,5 +204,5 @@ module.exports = {
   editProduct,
   updateProduct,
   toggleDeleteProduct,
-  getProductDetails
+  getProductDetails,
 };

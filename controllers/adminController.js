@@ -61,6 +61,7 @@ const listUsers = async (req, res) => {
     const totalUsers = await User.countDocuments();
 
     const users = await User.find()
+      .sort({ createdAt: -1 }) 
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -77,6 +78,7 @@ const listUsers = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
 
 const blockUser = async (req, res) => {
   try {

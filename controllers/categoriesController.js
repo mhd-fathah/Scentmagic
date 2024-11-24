@@ -4,7 +4,7 @@ const path = require("path");
 
 const getCategories = async (req, res) => {
     try {
-        const categories = await Category.find();
+        const categories = await Category.find().sort({ createdAt: -1 }); 
         res.render("admin/categories", {
             message: req.query.message || null,
             status: req.query.status || null,
@@ -16,6 +16,7 @@ const getCategories = async (req, res) => {
         res.status(500).send("Server Error");
     }
 };
+
 
 const addCategory = async (req, res) => {
     try {
