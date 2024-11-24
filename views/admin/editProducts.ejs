@@ -1,134 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Nest Dashboard</title>
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
-    <meta property="og:type" content="" />
-    <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.svg" />
-    <!-- Template CSS -->
-    <script src="/js/admin/color-modes.js"></script>
-    <link href="/css/admin/main.css" rel="stylesheet" type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  </head>
 
-  <body>
-    <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside">
-      <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
-          <img src="/img/logo.png" class="logo" alt="Nest Dashboard" />
-        </a>
-        <div>
-            <button class="btn btn-icon btn-aside-minimize text-muted">
-                <i class="fas fa-bars"></i> 
-              </button>
-              
-        </div>
+<head>
+  <meta charset="utf-8" />
+  <title>Nest Dashboard</title>
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="" />
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="images/favicon.svg" />
+  <!-- Template CSS -->
+  <script src="/js/admin/color-modes.js"></script>
+  <link href="/css/admin/main.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="screen-overlay"></div>
+  <aside class="navbar-aside" id="offcanvas_aside">
+    <div class="aside-top">
+      <a href="index.html" class="brand-wrap">
+        <img src="/img/logo.png" class="logo" alt="Nest Dashboard" />
+      </a>
+      <div>
+        <button class="btn btn-icon btn-aside-minimize text-muted">
+          <i class="fas fa-bars"></i>
+        </button>
+
       </div>
-      <nav>
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/dashboard">
-              <span class="text">Dashboard</span>
+    </div>
+    <nav>
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/dashboard">
+            <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products">
+            <span class="text">Products</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/categories">
+            <span class="text">Categories</span>
+          </a>
+        </li>
+        <li class="menu-item has-submenu">
+          <a class="menu-link" href="#">
+            <span class="text">Orders</span>
+          </a>
+          <div class="submenu">
+            <a href="#">Orders List</a>
+            <a href="#">Order Details</a>
+          </div>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/users">
+            <span class="text">Users</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products/add">
+            <span class="text">Add Product</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Transactions</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Reviews</span>
+          </a>
+        </li>
+      </ul>
+      <hr />
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Account</span>
+          </a>
+        </li>
+      </ul>
+      <br />
+      <br />
+    </nav>
+  </aside>
+  <main class="main-wrap">
+    <header class="main-header navbar">
+      <div class="col-nav d-flex justify-content-end align-items-center w-100">
+        <!-- Mobile Menu Button -->
+        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvas_aside">
+          <i class="fas fa-bars"></i>
+        </button>
+
+
+        <!-- Navbar -->
+        <ul class="nav ms-auto">
+          <li class="dropdown nav-item">
+            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
+              <img class="img-xs rounded-circle" src="/img/logo.png" alt="Admin" />
             </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products">
-              <span class="text">Products</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/categories">
-              <span class="text" >Categories</span>
-            </a>
-          </li>
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="#">
-              <span class="text">Orders</span>
-            </a>
-            <div class="submenu">
-              <a href="#">Orders List</a>
-              <a href="#">Order Details</a>
-            </div>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/users">
-              <span class="text" >Users</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products/add">
-              <span class="text">Add Product</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Transactions</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Reviews</span>
-            </a>
-          </li>
-        </ul>
-        <hr />
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Account</span>
-            </a>
-          </li>
-        </ul>
-        <br />
-        <br />
-      </nav>
-    </aside>
-    <main class="main-wrap">
-      <header class="main-header navbar">
-        <div class="col-nav d-flex justify-content-end align-items-center w-100">
-            <!-- Mobile Menu Button -->
-            <button
-            class="btn btn-icon btn-mobile me-auto d-lg-none"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvas_aside"
-          >
-            <i class="fas fa-bars"></i> 
-          </button>
-          
-          
-            <!-- Navbar -->
-            <ul class="nav ms-auto">
-              <li class="dropdown nav-item">
-                <a
-                  class="dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  id="dropdownAccount"
-                  aria-expanded="false"
-                >
-                  <img
-                    class="img-xs rounded-circle"
-                    src="/img/logo.png"
-                    alt="Admin"
-                  />
-                </a>
-          
-                <!-- Dropdown Menu -->
-                <div
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="dropdownAccount"
-                >
-                  <!-- Uncomment or add any menu items you need -->
-                  <!-- <a class="dropdown-item" href="#">
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+              <!-- Uncomment or add any menu items you need -->
+              <!-- <a class="dropdown-item" href="#">
                     <i class="material-icons md-perm_identity"></i>Edit Profile
                   </a>
                   <a class="dropdown-item" href="#">
@@ -143,346 +128,289 @@
                   <a class="dropdown-item" href="#">
                     <i class="material-icons md-help_outline"></i>Help Center
                   </a> -->
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item text-danger" href="/admin/logout">
-                    <i class="material-icons md-exit_to_app"></i>Logout
-                  </a>
-                </div>
-              </li>
-            </ul>
-          </div>
-      </header>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="/admin/logout">
+                <i class="material-icons md-exit_to_app"></i>Logout
+              </a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </header>
 
-        <section class="content-main">
-            <div class="row">
-              <div class="col-9">
-                <div class="content-header">
-                  <h2 class="content-title">Edit Product</h2>
-                  <div>
-                    <!-- Back to Product List Button -->
-                    <a href="/admin/products" class="btn btn-md rounded font-sm hover-up">Back to Products</a>
+    <section class="content-main">
+      <div class="row">
+        <div class="col-9">
+          <div class="content-header">
+            <h2 class="content-title">Edit Product</h2>
+            <div>
+              <!-- Back to Product List Button -->
+              <a href="/admin/products" class="btn btn-md rounded font-sm hover-up">Back to Products</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4>Edit Product Details</h4>
+            </div>
+            <div class="card-body">
+              <!-- Product Form -->
+              <form id="productForm" action="/admin/products/edit/<%= product._id %>" method="POST"
+                enctype="multipart/form-data">
+                <!-- Product Title -->
+                <div class="mb-4">
+                  <label for="product_name" class="form-label">Product Title</label>
+                  <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name"
+                    value="<%= product.product_name %>" />
+                </div>
+
+                <!-- Full Description -->
+                <div class="mb-4">
+                  <label class="form-label">Description</label>
+                  <textarea placeholder="Type here" class="form-control" rows="4"
+                    name="shortDescription"><%= product.shortDescription %></textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label">Full description</label>
+                  <textarea placeholder="Type here" class="form-control" rows="4"
+                    name="longDescription"><%= product.longDescription %></textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label">Highlights</label>
+                  <textarea placeholder="Type here" class="form-control" rows="4"
+                    name="highlights"><%= product.highlights %></textarea>
+                </div>
+
+                <!-- Price Fields -->
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="mb-4">
+                      <label class="form-label">Regular Price</label>
+                      <input placeholder="₹" type="text" class="form-control" name="regular_price"
+                        value="<%= product.regular_price %>" />
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="mb-4">
+                      <label class="form-label">Discount Price</label>
+                      <input placeholder="₹" type="text" class="form-control" name="discount_price"
+                        value="<%= product.discount_price %>" />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h4>Edit Product Details</h4>
+
+                <!-- Category -->
+                <div class="mb-4">
+                  <label class="form-label">Category</label>
+                  <select class="form-control" id="category" name="category">
+                    <% categories.forEach(function (category) { %>
+                      <option value="<%= category._id %>" <%=product.category.equals(category._id) ? "selected" : "" %>
+                        >
+                        <%= category.name %>
+                      </option>
+                      <% }); %>
+                  </select>
+                </div>
+
+                <!-- Existing Images Preview -->
+                <div class="mb-4">
+                  <label class="form-label">Current Product Images</label>
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <label class="form-label">Image 1</label>
+                      <% if (product.product_images && product.product_images[0]) { %>
+                        <img src="<%= product.product_images[0] %>" alt="Product Image 1" class="img-fluid" />
+                        <% } else { %>
+                          <p>No image uploaded</p>
+                          <% } %>
+                    </div>
+
+                    <div class="col-lg-3">
+                      <label class="form-label">Image 2</label>
+                      <% if (product.product_images && product.product_images[1]) { %>
+                        <img src="<%= product.product_images[1] %>" alt="Product Image 2" class="img-fluid" />
+                        <% } else { %>
+                          <p>No image uploaded</p>
+                          <% } %>
+                    </div>
+
+                    <div class="col-lg-3">
+                      <label class="form-label">Image 3</label>
+                      <% if (product.product_images && product.product_images[2]) { %>
+                        <img src="<%= product.product_images[2] %>" alt="Product Image 3" class="img-fluid" />
+                        <% } else { %>
+                          <p>No image uploaded</p>
+                          <% } %>
+                    </div>
+
+                    <div class="col-lg-3">
+                      <label class="form-label">Image 4</label>
+                      <% if (product.product_images && product.product_images[3]) { %>
+                        <img src="<%= product.product_images[3] %>" alt="Product Image 4" class="img-fluid" />
+                        <% } else { %>
+                          <p>No image uploaded</p>
+                          <% } %>
+                    </div>
                   </div>
-                  <div class="card-body">
-                    <!-- Product Form -->
-                    <form
-                    id="productForm"
-                    action="/admin/products/edit/<%= product._id %>"
-                    method="POST"
-                    enctype="multipart/form-data"
-                  >
-                    <!-- Product Title -->
+                </div>
+
+
+
+                <!-- Image Upload Inputs (to replace the old images) -->
+                <div class="mb-4">
+                  <label for="image1" class="form-label">Product Image 1</label>
+                  <input type="file" class="form-control" id="image1" name="image1" accept="image/*" />
+                </div>
+
+                <div class="mb-4">
+                  <label for="image2" class="form-label">Product Image 2</label>
+                  <input type="file" class="form-control" id="image2" name="image2" accept="image/*" />
+                </div>
+
+                <div class="mb-4">
+                  <label for="image3" class="form-label">Product Image 3</label>
+                  <input type="file" class="form-control" id="image3" name="image3" accept="image/*" />
+                </div>
+
+                <div class="mb-4">
+                  <label for="image4" class="form-label">Product Image 4</label>
+                  <input type="file" class="form-control" id="image4" name="image4" accept="image/*" />
+                </div>
+
+                <!-- Cropping containers for each image -->
+                <div id="cropper-container-1" class="cropper-container" style="display: none;">
+                  <img id="crop-image-1" src="" alt="Image 1 to crop" />
+                  <button type="button" id="cropBtn-1" class="btn btn-primary">Crop Image 1</button>
+                </div>
+
+                <div id="cropper-container-2" class="cropper-container" style="display: none;">
+                  <img id="crop-image-2" src="" alt="Image 2 to crop" />
+                  <button type="button" id="cropBtn-2" class="btn btn-primary">Crop Image 2</button>
+                </div>
+
+                <div id="cropper-container-3" class="cropper-container" style="display: none;">
+                  <img id="crop-image-3" src="" alt="Image 3 to crop" />
+                  <button type="button" id="cropBtn-3" class="btn btn-primary">Crop Image 3</button>
+                </div>
+
+                <div id="cropper-container-4" class="cropper-container" style="display: none;">
+                  <img id="crop-image-4" src="" alt="Image 4 to crop" />
+                  <button type="button" id="cropBtn-4" class="btn btn-primary">Crop Image 4</button>
+                </div>
+
+                <!-- Quantity and Stock Status -->
+                <div class="row">
+                  <div class="col-lg-6">
                     <div class="mb-4">
-                      <label for="product_name" class="form-label">Product Title</label>
-                      <input
-                        type="text"
-                        placeholder="Type here"
-                        class="form-control"
-                        id="product_name"
-                        name="product_name"
-                        value="<%= product.product_name %>" 
-                      />
+                      <label class="form-label">Stock</label>
+                      <input type="number" placeholder="Enter left stock" class="form-control" name="leftStock"
+                        value="<%= product.leftStock %>" />
                     </div>
-                    
-                    <!-- Full Description -->
+                  </div>
+                  <div class="col-lg-6">
                     <div class="mb-4">
-                      <label class="form-label">Description</label>
-                      <textarea
-                        placeholder="Type here"
-                        class="form-control"
-                        rows="4"
-                        name="shortDescription"
-                      ><%= product.shortDescription %></textarea>
+                      <label class="form-label">Quantity</label>
+                      <input type="text" placeholder="Enter quantity" class="form-control" name="quantity"
+                        value="<%= product.quantity %>" />
                     </div>
-                    
+                  </div>
+                  <div class="col-lg-6">
                     <div class="mb-4">
-                      <label class="form-label">Full description</label>
-                      <textarea
-                        placeholder="Type here"
-                        class="form-control"
-                        rows="4"
-                        name="longDescription"
-                      ><%= product.longDescription %></textarea>
+                      <label class="form-label">Net Quantity</label>
+                      <input type="text" placeholder="Enter net quantity" class="form-control" name="netQuantity"
+                        value="<%= product.netQuantity %>" />
                     </div>
-                    
+                  </div>
+                  <div class="col-lg-6">
                     <div class="mb-4">
-                      <label class="form-label">Highlights</label>
-                      <textarea
-                        placeholder="Type here"
-                        class="form-control"
-                        rows="4"
-                        name="highlights"
-                      ><%= product.highlights %></textarea>
+                      <label class="form-label">Sales Package</label>
+                      <input type="text" placeholder="Enter sales package" class="form-control" name="salesPackage"
+                        value="<%= product.salesPackage %>" />
                     </div>
-                    
-                    <!-- Price Fields -->
-                    <div class="row">
-                      <div class="col-lg-4">
-                        <div class="mb-4">
-                          <label class="form-label">Regular Price</label>
-                          <input
-                            placeholder="₹"
-                            type="text"
-                            class="form-control"
-                            name="regular_price"
-                            value="<%= product.regular_price %>"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-4">
-                        <div class="mb-4">
-                          <label class="form-label">Discount Price</label>
-                          <input
-                            placeholder="₹"
-                            type="text"
-                            class="form-control"
-                            name="discount_price"
-                            value="<%= product.discount_price %>"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  
-                    <!-- Category -->
+                  </div>
+                  <div class="col-lg-6">
                     <div class="mb-4">
-                      <label class="form-label">Category</label>
-                      <select class="form-control" id="category" name="category">
-                        <% categories.forEach(function (category) { %>
-                          <option
-                            value="<%= category._id %>"
-                            <%= product.category.equals(category._id) ? "selected" : "" %>
-                          >
-                            <%= category.name %>
-                          </option>
-                        <% }); %>
+                      <label class="form-label">Stock Status</label>
+                      <select class="form-control" name="stock_status">
+                        <option value="in_stock" <%=product.stock_status==="in_stock" ? "selected" : "" %>>In Stock
+                        </option>
+                        <option value="out_of_stock" <%=product.stock_status==="out_of_stock" ? "selected" : "" %>>Out
+                          of Stock</option>
                       </select>
                     </div>
-                  
-                    <!-- Existing Images Preview -->
-                    <div class="mb-4">
-                      <label class="form-label">Current Product Images</label>
-                      <div class="row">
-                        <div class="col-lg-3">
-                          <label class="form-label">Image 1</label>
-                          <% if (product.product_images && product.product_images[0]) { %>
-                            <img src="<%= product.product_images[0] %>" alt="Product Image 1" class="img-fluid" />
-                          <% } else { %>
-                            <p>No image uploaded</p>
-                          <% } %>
-                        </div>
-                        
-                        <div class="col-lg-3">
-                          <label class="form-label">Image 2</label>
-                          <% if (product.product_images && product.product_images[1]) { %>
-                            <img src="<%= product.product_images[1] %>" alt="Product Image 2" class="img-fluid" />
-                          <% } else { %>
-                            <p>No image uploaded</p>
-                          <% } %>
-                        </div>
-                        
-                        <div class="col-lg-3">
-                          <label class="form-label">Image 3</label>
-                          <% if (product.product_images && product.product_images[2]) { %>
-                            <img src="<%= product.product_images[2] %>" alt="Product Image 3" class="img-fluid" />
-                          <% } else { %>
-                            <p>No image uploaded</p>
-                          <% } %>
-                        </div>
-                        
-                        <div class="col-lg-3">
-                          <label class="form-label">Image 4</label>
-                          <% if (product.product_images && product.product_images[3]) { %>
-                            <img src="<%= product.product_images[3] %>" alt="Product Image 4" class="img-fluid" />
-                          <% } else { %>
-                            <p>No image uploaded</p>
-                          <% } %>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    
-                  
-                    <!-- Image Upload Inputs (to replace the old images) -->
-                    <div class="mb-4">
-                      <label for="image1" class="form-label">Product Image 1</label>
-                      <input type="file" class="form-control" id="image1" name="image1" accept="image/*" />
-                    </div>
-                  
-                    <div class="mb-4">
-                      <label for="image2" class="form-label">Product Image 2</label>
-                      <input type="file" class="form-control" id="image2" name="image2" accept="image/*" />
-                    </div>
-                  
-                    <div class="mb-4">
-                      <label for="image3" class="form-label">Product Image 3</label>
-                      <input type="file" class="form-control" id="image3" name="image3" accept="image/*" />
-                    </div>
-                  
-                    <div class="mb-4">
-                      <label for="image4" class="form-label">Product Image 4</label>
-                      <input type="file" class="form-control" id="image4" name="image4" accept="image/*" />
-                    </div>
-                  
-                    <!-- Cropping containers for each image -->
-                    <div id="cropper-container-1" class="cropper-container" style="display: none;">
-                      <img id="crop-image-1" src="" alt="Image 1 to crop" />
-                      <button type="button" id="cropBtn-1" class="btn btn-primary">Crop Image 1</button>
-                    </div>
-                  
-                    <div id="cropper-container-2" class="cropper-container" style="display: none;">
-                      <img id="crop-image-2" src="" alt="Image 2 to crop" />
-                      <button type="button" id="cropBtn-2" class="btn btn-primary">Crop Image 2</button>
-                    </div>
-                  
-                    <div id="cropper-container-3" class="cropper-container" style="display: none;">
-                      <img id="crop-image-3" src="" alt="Image 3 to crop" />
-                      <button type="button" id="cropBtn-3" class="btn btn-primary">Crop Image 3</button>
-                    </div>
-                  
-                    <div id="cropper-container-4" class="cropper-container" style="display: none;">
-                      <img id="crop-image-4" src="" alt="Image 4 to crop" />
-                      <button type="button" id="cropBtn-4" class="btn btn-primary">Crop Image 4</button>
-                    </div>
-                  
-                    <!-- Quantity and Stock Status -->
-                    <div class="row">
-                      <div class="col-lg-6">
-                        <div class="mb-4">
-                          <label class="form-label">Stock</label>
-                          <input
-                            type="number"
-                            placeholder="Enter left stock"
-                            class="form-control"
-                            name="leftStock"
-                            value="<%= product.leftStock %>"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-6">
-                        <div class="mb-4">
-                          <label class="form-label">Quantity</label>
-                          <input
-                            type="text"
-                            placeholder="Enter quantity"
-                            class="form-control"
-                            name="quantity"
-                            value="<%= product.quantity %>"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-6">
-                        <div class="mb-4">
-                          <label class="form-label">Net Quantity</label>
-                          <input
-                            type="text"
-                            placeholder="Enter net quantity"
-                            class="form-control"
-                            name="netQuantity"
-                            value="<%= product.netQuantity %>"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-6">
-                        <div class="mb-4">
-                          <label class="form-label">Sales Package</label>
-                          <input
-                            type="text"
-                            placeholder="Enter sales package"
-                            class="form-control"
-                            name="salesPackage"
-                            value="<%= product.salesPackage %>"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-6">
-                        <div class="mb-4">
-                          <label class="form-label">Stock Status</label>
-                          <select class="form-control" name="stock_status">
-                            <option value="in_stock" <%= product.stock_status === "in_stock" ? "selected" : "" %>>In Stock</option>
-                            <option value="out_of_stock" <%= product.stock_status === "out_of_stock" ? "selected" : "" %>>Out of Stock</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  
-                    <!-- Submit Button -->
-                    <div class="d-flex justify-content-between">
-                      <button
-                        type="submit"
-                        class="btn btn-md rounded font-sm hover-up"
-                        id="saveBtn"
-                      >
-                        Save Changes
-                      </button>
-                    </div>
-                  </form>
-                  
                   </div>
                 </div>
-              </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-between">
+                  <button type="submit" class="btn btn-md rounded font-sm hover-up" id="saveBtn">
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+
             </div>
-          </section>
-          <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
-          <script>
-            let cropper1, cropper2, cropper3, cropper4;
-          
-            function initializeCropper(imageId, cropperId, containerId, cropBtnId, inputId) {
-              document.getElementById(imageId).addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = function (event) {
-                    const imageUrl = event.target.result;
-                    document.getElementById(cropperId).src = imageUrl;
-                    document.getElementById(containerId).style.display = 'block';  
-    
-                    window[cropperId] = new Cropper(document.getElementById(cropperId), {
-                      aspectRatio: 0,
-                      viewMode: 2,
-                      autoCropArea: 1,
-                    });
-                  };
-                  reader.readAsDataURL(file);
-                }
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+    <script>
+      let cropper1, cropper2, cropper3, cropper4;
+
+      function initializeCropper(imageId, cropperId, containerId, cropBtnId, inputId) {
+        document.getElementById(imageId).addEventListener('change', function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              const imageUrl = event.target.result;
+              document.getElementById(cropperId).src = imageUrl;
+              document.getElementById(containerId).style.display = 'block';
+
+              window[cropperId] = new Cropper(document.getElementById(cropperId), {
+                aspectRatio: 4 / 5,
+                viewMode: 2,
+                autoCropArea: 1,
               });
-          
-              document.getElementById(cropBtnId).addEventListener('click', function () {
-                const canvas = window[cropperId].getCroppedCanvas();
-                canvas.toBlob(function (blob) {
-                  const croppedFile = new File([blob], "cropped-image.jpg", { type: 'image/jpeg' });
-          
-                  const dataTransfer = new DataTransfer();
-                  dataTransfer.items.add(croppedFile);
-          
-                  const inputField = document.getElementById(inputId);
-                  inputField.files = dataTransfer.files;
-        
-                  document.getElementById(containerId).style.display = 'none';
-        
-                  const previewContainer = document.getElementById('image-preview-container');
-                  const previewImage = document.createElement('img');
-                  previewImage.src = URL.createObjectURL(croppedFile);
-                  previewImage.style.maxWidth = '200px';
-                  previewContainer.appendChild(previewImage); 
-                });
-              });
-            }
-          
-            // Initialize cropper for each image input
-            initializeCropper('image1', 'crop-image-1', 'cropper-container-1', 'cropBtn-1', 'image1');
-            initializeCropper('image2', 'crop-image-2', 'cropper-container-2', 'cropBtn-2', 'image2');
-            initializeCropper('image3', 'crop-image-3', 'cropper-container-3', 'cropBtn-3', 'image3');
-            initializeCropper('image4', 'crop-image-4', 'cropper-container-4', 'cropBtn-4', 'image4');
-          </script>
-    
-    
-      </body>
-    </html>
-    
-          
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        document.getElementById(cropBtnId).addEventListener('click', function () {
+          const canvas = window[cropperId].getCroppedCanvas();
+          canvas.toBlob(function (blob) {
+            const croppedFile = new File([blob], "cropped-image.jpg", { type: 'image/jpeg' });
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(croppedFile);
+
+            const inputField = document.getElementById(inputId);
+            inputField.files = dataTransfer.files;
+
+            document.getElementById(containerId).style.display = 'none';
+
+            const previewContainer = document.getElementById('image-preview-container');
+            const previewImage = document.createElement('img');
+            previewImage.src = URL.createObjectURL(croppedFile);
+            previewImage.style.maxWidth = '200px';
+            previewContainer.appendChild(previewImage);
+          });
+        });
+      }
+
+      // Initialize cropper for each image input
+      initializeCropper('image1', 'crop-image-1', 'cropper-container-1', 'cropBtn-1', 'image1');
+      initializeCropper('image2', 'crop-image-2', 'cropper-container-2', 'cropBtn-2', 'image2');
+      initializeCropper('image3', 'crop-image-3', 'cropper-container-3', 'cropBtn-3', 'image3');
+      initializeCropper('image4', 'crop-image-4', 'cropper-container-4', 'cropBtn-4', 'image4');
+    </script>
+
+
+</body>
+
+</html>
