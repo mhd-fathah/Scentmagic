@@ -3648,7 +3648,7 @@ footer.main-footer {
 .dark .form-select {
   background-color: #c5c8d1 !important;
   border-color: #383e50 !important;
-  color: #fff !important;
+  color: #000000 !important;
 }
 .dark .btn {
   color: white;

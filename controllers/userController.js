@@ -381,7 +381,7 @@ const productDetails = async (req, res) => {
       return res.status(400).send("Invalid Product ID");
     }
 
-    const product = await Product.findById(productId)
+    const product = await Product.findOne({ _id: productId, isDeleted: false })
       .populate("category")
       .populate({
         path: "reviews",
@@ -393,7 +393,10 @@ const productDetails = async (req, res) => {
       .lean();
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(404).render("error", {
+        message: "The product you are looking for has been deleted or is no longer available.",
+        layout: false,
+      });
     }
 
     const isOutOfStock = !product.leftStock || product.leftStock <= 0;
@@ -407,7 +410,7 @@ const productDetails = async (req, res) => {
       .lean();
 
     res.render("product/details", {
-      title : 'Product Details',
+      title: "Product Details",
       product,
       isOutOfStock,
       relatedProducts,
@@ -419,6 +422,7 @@ const productDetails = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
 
 const addReview = async (req, res) => {
   const { productId, rating, comment } = req.body;
