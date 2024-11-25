@@ -1,0 +1,56 @@
+body {
+    background-color: #f8f9fa; /* Light background */
+    font-family: 'Arial', sans-serif;
+  }
+
+  .cancel-container {
+    max-width: 600px;
+    margin: 100px auto;
+    background: #ffffff; /* White card background */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .cancel-header {
+    color: #f714f0eb; /* Luxurious magenta */
+    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .cancel-message {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 30px;
+  }
+
+  .btn-magenta {
+    background-color: #f714f0eb;
+    color: white;
+    font-weight: bold;
+    border: none;
+  }
+
+  .btn-magenta:hover {
+    background-color: #d013cd;
+  }
+
+  .btn-outline-magenta {
+    border-color: #f714f0eb;
+    color: #f714f0eb;
+    font-weight: bold;
+  }
+
+  .btn-outline-magenta:hover {
+    background-color: #f714f0eb;
+    color: white;
+  }
+
+  .form-select {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+  }

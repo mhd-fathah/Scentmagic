@@ -1,0 +1,96 @@
+body {
+    background-color: #f8f9fa; /* Light background */
+    font-family: 'Arial', sans-serif;
+  }
+
+  h1 {
+    color: #f714f0eb; /* Luxurious magenta */
+    font-weight: 600;
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  .order-card {
+    background: #ffffff; /* White card background */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  .order-header {
+    background-color: #f714f0eb;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px 8px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .order-body {
+    padding: 20px;
+  }
+
+  .order-body img {
+    border-radius: 8px;
+  }
+
+  .order-details {
+    margin-left: 20px;
+  }
+
+  .btn-outline-magenta {
+    border-color: #f714f0eb;
+    color: #f714f0eb;
+    font-weight: bold;
+  }
+
+  .btn-outline-magenta:hover {
+    background-color: #f714f0eb;
+    color: white;
+  }
+
+  .order-info p {
+    color: #555;
+  }
+
+  .order-footer {
+    padding: 10px 20px;
+    background-color: #f4f4f4;
+    border-radius: 0 0 8px 8px;
+    text-align: right;
+  }
+
+  .order-footer a {
+    text-decoration: none;
+    color: #f714f0eb;
+  }
+
+  .order-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .order-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+  }
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .order-item-details {
+    flex-grow: 1;
+  }
+
+  .order-item-details h5 {
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .order-item-details p {
+    margin-bottom: 5px;
+  }

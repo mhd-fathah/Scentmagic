@@ -1,0 +1,53 @@
+body {
+    background: #f9f9f9; /* Light background for a clean look */
+    color: #333; /* Neutral text color */
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1 {
+    color: #f714f0eb; /* Magenta for the heading */
+    font-weight: 600;
+  }
+
+  .account-card {
+    background: #ffffff; /* Bright white card background */
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .account-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(247, 20, 240, 0.2); /* Subtle magenta glow */
+  }
+
+  .icon-box {
+    background: #f714f0eb; /* Magenta for icons */
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+  }
+
+  .icon-box i {
+    font-size: 30px;
+    color: #ffffff; /* White icons for contrast */
+  }
+
+  .btn-outline-magenta {
+    color: #f714f0eb;
+    border-color: #f714f0eb;
+  }
+
+  .btn-outline-magenta:hover {
+    background: #f714f0eb;
+    color: #ffffff; /* White text on hover */
+  }
+
+  p {
+    color: #666; /* Subtle gray for descriptions */
+  }

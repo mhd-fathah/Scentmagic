@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account</title>
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="/css/my account/my-account.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="mb-4 text-center">My Account</h1>
+    <div class="row g-4">
+
+      <!-- Account Details -->
+      <div class="col-md-3">
+        <div class="account-card p-4 text-center">
+          <div class="icon-box">
+            <i class="bi bi-person"></i>
+          </div>
+          <h5>Account</h5>
+          <p>Manage your profile settings</p>
+          <a href="/my-account/index.html" class="btn btn-outline-magenta btn-sm mt-3">Edit Account</a>
+        </div>
+      </div>
+
+      <!-- Wishlist -->
+      <div class="col-md-3">
+        <div class="account-card p-4 text-center">
+          <div class="icon-box">
+            <i class="bi bi-heart"></i>
+          </div>
+          <h5>Wishlist</h5>
+          <p>Your saved favorite items</p>
+          <a href="/wishlist/wishlist.html" class="btn btn-outline-magenta btn-sm mt-3">View Wishlist</a>
+        </div>
+      </div>
+
+      <!-- Wallet -->
+      <div class="col-md-3">
+        <div class="account-card p-4 text-center">
+          <div class="icon-box">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <h5>Wallet</h5>
+          <p>Check your wallet balance</p>
+          <a href="/wallet/view-wallet.html" class="btn btn-outline-magenta btn-sm mt-3">View Wallet</a>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="col-md-3">
+        <div class="account-card p-4 text-center">
+          <div class="icon-box">
+            <i class="bi bi-box"></i>
+          </div>
+          <h5>Orders</h5>
+          <p>Track and manage your orders</p>
+          <a href="/orders/view-orders.html" class="btn btn-outline-magenta btn-sm mt-3">View Orders</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

@@ -60,19 +60,15 @@ const verifyOTP = async (req, res) => {
     }
 
     if (otp === storedOtp) {
-      // OTP is correct, save user to database
       const user = req.session.tempUserData;
 
-      // Assuming you have a User model (replace `User` with your actual model name)
       const newUser = new User({
         email: user.email,
-        name: user.name, // Replace with actual fields
-        // You can add other fields like password, etc. here
+        name: user.name, 
       });
 
-      await newUser.save(); // Save the user to the database
+      await newUser.save(); 
 
-      // Clean up the session after successful verification
       req.session.user = newUser;
       delete req.session.otp;
       delete req.session.otpExpiresAt;

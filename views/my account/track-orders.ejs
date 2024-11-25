@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/my account/track-orders.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Track Your Order</h1>
+    <!-- Track Card -->
+    <div class="track-card">
+        <div class="track-header">
+            <span>Order ID: #<%= order.id %></span>
+            <span class="float-end">Date: <%= order.date %></span>
+        </div>
+        <div class="track-body">
+            <div class="track-info">
+                <p><strong>Current Status:</strong> <span class="status"><%= order.currentStatus %></span></p>
+                <p><strong>Shipping Carrier:</strong> <%= order.shippingCarrier %></p>
+                <p><strong>Tracking Number:</strong> <%= order.trackingNumber %></p>
+                <p><strong>Estimated Delivery:</strong> <%= order.estimatedDelivery %></p>
+                <p><strong>Current Location:</strong> <%= order.currentLocation %></p>
+            </div>
+            <div class="track-info">
+                <h5>Tracking Timeline:</h5>
+                <ul class="timeline">
+                    <% order.timeline.forEach(event => { %>
+                        <li>
+                            <span class="status"><%= event.date %>:</span> 
+                            <%= event.description %> 
+                            <span class="time">(<%= event.time %>)</span>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="/orders/track/<%= order.id %>" class="btn btn-magenta btn-sm">Track Again</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="track-footer">
+        <a href="/orders">Back to Orders</a>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

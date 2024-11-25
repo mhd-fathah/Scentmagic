@@ -1,0 +1,75 @@
+body {
+    background-color: #f4f4f4; /* Light gray background for clean look */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+h1 {
+    color: #f714f0eb; /* Luxurious magenta */
+    font-weight: 600;
+    text-align: center;
+    margin-top: 40px;
+}
+.track-card {
+    background: #ffffff; /* Clean white card */
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+.track-header {
+    background-color: #f714f0eb;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px 12px 0 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+.track-body {
+    padding: 30px 20px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+.track-info p {
+    margin: 10px 0;
+}
+.track-footer {
+    padding: 15px 20px;
+    background-color: #f9f9f9;
+    border-radius: 0 0 12px 12px;
+    text-align: right;
+}
+.track-footer a {
+    text-decoration: none;
+    color: #f714f0eb;
+    font-weight: 500;
+}
+.track-footer a:hover {
+    text-decoration: underline;
+}
+.status {
+    font-weight: 600;
+    color: #28a745; /* Green for active status */
+}
+.btn-magenta {
+    background-color: #f714f0eb;
+    border-color: #f714f0eb;
+    color: white;
+}
+.btn-magenta:hover {
+    background-color: #d612d1;
+    border-color: #d612d1;
+}
+.timeline {
+    list-style-type: none;
+    padding: 0;
+}
+.timeline li {
+    padding: 10px 0;
+    font-weight: 500;
+    color: #555;
+}
+.timeline .status {
+    font-weight: bold;
+}
+.timeline .time {
+    color: #999;
+}

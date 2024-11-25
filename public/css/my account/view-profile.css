@@ -1,0 +1,113 @@
+body {
+    background-color: #f8f9fa; /* Light background */
+    font-family: 'Arial', sans-serif;
+  }
+
+  .profile-container {
+    max-width: 900px;
+    margin: 50px auto;
+    background: #ffffff; /* White card background */
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #f714f0eb;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+  }
+
+  .profile-header h1 {
+    color: #f714f0eb; /* Luxurious magenta */
+    font-weight: 700;
+    margin: 0;
+    font-size: 36px;
+  }
+
+  .profile-header .btn-edit {
+    background-color: #f714f0eb;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .profile-header .btn-edit:hover {
+    background-color: #d013cd;
+  }
+
+  .profile-info {
+    margin-bottom: 30px;
+  }
+
+  .profile-info h5 {
+    font-weight: 600;
+    color: #333;
+    font-size: 28px;
+  }
+
+  .profile-info p {
+    font-size: 16px;
+    color: #555;
+    margin: 8px 0;
+  }
+
+  .profile-section {
+    margin-bottom: 30px;
+  }
+
+  .profile-section h6 {
+    color: #f714f0eb;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .profile-section p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .btn-magenta {
+    background-color: #f714f0eb;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  .btn-magenta:hover {
+    background-color: #d013cd;
+  }
+
+  .btn-outline-magenta {
+    border: 1px solid #f714f0eb;
+    color: #f714f0eb;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 5px;
+  }
+
+  .btn-outline-magenta:hover {
+    background-color: #f714f0eb;
+    color: white;
+  }
+
+  .profile-footer {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .profile-footer p {
+    font-size: 14px;
+    color: #888;
+  }

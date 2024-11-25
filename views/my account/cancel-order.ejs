@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancel Order Confirmation</title>
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="/css/my account/cancel-orders.css">
+</head>
+<body>
+  <div class="cancel-container">
+    <h1 class="cancel-header">Cancel Order</h1>
+    <p class="cancel-message">Are you sure you want to cancel this order?</p>
+
+    <!-- Order Details -->
+    <div class="order-details mb-4">
+      <p><strong>Order ID:</strong> #<%= order.id %></p>
+      <p><strong>Total Amount:</strong> $<%= order.totalAmount %></p>
+    </div>
+
+    <!-- Reason for Cancellation -->
+    <form action="/orders/cancel/<%= order.id %>" method="POST">
+      <div class="mb-4 text-start">
+        <label for="reason" class="form-label"><strong>Reason for Cancellation:</strong></label>
+        <select id="reason" name="reason" class="form-select" required>
+          <option value="" disabled selected>Select a reason</option>
+          <% cancellationReasons.forEach(reason => { %>
+            <option value="<%= reason %>"><%= reason %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <!-- Confirmation Buttons -->
+      <div class="d-flex justify-content-center gap-3">
+        <button type="submit" class="btn btn-magenta btn-lg">Yes, Cancel</button>
+        <a href="/orders/<%= order.id %>" class="btn btn-outline-magenta btn-lg">No, Go Back</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

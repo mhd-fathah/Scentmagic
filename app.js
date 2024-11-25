@@ -14,6 +14,7 @@ require("./config/passport");
 const categoryRoutes = require('./routes/categoryRoutes')
 const auth = require("./middleware/authMiddleware")
 const productRoutes = require('./routes/productRoutes')
+const cartRoutes = require('./routes/cartRoutes')
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -40,6 +41,7 @@ app.use('/public/uploads', express.static(path.join(__dirname, 'public/uploads')
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
+app.use(cartRoutes)
 app.use("/admin",adminRoutes,categoryRoutes,productRoutes)
 app.use("/", userRoutes);
 

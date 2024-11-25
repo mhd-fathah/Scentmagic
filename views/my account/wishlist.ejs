@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist</title>
+    <link rel="stylesheet" href="/css/my account/wishlist.css">
+</head>
+<body>
+    <div class="container">
+        <div class="wishlist-header">
+            <div>
+                <h1 class="wishlist-title">My Wishlist</h1>
+                <span class="items-count"><%= wishlistItems.length %> Items</span>
+            </div>
+        </div>
+
+        <% if (wishlistItems.length > 0) { %>
+            <div class="wishlist-grid">
+                <% wishlistItems.forEach(item => { %>
+                    <!-- Product Card -->
+                    <div class="product-card">
+                        <div class="wishlist-actions">
+                            <button class="action-btn" title="Remove">✕</button>
+                            <button class="action-btn" title="Share">↗</button>
+                        </div>
+                        <div class="product-image">
+                            <img src="<%= item.imageUrl %>" alt="<%= item.name %>">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-brand"><%= item.brand %></div>
+                            <h3 class="product-name"><%= item.name %></h3>
+                            <div class="rating-section">
+                                <span class="product-rating"><%= item.rating %> ★</span>
+                                <span class="rating-count"><%= item.ratingCount %> ratings</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="current-price">₹<%= item.currentPrice %></span>
+                                <span class="original-price">₹<%= item.originalPrice %></span>
+                                <span class="discount"><%= item.discount %> off</span>
+                            </div>
+                            <button class="move-to-cart">Move to Cart</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <!-- Empty Wishlist State -->
+            <div class="empty-wishlist">
+                <img src="/api/placeholder/200/200" alt="Empty Wishlist">
+                <h2>Empty Wishlist</h2>
+                <p>You have no items in your wishlist. Start adding!</p>
+                <a href="#" class="browse-products">Browse Products</a>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
