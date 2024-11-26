@@ -61,4 +61,21 @@ router.get("/search", auth.checkBlocked, async (req, res) => {
 
 router.get('/shop',auth.checkBlocked,userController.getProductsPage)
 
+router.get('/my-account',auth.checkSession , userController.loadMyAccount)
+
+router.get('/my-account/profile' , auth.checkSession , userController.loadEditProfile)
+
+router.post('/my-account/profile/update' , auth.checkSession , userController.updateUserProfile)
+
+router.get('/my-account/address', auth.checkSession , userController.loadAddressPage)
+
+router.post('/my-account/address/add',auth.checkSession , userController.addNewAddress)
+
+router.get('/my-account/address/edit/:id',auth.checkSession , userController.getEditAddressForm)
+
+router.post('/my-account/address/edit/:id',auth.checkSession , userController.updateAddress)
+
+router.post('/my-account/address/delete/:id',auth.checkSession ,userController.deleteAddress)
+
+
 module.exports = router;

@@ -41,6 +41,7 @@ app.use('/public/uploads', express.static(path.join(__dirname, 'public/uploads')
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
+app.use(auth.setCurrentRoute)
 app.use(cartRoutes)
 app.use("/admin",adminRoutes,categoryRoutes,productRoutes)
 app.use("/", userRoutes);

@@ -1,57 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>View Profile</title>
-  <!-- Bootstrap CSS -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link rel="stylesheet" href="/css/my-account/view-profile.css">
+  <title>Edit Account</title>
+  <link rel="stylesheet" href="/css/my account/view-profile.css">
+  <style>
+    .password-reset-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    #loadingSpinner {
+      margin-left: 8px;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="profile-container">
-    <!-- Profile Header -->
-    <div class="profile-header d-flex justify-content-between align-items-center">
-      <h1>My Profile</h1>
-      <button class="btn btn-edit">Edit Profile</button>
-    </div>
+  <div class="container">
+    <a href="/my-account" class="back-button">← Back to My Account</a>
 
-    <!-- Profile Info -->
-    <div class="profile-info">
-      <h5><%= user.name %></h5>
-      <p><strong>Email:</strong> <%= user.email %></p>
-      <p><strong>Phone:</strong> <%= user.phone %></p>
-      <p><strong>Address:</strong> <%= user.address %></p>
-    </div>
-
-    <!-- Profile Sections -->
-    <% const sections = [
-      { title: 'Order History', description: 'View your past orders, including status and delivery details.', buttonText: 'View Orders', link: '/orders' },
-      { title: 'Payment Methods', description: 'Manage your payment methods, such as credit cards and PayPal accounts.', buttonText: 'Manage Payment Methods', link: '/payment-methods' },
-      { title: 'Change Password', description: 'Change your account password to enhance security.', buttonText: 'Change Password', link: '/change-password' },
-      { title: 'Logout', description: 'If you want to logout, click the button below.', buttonText: 'Logout', link: '/logout' }
-    ]; %>
-
-    <% sections.forEach(section => { %>
-      <div class="profile-section">
-        <h6><%= section.title %></h6>
-        <p><%= section.description %></p>
-        <a href="<%= section.link %>" class="btn btn-outline-magenta"><%= section.buttonText %></a>
+    <div class="profile-section">
+      <div class="profile-header">
+        <h2>Profile Information</h2>
+        <p>Manage your profile details</p>
       </div>
-    <% }); %>
 
-    <!-- Profile Footer -->
-    <div class="profile-footer">
-      <p>© 2024 Scentmagic. All Rights Reserved.</p>
+      <div style="padding: 20px;">
+        <% if (passwordResetSuccess) { %>
+          <div class="alert alert-success" id="passwordResetAlert">
+            Password reset link has been sent to your email address. Please check your inbox.
+          </div>
+          <% } %>
+
+
+            <form action="/my-account/profile/update" method="POST">
+              <!-- Personal Details Section -->
+              <h3>Personal Details</h3>
+              <div class="row">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-control" name="fullName" value="<%= user.name %>">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-control" name="firstName" value="<%= user.firstName %>">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-control" name="lastName" value="<%= user.lastName %>">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" name="email" value="<%= user.email %>">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control" name="phone" value="<%= user.mobile %>">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Gender</label>
+                  <select class="form-control" name="gender">
+                    <option value="Male" <%=user.gender==='Male' ? 'selected' : '' %>>Male</option>
+                    <option value="Female" <%=user.gender==='Female' ? 'selected' : '' %>>Female</option>
+                    <option value="Other" <%=user.gender==='Other' ? 'selected' : '' %>>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Address Section -->
+              <div class="section-header">
+                <h3>Addresses</h3>
+                <a href="/my-account/address" class="btn btn-outline-magenta">+ Add New Address</a>
+              </div>
+              <% user.addresses.forEach(address=> { %>
+                <div class="account-card">
+                  <div style="display: flex; justify-content: space-between;">
+                    <div>
+                      <h3>
+                        <%= address.fullName %>
+                      </h3>
+                      <h4>
+                        <%= address.type %>
+                      </h4>
+                      <p>
+                        <%= address.address %>
+                      </p>
+                      <p>
+                        <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                      </p>
+                      <p>Phone: <%= address.mobile %>
+                      </p>
+                    </div>
+                    <div>
+                      <a href="/my-account/address/edit/<%= address.id %>" class="btn btn-outline-magenta"
+                        style="margin-right: 10px;">Edit</a>
+                      <a href="#" class="btn btn-outline-danger delete-address-btn" data-id="<%= address._id %>">
+                        Delete
+                      </a>
+
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+
+                  <!-- Password Section -->
+                  <div class="section-header">
+                    <h3>Password Settings</h3>
+                    <div class="password-reset-container">
+                      <button type="button" class="btn btn-outline-magenta" id="resetPasswordButton"
+                        onclick="requestPasswordReset()">
+                        <span id="resetButtonText">Reset Password</span>
+                        <span id="loadingSpinner" class="spinner-border spinner-border-sm" style="display: none;"
+                          role="status" aria-hidden="true"></span>
+                      </button>
+                    </div>
+
+                  </div>
+                  <p style="color: #666;">Click the Reset Password button to receive a password reset link via email.
+                  </p>
+
+                  <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <button type="submit" class="btn btn-magenta">Save Changes</button>
+                    <!-- <a href="/deactivate-account" class="btn btn-outline-danger">Deactivate Account</a> -->
+                  </div>
+            </form>
+      </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"
-  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.delete-address-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault(); 
+
+          const addressId = button.getAttribute('data-id');
+
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to delete this address? This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              fetch(`/my-account/address/delete/${addressId}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                }
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    Swal.fire(
+                      'Deleted!',
+                      'Your address has been deleted.',
+                      'success'
+                    ).then(() => {
+                      window.location.reload();
+                    });
+                  } else {
+                    Swal.fire(
+                      'Error!',
+                      data.message || 'An error occurred while deleting the address.',
+                      'error'
+                    );
+                  }
+                })
+                .catch(err => {
+                  console.error(err);
+                  Swal.fire(
+                    'Error!',
+                    'An unexpected error occurred. Please try again.',
+                    'error'
+                  );
+                });
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script>
+    const message = "<%= message %>";
+    if (message) {
+      swal({
+        title: "Profile Update",
+        text: message,
+        icon: message.includes("successfully") ? "success" : "error", 
+        button: "OK",
+      }).then(() => {
+        window.location.href = '/my-account/profile';
+    })
+    }
+    function requestPasswordReset() {
+      const alertBox = document.getElementById("passwordResetAlert");
+      if (alertBox) {
+        alertBox.style.display = "block";
+      }
+
+      const resetButton = document.getElementById("resetPasswordButton");
+      const buttonText = document.getElementById("resetButtonText");
+      const spinner = document.getElementById("loadingSpinner");
+
+      resetButton.disabled = true;
+      buttonText.textContent = "Processing...";
+      spinner.style.display = "inline-block";
+
+      setTimeout(() => {
+        window.location.href = "/forgot-password";
+      }, 2000);
+    }
+  </script>
+
 </body>
+
 </html>

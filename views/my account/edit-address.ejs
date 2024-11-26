@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Address - Flipkart Style</title>
+    <link rel="stylesheet" href="/css/my account/edit-address.css">
+</head>
+
+<body>
+    <div class="address-container">
+        <div class="address-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#2874f0">
+                <path
+                    d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
+            </svg>
+            <h2>Edit Address</h2>
+        </div>
+
+        <form action="/my-account/address/edit/<%= address._id %>" method="POST">
+            <div class="name-row">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" value="<%= address.fullName %>" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="tel" id="mobile" name="mobile" value="<%= address.mobile %>" required>
+            </div>
+            <div class="form-group">
+                <label for="pincode">Pincode</label>
+                <input type="text" id="pincode" name="pincode" value="<%= address.pincode %>" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" value="<%= address.state %>" required>
+            </div>
+            <div class="form-group full-width">
+                <label for="address">Address (Area and Street)</label>
+                <textarea id="address" name="address" required><%= address.address %></textarea>
+            </div>
+            <div class="form-group">
+                <label for="city">City/District/Town</label>
+                <input type="text" id="city" name="city" value="<%= address.city %>" required>
+            </div>
+            <div class="form-group">
+                <label for="type">Address Type</label>
+                <select id="type" name="type">
+                    <option value="home" <%=address.type==='home' ? 'selected' : '' %>>Home</option>
+                    <option value="work" <%=address.type==='work' ? 'selected' : '' %>>Work</option>
+                    <option value="other" <%=address.type==='other' ? 'selected' : '' %>>Other</option>
+                </select>
+            </div>
+
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-cancel" onclick="window.history.back();">CANCEL</button>
+                <button type="submit" class="btn btn-save">SAVE</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

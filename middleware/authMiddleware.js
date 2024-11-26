@@ -49,7 +49,9 @@ const checkBlocked = (req, res, next) => {
   }
 };
 
+const setCurrentRoute = (req, res, next) => {
+  res.locals.currentRoute = req.path; 
+  next();
+};
 
-
-
-module.exports = { checkSession, setAuthStatus , isLogin, checkOTPVerified , checkBlocked};
+module.exports = { checkSession, setAuthStatus , isLogin, checkOTPVerified , checkBlocked , setCurrentRoute };
