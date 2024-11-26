@@ -1,4 +1,14 @@
 <style>
+  .pro-qty input::-webkit-inner-spin-button,
+  .pro-qty input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .pro-qty input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
   #mainImageContainer {
     position: relative;
     overflow: hidden;
@@ -46,7 +56,8 @@
     <div class="row">
       <div class="col-md-12">
         <nav aria-label="breadcrumb">
-          <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm" style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+          <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
+            style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
             <li class="breadcrumb-item">
               <a href="/" class="text-decoration-none text-dark fw-bold">
                 <i class="bi bi-house-door"></i> Home
@@ -61,11 +72,11 @@
               <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
                 <%= categories.name %>
               </li>
-            <% } else { %>
-              <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                All Products
-              </li>
-            <% } %>
+              <% } else { %>
+                <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                  All Products
+                </li>
+                <% } %>
           </ol>
         </nav>
       </div>
@@ -145,19 +156,23 @@
 
           <div class="product__details__quantity">
             <div class="quantity">
-              <div class="pro-qty">
-                <input type="text" value="1">
+              <div class="pro-qty" data-left-stock="<%= product.leftStock %>" >
+                <input type="number" value="1" min="1" max="99" id="product-quantity" aria-label="Quantity">
               </div>
             </div>
           </div>
+
           <% if (isOutOfStock) { %>
             <p class="sold-out-message text-danger">Sold Out</p>
             <a href="#" class="primary-btn disabled">Notify Me</a>
             <% } else { %>
-              <a href="/cart/add/<%= product._id %>" class="primary-btn">ADD TO CART</a>
+              <a href="#" class="primary-btn add-to-cart-btn" data-product-id="<%= product._id %>"
+                data-product-name="<%= product.product_name %>" data-product-price="<%= product.discount_price %>">ADD
+                TO CART</a>
               <% } %>
 
                 <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+
                 <ul>
                   <li><b>Availability</b> <span>
                       <%= product.leftStock> 0 ? 'In Stock' : 'Out of Stock' %>
@@ -174,108 +189,107 @@
                   <li><b>Sales Package</b> <span>
                       <%= product.salesPackage || 'N/A' %>
                     </span></li>
-
                 </ul>
+
         </div>
       </div>
-    </div>
 
-    <!-- Product Tabs Section -->
-    <div class="row mt-4">
-      <div class="col-lg-12">
-        <div class="product__details__tab">
-          <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Information</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews <span>(<%= product.reviewsCount ||
-                    0 %>)</span></a>
-            </li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane active" id="tabs-1" role="tabpanel">
-              <div class="product__details__tab__desc">
-                <h6>Product Information</h6>
-                <p>
-                  <% if (product.longDescription && product.longDescription.trim() !=='' ) { %>
-                    <%= product.longDescription %>
-                      <% } else { %>
-                        No additional information available.
-                        <% } %>
-                </p>
-              </div>
-            </div>
-
-
-            <div class="tab-pane" id="tabs-2" role="tabpanel">
-              <div class="product__details__tab__desc">
-                <h6>Additional Information</h6>
-                <p>
-                  <% if (product.highlights && product.highlights.trim() !=='' ) { %>
-                    <%= product.highlights %>
-                      <% } else { %>
-                        No extra details available.
-                        <% } %>
-                </p>
-              </div>
-            </div>
-
-            <div class="tab-pane" id="tabs-3" role="tabpanel">
-              <div class="product__details__tab__desc">
-                <h6>Customer Reviews</h6>
-                <% if (product.reviews && product.reviews.length> 0) { %>
-                  <ul>
-                    <% product.reviews.forEach(review=> { %>
-                      <li>
-                        <p><strong>
-                            <%= review.user.name %>
-                          </strong>: <%= review.comment %>
-                        </p>
-                        <p>Rating: <%= review.rating %> / 5</p>
-                        <p><small>
-                            <%= new Date(review.createdAt).toLocaleDateString() %>
-                          </small></p>
-                      </li>
-                      <% }) %>
-                  </ul>
-                  <% } else { %>
-                    <p>No reviews yet. Be the first to review this product!</p>
-                    <% } %>
-                      <% if (userId) { %> 
-                        <form id="reviewForm">
-                          <input type="hidden" id="productId" value="<%= product._id %>">
-                          <div class="form-group">
-                            <label for="rating">Rating (1-5):</label>
-                            <select id="rating" class="form-control" required>
-                              <option value="" disabled selected>Choose a rating</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                              <option value="4">4</option>
-                              <option value="5">5</option>
-                            </select>
-                          </div>
-                          <div class="form-group">
-                            <label for="comment">Comment:</label>
-                            <textarea id="comment" class="form-control" rows="4" required></textarea>
-                          </div>
-                          <button type="button" id="submitReview" class="btn btn-primary">Submit Review</button>
-                        </form>
+      <!-- Product Tabs Section -->
+      <div class="row mt-4">
+        <div class="col-lg-12">
+          <div class="product__details__tab">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Information</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews <span>(<%= product.reviewsCount
+                      || 0 %>)</span></a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tabs-1" role="tabpanel">
+                <div class="product__details__tab__desc">
+                  <h6>Product Information</h6>
+                  <p>
+                    <% if (product.longDescription && product.longDescription.trim() !=='' ) { %>
+                      <%= product.longDescription %>
                         <% } else { %>
-                          <p><a href="/login">Log in</a> to leave a review.</p>
+                          No additional information available.
                           <% } %>
+                  </p>
+                </div>
               </div>
-            </div>
 
+
+              <div class="tab-pane" id="tabs-2" role="tabpanel">
+                <div class="product__details__tab__desc">
+                  <h6>Additional Information</h6>
+                  <p>
+                    <% if (product.highlights && product.highlights.trim() !=='' ) { %>
+                      <%= product.highlights %>
+                        <% } else { %>
+                          No extra details available.
+                          <% } %>
+                  </p>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="tabs-3" role="tabpanel">
+                <div class="product__details__tab__desc">
+                  <h6>Customer Reviews</h6>
+                  <% if (product.reviews && product.reviews.length> 0) { %>
+                    <ul>
+                      <% product.reviews.forEach(review=> { %>
+                        <li>
+                          <p><strong>
+                              <%= review.user.name %>
+                            </strong>: <%= review.comment %>
+                          </p>
+                          <p>Rating: <%= review.rating %> / 5</p>
+                          <p><small>
+                              <%= new Date(review.createdAt).toLocaleDateString() %>
+                            </small></p>
+                        </li>
+                        <% }) %>
+                    </ul>
+                    <% } else { %>
+                      <p>No reviews yet. Be the first to review this product!</p>
+                      <% } %>
+                        <% if (userId) { %>
+                          <form id="reviewForm">
+                            <input type="hidden" id="productId" value="<%= product._id %>">
+                            <div class="form-group">
+                              <label for="rating">Rating (1-5):</label>
+                              <select id="rating" class="form-control" required>
+                                <option value="" disabled selected>Choose a rating</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                              </select>
+                            </div>
+                            <div class="form-group">
+                              <label for="comment">Comment:</label>
+                              <textarea id="comment" class="form-control" rows="4" required></textarea>
+                            </div>
+                            <button type="button" id="submitReview" class="btn btn-primary">Submit Review</button>
+                          </form>
+                          <% } else { %>
+                            <p><a href="/login">Log in</a> to leave a review.</p>
+                            <% } %>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </section>
 
 
@@ -328,6 +342,103 @@
 <!-- Related Products Section End -->
 
 <script>
+
+  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const productId = this.getAttribute('data-product-id');
+      const productName = this.getAttribute('data-product-name');
+      const productPrice = this.getAttribute('data-product-price');
+      const quantity = document.getElementById('product-quantity').value;
+
+      fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          productName: productName,
+          productPrice: productPrice,
+          quantity: parseInt(quantity),
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: `${productName} (Quantity: ${quantity}) has been added to your cart.`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+
+        })
+        .catch(error => {
+          console.error('Error adding product to cart:', error);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'There was an issue adding the product to the cart. Please try again.',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        });
+    });
+  });
+
+
+  // document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+  //   button.addEventListener('click', function (e) {
+  //     e.preventDefault();
+
+  //     const productId = this.getAttribute('data-product-id');
+  //     const productName = this.getAttribute('data-product-name');
+  //     const productPrice = this.getAttribute('data-product-price');
+
+  //     // Send an AJAX request to add the product to the cart
+  //     fetch('/cart/add', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         productId: productId,
+  //         productName: productName,
+  //         productPrice: productPrice,
+  //       }),
+  //     })
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         // Handle successful response
+  //         Swal.fire({
+  //           icon: 'success',
+  //           title: 'Added to Cart',
+  //           text: `${productName} has been added to your cart.`,
+  //           showConfirmButton: false,
+  //           timer: 1500
+  //         });
+
+  //         // Optionally update cart icon or cart count here
+  //       })
+  //       .catch(error => {
+  //         console.error('Error adding product to cart:', error);
+
+  //         // Handle error response
+  //         Swal.fire({
+  //           icon: 'error',
+  //           title: 'Error!',
+  //           text: 'There was an issue adding the product to the cart. Please try again.',
+  //           showConfirmButton: false,
+  //           timer: 1500
+  //         });
+  //       });
+  //   });
+  // });
+
+
   document.addEventListener('DOMContentLoaded', () => {
     const mainImageContainer = document.getElementById('mainImageContainer');
     const mainImage = document.getElementById('mainImage');
@@ -380,9 +491,9 @@
         Swal.fire({
           icon: 'success',
           title: 'Review Submitted!',
-          text: result.message, 
-          showConfirmButton: false, 
-          timer: 1500, 
+          text: result.message,
+          showConfirmButton: false,
+          timer: 1500,
         }).then(() => {
           location.reload();
         });
@@ -391,7 +502,7 @@
           icon: 'error',
           title: 'Submission Failed',
           text: result.error,
-          showConfirmButton: true, 
+          showConfirmButton: true,
         });
       }
     } catch (err) {

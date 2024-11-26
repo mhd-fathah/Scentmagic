@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const Category = require("../models/categories");
+const Cart = require('../models/cart')
 
 const getProducts = async (req, res) => {
   try {
@@ -172,6 +173,15 @@ const toggleDeleteProduct = async (req, res) => {
     );
 
     const action = updatedProduct.isDeleted ? "soft-deleted" : "restored";
+
+    if (updatedProduct.isDeleted) {
+      await Cart.updateMany(
+        { "items.productId": productId },
+        { $pull: { items: { productId: productId } } }
+      );
+      console.log(`Product with ID ${productId} has been soft-deleted and removed from all carts.`);
+    }
+
     res.redirect(
       `/admin/products?successMessage=Product ${action} successfully`
     );
@@ -180,6 +190,7 @@ const toggleDeleteProduct = async (req, res) => {
     res.status(500).send("Error toggling product deletion");
   }
 };
+
 
 const getProductDetails = async (req, res) => {
   try {

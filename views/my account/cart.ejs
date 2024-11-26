@@ -39,22 +39,17 @@
                             <% cartItems.forEach(item=> { %>
                                 <div class="cart-item">
                                     <div class="d-flex">
-                                        <!-- Product Image -->
                                         <img src="http://localhost:3000/public/uploads/products/<%= item.productId.product_images[0] %>"
                                             alt="<%= item.productId.product_name %>" class="cart-item-image">
 
-                                        <!-- Product Details -->
                                         <div class="cart-item-details">
-                                            <!-- Product Title -->
-                                            <a href="/product/<%= item._id %>" class="product-title">
+                                            <a href="/product/<%= item.productId._id %>" class="product-title">
                                                 <%= item.productId.product_name %>
                                             </a>
 
-                                            <!-- Seller Information -->
                                             <div class="product-seller">Seller: <%= item.productId.seller %>
                                             </div>
 
-                                            <!-- Price Information -->
                                             <div class="price-container">
                                                 <span class="actual-price">₹<%=
                                                         item.productId.discount_price.toLocaleString() %></span>
@@ -65,11 +60,9 @@
                                                 </span>
                                             </div>
 
-                                            <!-- Delivery Date -->
                                             <div class="delivery-date">Delivery by <%= item.deliveryDate %> | Free
                                                     delivery</div>
 
-                                            <!-- Quantity Controls -->
                                             <div class="quantity-control">
                                                 <button class="decrease" aria-label="Decrease quantity">−</button>
                                                 <input type="number" value="<%= item.quantity %>" min="1" max="99"
@@ -77,8 +70,6 @@
                                                 <button class="increase" aria-label="Increase quantity">+</button>
                                             </div>
 
-
-                                            <!-- Action Buttons -->
                                             <div class="action-buttons">
                                                 <button class="action-btn remove-from-cart"
                                                     data-id="<%= item.productId._id %>">
@@ -178,7 +169,6 @@
             const quantityInput = control.querySelector('input');
             const productId = control.closest('.cart-item').querySelector('.remove-from-cart').getAttribute('data-id');
 
-            // Decrease Quantity
             decreaseButton.addEventListener('click', async () => {
                 let currentQuantity = parseInt(quantityInput.value);
                 if (currentQuantity > 1) {
@@ -186,7 +176,6 @@
                 }
             });
 
-            // Increase Quantity
             increaseButton.addEventListener('click', async () => {
                 let currentQuantity = parseInt(quantityInput.value);
                 if (currentQuantity < 99) {
@@ -194,18 +183,16 @@
                 }
             });
 
-            // Manually Update Quantity
             quantityInput.addEventListener('change', async () => {
                 let newQuantity = parseInt(quantityInput.value);
                 if (newQuantity >= 1 && newQuantity <= 99) {
                     await updateQuantity(productId, newQuantity, quantityInput);
                 } else {
-                    quantityInput.value = 1; // Reset to minimum value if invalid
+                    quantityInput.value = 1;
                 }
             });
         });
 
-        // Update Quantity API Call
         async function updateQuantity(productId, quantity, quantityInput) {
             try {
                 const response = await fetch('/cart/update', {
@@ -219,51 +206,48 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Update quantity input value
                     quantityInput.value = quantity;
-
-                    // Dynamically update the cart details
-                    updateCartSummary(data.cartDetails); // Pass the updated cart details to the function
+                    updateCartSummary(data.cartDetails);
                 } else {
-                    console.error(data.message || 'Error updating quantity');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: data.message || 'An error occurred while updating the quantity.',
+                    });
+
+                    quantityInput.value = quantityInput.value;
                 }
             } catch (err) {
                 console.error('Error updating quantity:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An unexpected error occurred. Please try again later.',
+                });
             }
         }
 
-        // Function to update all cart summary details
+
+
         function updateCartSummary(cartDetails) {
-            // Update Price
             document.querySelector('#total-price-value').textContent = `₹${cartDetails.totalPrice.toLocaleString()}`;
-
-            // Update Discount
             document.querySelector('#total-discount').textContent = `- ₹${cartDetails.totalDiscount.toLocaleString()}`;
-
-            // Update Delivery Charges
             const deliveryChargesElement = document.querySelector('#delivery-charges');
             if (cartDetails.deliveryCharges > 0) {
                 deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
             } else {
                 deliveryChargesElement.textContent = 'FREE';
             }
-
-            // Update Savings
             document.querySelector('#savings').textContent = `You will save ₹${cartDetails.totalDiscount.toLocaleString()} on this order`;
-
-            // Update Total Amount
             document.querySelector('#total-price').textContent = `₹${cartDetails.finalAmount.toLocaleString()}`;
         }
 
 
-
-        // Handling 'Remove from Cart' action
         document.querySelectorAll('.remove-from-cart').forEach((button) => {
             button.addEventListener('click', async (event) => {
-                const productId = event.target.getAttribute('data-id'); // Get the product ID
-                const cartItem = event.target.closest('.cart-item'); // Target the cart-item element
+                const productId = event.target.getAttribute('data-id');
+                const cartItem = event.target.closest('.cart-item');
 
-                // Show SweetAlert2 confirmation dialog
                 const result = await Swal.fire({
                     title: 'Are you sure?',
                     text: 'You won\'t be able to revert this!',
@@ -274,7 +258,6 @@
                     reverseButtons: true
                 });
 
-                // If the user confirms the action
                 if (result.isConfirmed) {
                     try {
                         const response = await fetch('/cart/remove', {
@@ -282,13 +265,12 @@
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ productId }), // Send the product ID in the request
+                            body: JSON.stringify({ productId }),
                         });
 
                         const data = await response.json();
 
                         if (response.ok) {
-                            // Show success message
                             Swal.fire({
                                 icon: 'success',
                                 title: data.message || 'Product removed from cart',
@@ -296,12 +278,10 @@
                                 timer: 1500
                             });
 
-                            // Remove the cart item from the DOM after 1.5 seconds
                             setTimeout(() => {
                                 cartItem.remove();
                             }, 1500);
                         } else {
-                            // Show error message if failed
                             Swal.fire({
                                 icon: 'error',
                                 title: data.message || 'Error removing item',
@@ -311,7 +291,6 @@
                         }
                     } catch (err) {
                         console.error('Error removing product:', err);
-                        // Show error message for any other error
                         Swal.fire({
                             icon: 'error',
                             title: 'An error occurred while removing the product. Please try again.',
@@ -320,7 +299,6 @@
                         });
                     }
                 } else {
-                    // If the user cancels the action
                     Swal.fire({
                         icon: 'info',
                         title: 'Item not removed',

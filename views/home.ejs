@@ -141,12 +141,13 @@
       </div>
     </div>
     <div class="row featured__filter">
-      <% relatedProducts.forEach(product => { %>
+      <% relatedProducts.forEach(product=> { %>
         <div class="col-lg-3 col-md-4 col-sm-6 mix <%= product.category.name.toLowerCase() %>">
           <div class="featured__item">
             <div class="featured__item__pic set-bg">
               <a href="/product/<%= product._id %>">
-                <img src="http://localhost:3000/public/uploads/products/<%= product.product_images.length > 0 ? product.product_images[0] : 'default-image.jpg' %>"
+                <img
+                  src="http://localhost:3000/public/uploads/products/<%= product.product_images.length > 0 ? product.product_images[0] : 'default-image.jpg' %>"
                   alt="<%= product.product_name %>" />
               </a>
               <ul class="featured__item__pic__hover">
@@ -167,26 +168,27 @@
             <div class="featured__item__text">
               <h6>
                 <a href="/product/<%= product._id %>">
-                  <%= product.product_name.length > 50 ? product.product_name.substring(0, 50) + '...' : product.product_name %>
+                  <%= product.product_name.length> 50 ? product.product_name.substring(0, 50) + '...' :
+                    product.product_name %>
                 </a>
               </h6>
               <h5>
                 ₹<%= product.discount_price.toLocaleString() %>
-                <span style="text-decoration: line-through; color: gray">
-                  ₹<%= product.regular_price.toLocaleString() %>
-                </span>
+                  <span style="text-decoration: line-through; color: gray">
+                    ₹<%= product.regular_price.toLocaleString() %>
+                  </span>
               </h5>
-              <% if (product.stock_status === 'in_stock') { %>
+              <% if (product.stock_status==='in_stock' ) { %>
                 <p style="color: green;">In Stock</p>
-              <% } else { %>
-                <p style="color: red;">Out of Stock</p>
-              <% } %>
+                <% } else { %>
+                  <p style="color: red;">Out of Stock</p>
+                  <% } %>
             </div>
           </div>
         </div>
-      <% }) %>
+        <% }) %>
     </div>
-    
+
   </div>
 </section>
 
@@ -290,65 +292,60 @@
 
 
 <script>
-  
+
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function (e) {
-        e.preventDefault();
+      e.preventDefault();
 
-        const productId = this.getAttribute('data-id');
-        const productName = this.getAttribute('data-name');
-        const productPrice = this.getAttribute('data-price');
+      const productId = this.getAttribute('data-id');
+      const productName = this.getAttribute('data-name');
+      const productPrice = this.getAttribute('data-price');
 
-        // Send an AJAX request to add the product to the cart
-        fetch('/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productId: productId,
-                productName: productName,
-                productPrice: productPrice,
-            }),
-        })
+      fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          productName: productName,
+          productPrice: productPrice,
+        }),
+      })
         .then(response => response.json())
         .then(data => {
-            if (data.message) {
-                // If there's a message (e.g., out-of-stock error or any other error)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: data.message,  // Display the message from the server
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                // If no message (success)
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Product added to cart!',
-                    text: 'Your item has been added successfully.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
+          if (data.message) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: data.message,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            Swal.fire({
+              icon: 'success',
+              title: 'Product added to cart!',
+              text: 'Your item has been added successfully.',
+              showConfirmButton: false,
+              timer: 1500
+            });
 
-                // Optionally update cart icon or cart count here
-            }
+          }
         })
         .catch(error => {
-            console.error('Error adding product to cart:', error);
+          console.error('Error adding product to cart:', error);
 
-            // Show SweetAlert error message if something goes wrong
-            Swal.fire({
-                icon: 'error',
-                title: 'Something went wrong!',
-                text: 'Please try again later.',
-                showConfirmButton: false,
-                timer: 1500
-            });
+          Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            text: 'Please try again later.',
+            showConfirmButton: false,
+            timer: 1500
+          });
         });
     });
-});
+  });
 
 
 

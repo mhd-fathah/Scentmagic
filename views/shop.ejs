@@ -1,36 +1,37 @@
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section py-4 bg-light">
     <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm" style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
-              <li class="breadcrumb-item">
-                <a href="/" class="text-decoration-none text-dark fw-bold">
-                  <i class="bi bi-house-door"></i> Home
-                </a>
-              </li>
-              <li class="breadcrumb-item">
-                <a href="/shop" class="text-decoration-none text-dark fw-bold">
-                  Shop
-                </a>
-              </li>
-              <% if (category) { %>
-                <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                  <%= category.name %> <!-- Display the selected category name in the breadcrumb -->
-                </li>
-              <% } else { %>
-                <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                  All Products
-                </li>
-              <% } %>
-            </ol>
-          </nav>
+        <div class="row">
+            <div class="col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
+                        style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+                        <li class="breadcrumb-item">
+                            <a href="/" class="text-decoration-none text-dark fw-bold">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="/shop" class="text-decoration-none text-dark fw-bold">
+                                Shop
+                            </a>
+                        </li>
+                        <% if (category) { %>
+                            <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                                <%= category.name %> <!-- Display the selected category name in the breadcrumb -->
+                            </li>
+                            <% } else { %>
+                                <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                                    All Products
+                                </li>
+                                <% } %>
+                    </ol>
+                </nav>
+            </div>
         </div>
-      </div>
     </div>
-  </section>
-  
+</section>
+
 
 <!-- Breadcrumb Section End -->
 
@@ -160,7 +161,12 @@
                                                 <ul class="product__item__pic__hover">
                                                     <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                                     <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                                    <li>
+                                                        <a href="#" class="add-to-cart" data-id="<%= product._id %>" data-name="<%= product.product_name %>"
+                                                          data-price="<%= product.discount_price %>">
+                                                          <i class="fa fa-shopping-cart"></i>
+                                                        </a>
+                                                      </li>
                                                 </ul>
                                         </div>
                                         <div class="product__discount__item__text">
@@ -172,7 +178,12 @@
                                                 </a></h5>
                                             <div class="product__item__price">₹<%= product.discount_price %>
                                                     <span>₹<%= product.regular_price %></span>
-                                            </div>
+                                                </div>
+                                                <% if (product.stock_status==='in_stock' ) { %>
+                                                    <p style="color: green;">In Stock</p>
+                                                    <% } else { %>
+                                                      <p style="color: red;">Out of Stock</p>
+                                                      <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -228,7 +239,12 @@
                                     <ul class="product__item__pic__hover">
                                         <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                         <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li>
+                                            <a href="#" class="add-to-cart" data-id="<%= product._id %>" data-name="<%= product.product_name %>"
+                                              data-price="<%= product.discount_price %>">
+                                              <i class="fa fa-shopping-cart"></i>
+                                            </a>
+                                          </li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
@@ -241,7 +257,11 @@
                                             <span style="text-decoration: line-through; color: #888;">₹<%=
                                                     product.regular_price.toFixed(2) %></span>
                                     </h5>
-
+                                    <% if (product.stock_status==='in_stock' ) { %>
+                                        <p style="color: green;">In Stock</p>
+                                        <% } else { %>
+                                          <p style="color: red;">Out of Stock</p>
+                                          <% } %>
                                 </div>
                             </div>
                         </div>
@@ -278,6 +298,62 @@
 <!-- Product Section End -->
 
 <script>
+
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const productId = this.getAttribute('data-id');
+            const productName = this.getAttribute('data-name');
+            const productPrice = this.getAttribute('data-price');
+
+            fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    productName: productName,
+                    productPrice: productPrice,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Product added to cart!',
+                            text: 'Your item has been added successfully.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding product to cart:', error);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something went wrong!',
+                        text: 'Please try again later.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                });
+        });
+    });
+
+
 
     function applySorting(sortOption) {
         const url = `/shop?sort=${sortOption}`;
