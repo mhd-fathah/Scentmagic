@@ -1,0 +1,83 @@
+<!-- views/order-confirmation.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed Successfully</title>
+    <link rel="stylesheet" href="/css/my account/place-order.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Success Banner -->
+        <div class="success-banner">
+            <div class="success-icon">✓</div>
+            <h1 class="success-title">Order Placed Successfully!</h1>
+            <p class="order-id">Order ID: <%= orderId %></p>
+        </div>
+
+        <!-- Delivery Information -->
+        <div class="card">
+            <h2 class="section-title">Delivery Information</h2>
+            <div class="delivery-info">
+                <div class="info-box">
+                    <h3>Delivery Address</h3>
+                    <p><strong><%= deliveryAddress.fullName %></strong></p>
+                    <p><%= deliveryAddress.address %>, <%= deliveryAddress.city %>, <%= deliveryAddress.state %> - <%= deliveryAddress.pincode %></p>
+                    <p>Phone: <%= deliveryAddress.mobile %></p>
+                </div>
+                <div class="info-box">
+                    <h3>Delivery Details</h3>
+                    <p class="delivery-date">Expected Delivery: <%= deliveryDetails.expectedDate %></p>
+                    <p><%= deliveryDetails.deliveryType %></p>
+                    <p><%= deliveryDetails.additionalDetails %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="card">
+            <h2 class="section-title">Order Details</h2>
+            <div class="product-list">
+                <% products.forEach(product => { %>
+                    <div class="product-item">
+                        <div class="product-details">
+                            <div class="product-name"><%= product.name %></div>
+                            <div class="product-meta">Quantity: <%= product.quantity %></div>
+                        </div>
+                        <div class="product-price">₹<%= product.price %></div>
+                    </div>
+                <% }); %>
+            </div>
+            <div class="price-summary">
+                <div class="price-row">
+                    <span>Subtotal</span>
+                    <span>₹<%= priceSummary.subtotal %></span>
+                </div>
+                <div class="price-row">
+                    <span>Delivery Charges</span>
+                    <span style="font-weight: bold; color: green;"><%= priceSummary.deliveryCharges %></span>
+                </div>
+                <div class="price-row total-row">
+                    <span>Total Amount</span>
+                    <span>₹<%= priceSummary.totalAmount %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Information -->
+        <div class="card">
+            <h2 class="section-title">Payment Information</h2>
+            <p>Payment Method: <%= paymentMethod.method %></p>
+            <p>Card ending in: ****<%= paymentMethod.cardEnding %></p>
+            <p>Payment Status: <span class="payment-status <%= paymentMethod.status === 'Paid' ? 'status-success' : 'status-failed' %>"><%= paymentMethod.status %></span></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/track-order/<%= orderId %>" class="btn btn-primary">Track Order</a>
+            <a href="/shop" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+    </div>
+</body>
+</html>

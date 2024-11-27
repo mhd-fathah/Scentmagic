@@ -12,7 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-
 </head>
 
 <body>
@@ -37,9 +36,7 @@
                                             <div class="form-check">
                                                 <!-- Radio button to select an address -->
                                                 <input type="radio" class="form-check-input" name="selectedAddress"
-                                                    id="address<%= index %>" value="<%= index %>" <%=index===0
-                                                    ? 'checked' : '' %>
-                                                >
+                                                    id="address<%= index %>" value="<%= address._id %>">
                                                 <label for="address<%= index %>" class="form-check-label">
                                                     <strong class="d-block mb-1">
                                                         <%= address.fullName %>
@@ -58,21 +55,13 @@
                                             <!-- Buttons for editing or deleting -->
                                             <div class="mt-2">
                                                 <div class="address-actions">
-                                                    <!-- Edit Button with function call passing the address ID -->
-                                                    <button 
-                                                    class="btn btn-sm" 
-                                                    style="border-color: #f714f0eb; color: #f714f0eb;" 
-                                                    data-bs-toggle="tooltip" 
-                                                    data-bs-placement="top" 
-                                                    title="Edit Address"
-                                                    onclick="editAddress('<%= address._id %>')">
-                                                    ✎ Edit
-                                                </button>
-                                                
-                                                    
-                                                    
-
-                                                    <!-- Delete Button with confirmation using SweetAlert -->
+                                                    <button class="btn btn-sm"
+                                                        style="border-color: #f714f0eb; color: #f714f0eb;"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Edit Address"
+                                                        onclick="editAddress('<%= address._id %>')">
+                                                        ✎ Edit
+                                                    </button>
                                                     <button class="btn btn-sm delete-address-btn"
                                                         style="border-color: #f714f0eb; color: #f714f0eb;"
                                                         data-bs-toggle="tooltip" data-bs-placement="top"
@@ -80,18 +69,13 @@
                                                         × Delete
                                                     </button>
                                                 </div>
-
                                             </div>
-
-
-
                                         </div>
                                         <% }); %>
                                             <% } else { %>
                                                 <p class="text-danger">No addresses found. Please add an address.</p>
                                                 <% } %>
                             </div>
-
                             <!-- Add New Address Button -->
                             <div class="text-end">
                                 <button onclick="addNewAddress()" class="btn"
@@ -104,8 +88,6 @@
                     </div>
                 </div>
 
-
-
                 <!-- Payment Method -->
                 <div class="card">
                     <div class="card-title">
@@ -115,8 +97,7 @@
                         <% const paymentMethods=['card', 'upi' , 'cod' , 'razorpay' ]; %>
                             <% paymentMethods.forEach(method=> { %>
                                 <div class="payment-option">
-                                    <input type="radio" name="payment" id="<%= method %>" <%=method==='card' ? 'checked'
-                                        : '' %>>
+                                    <input type="radio" name="payment" id="<%= method %>" value="<%= method %>">
                                     <label for="<%= method %>">
                                         <div class="payment-label">
                                             <%= method==='card' ? 'Credit/Debit Card' : (method==='upi' ? 'UPI' :
@@ -130,7 +111,9 @@
                                     </label>
                                 </div>
                                 <% }); %>
-
+                    </div>
+                    <div id="payment-warning" style="display: none; color: red;">
+                        Please select Cash on Delivery (COD) as the only available payment option.
                     </div>
                 </div>
 
@@ -141,18 +124,19 @@
                     </div>
                     <div class="cart-items">
                         <% products.forEach(product=> { %>
-                            <div class="cart-item">
+                            <div class="cart-item" data-product-id="<%= product._id %>">
                                 <div class="item-details">
                                     <h3>
-                                        <%= product.name %>
+                                        <%= product.product_name %>
                                     </h3>
                                     <div class="item-quantity">Quantity: <%= product.quantity %>
                                     </div>
                                 </div>
-                                <div class="item-price">₹<%= product.price %>
+                                <div class="item-price">₹<%= product.discount_price %>
                                 </div>
                             </div>
                             <% }); %>
+
                     </div>
                 </div>
             </div>
@@ -174,7 +158,7 @@
                             <span>₹<%= totalAmount %></span>
                         </div>
                     </div>
-                    <button class="place-order-btn">Place Order</button>
+                    <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
                     <div class="secure-badge">
                         <span>🛡️</span> Safe and Secure Payments
                     </div>
@@ -186,22 +170,37 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[name="payment"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const paymentWarning = document.getElementById('payment-warning');
+                    const selectedPayment = document.querySelector('input[name="payment"]:checked').id;
+
+                    if (selectedPayment !== 'cod') {
+                        paymentWarning.style.display = 'block';
+                    } else {
+                        paymentWarning.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+
         function addNewAddress() {
             window.location.href = "/my-account/address";
         }
 
         function editAddress(addressId) {
-    window.location.href = `/my-account/address/edit/${addressId}`;
-}
-
-       
+            window.location.href = `/my-account/address/edit/${addressId}`;
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.delete-address-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
 
-                    const addressId = button.getAttribute('data-id'); 
+                    const addressId = button.getAttribute('data-id');
 
                     Swal.fire({
                         title: 'Are you sure?',
@@ -222,28 +221,16 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        Swal.fire(
-                                            'Deleted!',
-                                            'Your address has been deleted.',
-                                            'success'
-                                        ).then(() => {
+                                        Swal.fire('Deleted!', 'Your address has been deleted.', 'success').then(() => {
                                             button.closest('.address-item').remove();
                                         });
                                     } else {
-                                        Swal.fire(
-                                            'Error!',
-                                            data.message || 'An error occurred while deleting the address.',
-                                            'error'
-                                        );
+                                        Swal.fire('Error!', data.message || 'An error occurred while deleting the address.', 'error');
                                     }
                                 })
                                 .catch(err => {
                                     console.error(err);
-                                    Swal.fire(
-                                        'Error!',
-                                        'An unexpected error occurred. Please try again.',
-                                        'error'
-                                    );
+                                    Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
                                 });
                         }
                     });
@@ -251,9 +238,106 @@
             });
         });
 
+        function placeOrder() {
+            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+            const selectedPayment = document.querySelector('input[name="payment"]:checked');
+
+            if (!selectedAddress || !selectedPayment) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please select both an address and a payment method.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            if (selectedPayment.value !== 'cod') {
+                Swal.fire({
+                    title: 'Payment Error',
+                    text: 'Please select Cash on Delivery (COD) as the payment method.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            const products = [];
+            let totalAmount = 0;
+
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const productId = item.getAttribute('data-product-id');
+                const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
+                const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
+
+                if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'One or more products have missing or invalid data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                products.push({ productId, quantity, discountPrice });
+
+                totalAmount += discountPrice * quantity;
+            });
+
+            if (products.length === 0) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No products selected.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            const orderData = {
+                addressId: selectedAddress.value,
+                paymentMethod: selectedPayment.value,
+                totalAmount: totalAmount,
+                products: products
+            };
+
+            console.log(orderData);
+
+            fetch('/order-confirmation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Order placed successfully") {
+                        const orderId = data.orderId || generateOrderId();
+                        window.location.href = `/order-confirmation/${orderId}`;
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'An error occurred while placing the order.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
+                });
+        }
+
+        function generateOrderId() {
+            return Math.floor(Math.random() * 1000000);
+        }
+
+
 
     </script>
-
 </body>
 
 </html>

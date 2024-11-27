@@ -8,6 +8,7 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 const Category = require("../models/categories");
 const Product = require("../models/product");
+const Cart = require("../models/cart");
 const mongoose = require("mongoose");
 const { title } = require("process");
 
@@ -900,8 +901,8 @@ const loadCheckout = async (req, res) => {
 
     const addresses = user.addresses && user.addresses.length > 0 ? user.addresses : null;
 
-    const cartProductIds = req.session.cart || []; 
-    if (cartProductIds.length === 0) {
+    const cart = await Cart.findOne({ user: userId }).populate('items.productId', 'product_name discount_price').lean();
+    if (!cart || cart.items.length === 0) {
       return res.render("my account/checkout", {
         user: {
           name: user.name,
@@ -915,18 +916,20 @@ const loadCheckout = async (req, res) => {
       });
     }
 
-    const products = await Product.find({ _id: { $in: cartProductIds }, isDeleted: false })
-      .select("product_name discount_price quantity")
-      .lean();
+    const products = cart.items.map(item => ({
+      ...item.productId,
+      quantity: item.quantity,
+      totalPrice: item.productId.discount_price * item.quantity,
+    }));
 
-    const totalPrice = products.reduce((total, product) => total + product.discount_price * product.quantity, 0);
-    const deliveryCharges = totalPrice > 2000 ? 0 : 100; 
+    const totalPrice = products.reduce((total, product) => total + product.totalPrice, 0);
+    const deliveryCharges = 0;
     const totalAmount = totalPrice + deliveryCharges;
 
     res.render("my account/checkout", {
       user: {
         name: user.name,
-        addresses, 
+        addresses,
         phone: user.mobile,
       },
       products,
