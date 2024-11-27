@@ -713,9 +713,13 @@ const updateUserProfile = async (req, res) => {
 const loadAddressPage = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
+
+    const message = req.query.message || null; 
+
     res.render("my account/address", {
+      message: message,
       title: "Address",
-      user,
+      user: user,
       layout: false,
       addresses: user.addresses,
     });
@@ -724,6 +728,7 @@ const loadAddressPage = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
 
 const addNewAddress = async (req, res) => {
   try {
@@ -765,14 +770,13 @@ const addNewAddress = async (req, res) => {
 
     await user.save();
 
-    res.render('my account/view-profile', {
-      message: 'Address added successfully!',
-      passwordResetSuccess: req.query.passwordResetSuccess === "true",
-      addresses: user.addresses,  
-      user: req.user,
+    res.render("my account/address", {
+      title: "Address",
+      message: 'Address updated successfully!',
+      user,
       layout: false,
+      addresses: user.addresses,
     });
-
   } catch (err) {
     console.error('Error adding address:', err);
     res.status(500).render('my account/view-profile', {
@@ -843,12 +847,12 @@ const updateAddress = async (req, res) => {
 
     await user.save();
 
-    res.render('my account/view-profile', {
+    res.render("my account/address", {
+      title: "Address",
       message: 'Address updated successfully!',
-      user: req.user,
-      passwordResetSuccess: req.query.passwordResetSuccess === "true",
-      addresses: user.addresses,
+      user,
       layout: false,
+      addresses: user.addresses,
     });
 
   } catch (err) {
@@ -885,7 +889,56 @@ const deleteAddress = async (req, res) => {
   }
 };
 
+const loadCheckout = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
+    const user = await User.findById(userId).select("name addresses mobile").lean();
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const addresses = user.addresses && user.addresses.length > 0 ? user.addresses : null;
+
+    const cartProductIds = req.session.cart || []; 
+    if (cartProductIds.length === 0) {
+      return res.render("my account/checkout", {
+        user: {
+          name: user.name,
+          addresses,
+          phone: user.mobile,
+        },
+        products: [],
+        totalPrice: 0,
+        deliveryCharges: 0,
+        totalAmount: 0,
+      });
+    }
+
+    const products = await Product.find({ _id: { $in: cartProductIds }, isDeleted: false })
+      .select("product_name discount_price quantity")
+      .lean();
+
+    const totalPrice = products.reduce((total, product) => total + product.discount_price * product.quantity, 0);
+    const deliveryCharges = totalPrice > 2000 ? 0 : 100; 
+    const totalAmount = totalPrice + deliveryCharges;
+
+    res.render("my account/checkout", {
+      user: {
+        name: user.name,
+        addresses, 
+        phone: user.mobile,
+      },
+      products,
+      totalPrice,
+      deliveryCharges,
+      totalAmount,
+    });
+  } catch (error) {
+    console.error("Error fetching checkout data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 
 module.exports = {
@@ -916,5 +969,6 @@ module.exports = {
   addNewAddress,
   getEditAddressForm,
   updateAddress,
-  deleteAddress
+  deleteAddress,
+  loadCheckout
 };

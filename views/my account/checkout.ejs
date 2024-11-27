@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Page</title>
+    <link rel="stylesheet" href="/css/my account/checkout.css">
+    <!-- SweetAlert2 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="checkout-grid">
+            <!-- Left Section -->
+            <div class="main-content">
+
+                <!-- Delivery Address -->
+                <div class="container my-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header" style="background-color: #f714f0eb; color: white;">
+                            <h5 class="mb-0">
+                                <span>📍</span> Delivery Address
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="address-box">
+                                <% if (user.addresses && user.addresses.length> 0) { %>
+                                    <% user.addresses.forEach((address, index)=> { %>
+                                        <div class="address-item p-3 mb-3 border rounded">
+                                            <div class="form-check">
+                                                <!-- Radio button to select an address -->
+                                                <input type="radio" class="form-check-input" name="selectedAddress"
+                                                    id="address<%= index %>" value="<%= index %>" <%=index===0
+                                                    ? 'checked' : '' %>
+                                                >
+                                                <label for="address<%= index %>" class="form-check-label">
+                                                    <strong class="d-block mb-1">
+                                                        <%= address.fullName %>
+                                                    </strong>
+                                                    <p class="mb-1">
+                                                        <%= address.address %>, <%= address.state %>
+                                                    </p>
+                                                    <p class="mb-1">
+                                                        <%= address.city %>, <%= address.state %>, <%= address.pincode
+                                                                    %>
+                                                    </p>
+                                                    <p class="mb-0">Phone: <%= address.mobile %>
+                                                    </p>
+                                                </label>
+                                            </div>
+                                            <!-- Buttons for editing or deleting -->
+                                            <div class="mt-2">
+                                                <div class="address-actions">
+                                                    <!-- Edit Button with function call passing the address ID -->
+                                                    <button 
+                                                    class="btn btn-sm" 
+                                                    style="border-color: #f714f0eb; color: #f714f0eb;" 
+                                                    data-bs-toggle="tooltip" 
+                                                    data-bs-placement="top" 
+                                                    title="Edit Address"
+                                                    onclick="editAddress('<%= address._id %>')">
+                                                    ✎ Edit
+                                                </button>
+                                                
+                                                    
+                                                    
+
+                                                    <!-- Delete Button with confirmation using SweetAlert -->
+                                                    <button class="btn btn-sm delete-address-btn"
+                                                        style="border-color: #f714f0eb; color: #f714f0eb;"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Delete Address" data-id="<%= address._id %>">
+                                                        × Delete
+                                                    </button>
+                                                </div>
+
+                                            </div>
+
+
+
+                                        </div>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <p class="text-danger">No addresses found. Please add an address.</p>
+                                                <% } %>
+                            </div>
+
+                            <!-- Add New Address Button -->
+                            <div class="text-end">
+                                <button onclick="addNewAddress()" class="btn"
+                                    style="background-color: #f714f0eb; color: white;" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Add New Address">
+                                    + Add New Address
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Payment Method -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>💳</span> Payment Method
+                    </div>
+                    <div class="payment-options">
+                        <% const paymentMethods=['card', 'upi' , 'cod' , 'razorpay' ]; %>
+                            <% paymentMethods.forEach(method=> { %>
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="<%= method %>" <%=method==='card' ? 'checked'
+                                        : '' %>>
+                                    <label for="<%= method %>">
+                                        <div class="payment-label">
+                                            <%= method==='card' ? 'Credit/Debit Card' : (method==='upi' ? 'UPI' :
+                                                (method==='cod' ? 'Cash on Delivery' : 'Razorpay' )) %>
+                                        </div>
+                                        <div class="payment-description">
+                                            <%= method==='card' ? 'All major cards accepted' : (method==='upi'
+                                                ? 'Pay using UPI' : (method==='cod' ? 'Pay when you receive'
+                                                : 'Pay securely via Razorpay' )) %>
+                                        </div>
+                                    </label>
+                                </div>
+                                <% }); %>
+
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📦</span> Order Summary
+                    </div>
+                    <div class="cart-items">
+                        <% products.forEach(product=> { %>
+                            <div class="cart-item">
+                                <div class="item-details">
+                                    <h3>
+                                        <%= product.name %>
+                                    </h3>
+                                    <div class="item-quantity">Quantity: <%= product.quantity %>
+                                    </div>
+                                </div>
+                                <div class="item-price">₹<%= product.price %>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-summary">
+                <div class="card">
+                    <div class="card-title">Price Details</div>
+                    <div class="price-details">
+                        <div>
+                            <span>Price (<%= products.length %> items)</span>
+                            <span>₹<%= totalPrice %></span>
+                        </div>
+                        <div>
+                            <span>Delivery Charges</span>
+                            <span class="delivery-charges">₹<%= deliveryCharges %></span>
+                        </div>
+                        <div class="total-row">
+                            <span>Total Amount</span>
+                            <span>₹<%= totalAmount %></span>
+                        </div>
+                    </div>
+                    <button class="place-order-btn">Place Order</button>
+                    <div class="secure-badge">
+                        <span>🛡️</span> Safe and Secure Payments
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function addNewAddress() {
+            window.location.href = "/my-account/address";
+        }
+
+        function editAddress(addressId) {
+    window.location.href = `/my-account/address/edit/${addressId}`;
+}
+
+       
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.delete-address-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    const addressId = button.getAttribute('data-id'); 
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you really want to delete this address? This action cannot be undone.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/my-account/address/delete/${addressId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire(
+                                            'Deleted!',
+                                            'Your address has been deleted.',
+                                            'success'
+                                        ).then(() => {
+                                            button.closest('.address-item').remove();
+                                        });
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            data.message || 'An error occurred while deleting the address.',
+                                            'error'
+                                        );
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    Swal.fire(
+                                        'Error!',
+                                        'An unexpected error occurred. Please try again.',
+                                        'error'
+                                    );
+                                });
+                        }
+                    });
+                });
+            });
+        });
+
+
+    </script>
+
+</body>
+
+</html>

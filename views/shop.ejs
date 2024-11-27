@@ -363,7 +363,6 @@
     function applyPagination(page) {
         const sortValue = document.getElementById('sortOptions').value;
 
-        // Send AJAX request to the server with the selected page and sorting option
         fetch(`/products?page=${page}&sort=${sortValue}`, {
             method: 'GET',
             headers: {
@@ -372,9 +371,8 @@
         })
             .then(response => response.json())
             .then(data => {
-                // Update the product list dynamically
                 const productList = document.getElementById('product-list');
-                productList.innerHTML = ''; // Clear existing products
+                productList.innerHTML = ''; 
 
                 data.products.forEach(product => {
                     const productElement = document.createElement('div');
@@ -386,7 +384,6 @@
                     productList.appendChild(productElement);
                 });
 
-                // Update pagination links dynamically
                 updatePagination(data.totalPages, data.currentPage);
             })
             .catch(error => console.error('Error fetching products:', error));

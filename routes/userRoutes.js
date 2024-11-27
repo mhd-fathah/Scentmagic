@@ -77,5 +77,6 @@ router.post('/my-account/address/edit/:id',auth.checkSession , userController.up
 
 router.post('/my-account/address/delete/:id',auth.checkSession ,userController.deleteAddress)
 
+router.get('/checkout', auth.checkSession , userController.loadCheckout)
 
 module.exports = router;
