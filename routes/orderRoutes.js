@@ -11,4 +11,8 @@ router.get(
   orderController.viewOrderConfirmation
 );
 
+router.get('/my-orders',auth.checkSession , orderController.getUserOrders)
+
+router.get('/my-orders/order-details/:id' ,auth.checkSession , orderController.viewOrderDetails)
+
 module.exports = router;

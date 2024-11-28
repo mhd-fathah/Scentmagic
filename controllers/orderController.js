@@ -184,4 +184,130 @@ const viewOrderConfirmation = async (req, res) => {
   }
 };
 
-module.exports = { placeOrder, viewOrderConfirmation };
+const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.user._id; 
+
+    const orders = await Order.find({ userId })
+      .populate({
+        path: "products.productId",
+        populate: {
+          path: "category", 
+          select: "name", 
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    const transformedOrders = orders.map((order) => ({
+      id: order._id,
+      date: order.createdAt ? order.createdAt.toLocaleDateString() : "N/A", 
+      products: order.products.map((product) => ({
+        name: product.productId?.product_name || "Unknown Product",
+        productImage:
+          product.productId?.product_images?.[0] || "placeholder.jpg", 
+        category: product.productId.category?.name || "N/A", 
+        quantity: product.quantity || 0, 
+        price: product.price || 0,
+      })),
+      totalPrice: order.totalAmount || 0,
+      status: order.status || "Unknown",
+      statusClass: order.status ? order.status.toLowerCase() : "unknown",
+      shippingAddress: order.deliveryAddress
+        ? `${order.deliveryAddress.address}, ${order.deliveryAddress.city}, ${order.deliveryAddress.state}, ${order.deliveryAddress.pincode}`
+        : "Address not available",
+      trackOrderLink: `/orders/track/${order._id}`,
+      invoiceLink: `/orders/invoice/${order._id}`,
+      detailsLink: `/my-orders/order-details/${order.orderId}`,
+    }));
+
+    res.render("my account/view-orders", {
+      orders: transformedOrders,
+      layout: false,
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Something went wrong while fetching your orders.");
+  }
+};
+
+const viewOrderDetails = async (req, res) => {
+  try {
+    const orderId = req.params.id; 
+
+    if (!orderId) {
+      return res.status(400).send("Order ID is required");
+    }
+
+    const order = await Order.findOne({ orderId }) 
+      .populate("userId", "name email") 
+      .populate({
+        path: "products.productId", 
+        populate: {
+          path: "category", 
+          select: "name", 
+        },
+      });
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    const orderData = {
+      order: {
+        orderId: order._id, 
+        date: order.createdAt ? order.createdAt.toLocaleDateString() : "N/A", 
+        items: order.products.map((product) => ({
+          name: product.productId?.product_name || "Unknown Product", 
+          image: product.productId?.product_images?.[0] || "placeholder.jpg", 
+          category: product.productId.category?.name || "N/A", 
+          quantity: product.quantity || 0, 
+          totalPrice:
+            (product.quantity || 0) * (product.productId.discount_price || 0), 
+        })),
+        totalPrice: order.totalAmount || 0, 
+        status: order.status || "Unknown", 
+        statusClass: order.status ? order.status.toLowerCase() : "unknown", 
+        paymentStatus: order.paymentStatus || "Unknown", 
+        paymentStatusClass: order.paymentStatus
+          ? order.paymentStatus.toLowerCase()
+          : "unknown", 
+        totalItems: order.products.reduce(
+          (acc, product) => acc + (product.quantity || 0),
+          0
+        ), 
+        shippingCost: 'Free', 
+        total: order.totalAmount || 0, 
+        shipping: order.deliveryAddress
+          ? {
+              fullName: order.deliveryAddress.fullName || "N/A",
+              address: order.deliveryAddress.address || "N/A",
+              city: order.deliveryAddress.city || "N/A",
+              state: order.deliveryAddress.state || "N/A",
+              pincode: order.deliveryAddress.pincode || "N/A",
+              mobile: order.deliveryAddress.mobile || "N/A",
+            }
+          : {
+              firstName: "N/A",
+              address: "N/A",
+              city: "N/A",
+              state: "N/A",
+              pincode: "N/A",
+              mobile: "N/A",
+            }, 
+        canCancel: order.status === "Pending", 
+      },
+    };
+
+    res.render("my account/order-details", { orderData, layout: false });
+  } catch (err) {
+    console.error("Error fetching order details:", err);
+    res.status(500).send("Server Error");
+  }
+};
+
+module.exports = {
+  placeOrder,
+  viewOrderConfirmation,
+  getUserOrders,
+  viewOrderDetails,
+};

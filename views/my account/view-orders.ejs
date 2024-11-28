@@ -1,84 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Orders</title>
   <!-- Bootstrap CSS -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+    rel="stylesheet">
   <link rel="stylesheet" href="/css/my account/view-orders.css">
 </head>
+
 <body>
   <div class="container">
     <h1>Your Orders</h1>
 
     <!-- Loop through orders -->
-    <% orders.forEach(order => { %>
+    <% orders.forEach(order=> { %>
       <div class="order-card">
         <div class="order-header">
           <span>Order ID: <%= order.id %></span>
           <span class="float-end">Date: <%= order.date %></span>
         </div>
         <div class="order-body">
-          <div class="row">
-            <div class="col-md-3">
-              <img
-                src="<%= order.productImage %>"
-                alt="Product Image"
-                class="img-fluid"
-              >
-            </div>
-            <div class="col-md-9">
-              <div class="order-item">
-                <div class="order-item-img">
-                  <img
-                    src="<%= order.thumbnail %>"
-                    alt="Product Image"
-                    class="img-fluid"
-                  >
-                </div>
-                <div class="order-item-details">
-                  <h5><%= order.productName %></h5>
-                  <p>Category: <%= order.category %></p>
-                  <p>Quantity: <%= order.quantity %></p>
-                  <p>Total Price: $<%= order.totalPrice %></p>
-                </div>
-              </div>
+          <% order.products.forEach(product=> { %>
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <img src="http://localhost:3000/public/uploads/products/<%= product.productImage %>" alt="Product Image"
+                  class="img-fluid" style="width: 200px; height: 200px; object-fit: cover;">
 
+              </div>
+              <div class="col-md-9">
+                <h5>
+                  <%= product.name %>
+                </h5>
+                <p>Category: <%= product.category %>
+                </p>
+                <p>Quantity: <%= product.quantity %>
+                </p>
+                <p>Price: ₹<%= product.price %>
+                </p>
+              </div>
+            </div>
+            <% }); %>
               <div class="order-info">
-                <p>Order Status: <span class="<%= order.statusClass %>"><%= order.status %></span></p>
-                <p>Shipping Address: <%= order.shippingAddress %></p>
+                <p>Order Status: <span class="<%= order.statusClass %>">
+                    <%= order.status %>
+                  </span></p>
+                <p>Shipping Address: <%= order.shippingAddress %>
+                </p>
               </div>
-
               <div class="d-flex gap-2 mt-3">
-                <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">
-                  Track Order
-                </a>
-                <a href="<%= order.invoiceLink %>" class="btn btn-outline-magenta btn-sm">
-                  Download Invoice
-                </a>
+                <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
+                <a href="<%= order.invoiceLink %>" class="btn btn-outline-magenta btn-sm">Download Invoice</a>
               </div>
-            </div>
-          </div>
         </div>
         <div class="order-footer">
           <a href="<%= order.detailsLink %>">View Order Details</a>
         </div>
       </div>
-    <% }); %>
+      <% }); %>
+
   </div>
 
   <!-- Bootstrap JS -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"
-  ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
