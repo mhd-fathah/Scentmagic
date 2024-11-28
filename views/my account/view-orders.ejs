@@ -11,57 +11,83 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
     rel="stylesheet">
   <link rel="stylesheet" href="/css/my account/view-orders.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
   <div class="container">
     <h1>Your Orders</h1>
 
-    <!-- Loop through orders -->
-    <% orders.forEach(order=> { %>
-      <div class="order-card">
-        <div class="order-header">
-          <span>Order ID: <%= order.id %></span>
-          <span class="float-end">Date: <%= order.date %></span>
-        </div>
-        <div class="order-body">
-          <% order.products.forEach(product=> { %>
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <img src="http://localhost:3000/public/uploads/products/<%= product.productImage %>" alt="Product Image"
-                  class="img-fluid" style="width: 200px; height: 200px; object-fit: cover;">
+    <% if (message) { %>
+      <script>
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: '<%= message %>',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      </script>
+    <% } %>
 
-              </div>
-              <div class="col-md-9">
-                <h5>
-                  <%= product.name %>
-                </h5>
-                <p>Category: <%= product.category %>
-                </p>
-                <p>Quantity: <%= product.quantity %>
-                </p>
-                <p>Price: ₹<%= product.price %>
-                </p>
-              </div>
-            </div>
-            <% }); %>
-              <div class="order-info">
-                <p>Order Status: <span class="<%= order.statusClass %>">
-                    <%= order.status %>
-                  </span></p>
-                <p>Shipping Address: <%= order.shippingAddress %>
-                </p>
-              </div>
-              <div class="d-flex gap-2 mt-3">
-                <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
-                <a href="<%= order.invoiceLink %>" class="btn btn-outline-magenta btn-sm">Download Invoice</a>
-              </div>
-        </div>
-        <div class="order-footer">
-          <a href="<%= order.detailsLink %>">View Order Details</a>
-        </div>
+    <!-- Check if orders are empty -->
+    <% if (orders.length === 0) { %>
+      <div class="alert alert-info mt-4" role="alert">
+        You have no orders yet. <strong>Start shopping now!</strong>
       </div>
+      <div class="d-flex justify-content-center">
+        <a href="/" class="btn btn-warning btn-lg">Go Back to Home</a>
+      </div>
+    <% } else { %>
+
+      <!-- Back Button positioned at the top-left corner -->
+      <a href="/" class="btn btn-danger position-absolute top-0 start-0 m-3">Go Back to Home</a>
+
+      <!-- Loop through orders -->
+      <% orders.forEach(order => { %>
+        <div class="order-card">
+          <div class="order-header">
+            <span>Order ID: <%= order.id %></span>
+            <span class="float-end">Date: <%= order.date %></span>
+          </div>
+          <div class="order-body">
+            <% order.products.forEach(product => { %>
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  <img src="http://localhost:3000/public/uploads/products/<%= product.productImage %>" alt="Product Image"
+                    class="img-fluid" style="width: 200px; height: 200px; object-fit: cover;">
+                </div>
+                <div class="col-md-9">
+                  <h5>
+                    <%= product.name %>
+                  </h5>
+                  <p>Category: <%= product.category %>
+                  </p>
+                  <p>Quantity: <%= product.quantity %>
+                  </p>
+                  <p>Price: ₹<%= product.price %>
+                  </p>
+                </div>
+              </div>
+            <% }); %>
+            <div class="order-info">
+              <p>Order Status: <span class="<%= order.statusClass %>">
+                  <%= order.status %>
+                </span></p>
+              <p>Shipping Address: <%= order.shippingAddress %>
+              </p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
+              <a href="<%= order.invoiceLink %>" class="btn btn-outline-magenta btn-sm">Download Invoice</a>
+            </div>
+          </div>
+          <div class="order-footer">
+            <a href="<%= order.detailsLink %>">View Order Details</a>
+          </div>
+        </div>
       <% }); %>
+    <% } %>
 
   </div>
 

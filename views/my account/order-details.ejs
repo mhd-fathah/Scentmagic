@@ -81,10 +81,19 @@
                 Download Invoice
               </a>
               <% if (orderData.order.canCancel) { %>
-                <a href="/orders/cancel/<%= orderData.order.orderId %>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">
+                <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="confirmCancellation('<%= orderData.order.orderId %>');">
                   Cancel Order
                 </a>
               <% } %>
+              
+              <% if (orderData.order.canReturn) { %>
+                <a href="javascript:void(0)" class="btn btn-warning btn-sm" onclick="confirmReturn('<%= orderData.order.orderId %>');">
+                  Return Order
+                </a>
+              <% } %>
+              
+              
+              
             </div>
           </div>
         </div>
@@ -94,6 +103,47 @@
       </div>
     </div>
   </div>
+
+  <!-- Add SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // Function to confirm order cancellation
+  function confirmCancellation(orderId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, cancel it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/orders/cancel/${orderId}`;
+      }
+    });
+  }
+
+  // Function to confirm order return
+  function confirmReturn(orderId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this return!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, return it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/orders/return/${orderId}`;
+      }
+    });
+  }
+</script>
+
+  
 
   <!-- Bootstrap JS -->
   <script

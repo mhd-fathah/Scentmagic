@@ -222,6 +222,7 @@ const getUserOrders = async (req, res) => {
 
     res.render("my account/view-orders", {
       orders: transformedOrders,
+      message: req.query.message,
       layout: false,
     });
   } catch (error) {
@@ -251,6 +252,13 @@ const viewOrderDetails = async (req, res) => {
     if (!order) {
       return res.status(404).send("Order not found");
     }
+
+    const canCancel = (order.status === "Pending" || order.status === "Shipped");
+    const canReturn = (order.status === "Delivered");
+
+    console.log(`Order Status: ${order.status}`);
+    console.log(`Can Cancel: ${canCancel}`);
+    console.log(`Can Return: ${canReturn}`);
 
     const orderData = {
       order: {
@@ -294,7 +302,8 @@ const viewOrderDetails = async (req, res) => {
               pincode: "N/A",
               mobile: "N/A",
             }, 
-        canCancel: order.status === "Pending", 
+        canCancel: canCancel, 
+        canReturn: canReturn,
       },
     };
 
@@ -305,9 +314,73 @@ const viewOrderDetails = async (req, res) => {
   }
 };
 
+const cancelOrder = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findById(orderId).populate('products.productId'); 
+
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    if (order.status === 'Canceled') {
+      return res.status(400).send('This order is already canceled');
+    }
+
+    for (let product of order.products) {
+      const productInDb = product.productId;
+      if (productInDb) {
+        productInDb.leftStock += product.quantity; 
+        await productInDb.save(); 
+      }
+    }
+
+    order.status = 'Cancelled';
+    
+    order.paymentStatus = 'Unpaid';
+    
+    await order.save(); 
+
+    res.redirect('/my-orders?message=Order%20Canceled%20Successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
+
+
+const returnOrder = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    if (order.status === 'Delivered') {
+      order.status = 'Returned'; 
+      order.paymentStatus = 'Refunded';
+      await order.save();
+
+      res.redirect('/my-orders?message=Order%20Returned%20Successfully');
+    } else {
+      res.status(400).send('This order cannot be returned');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
 module.exports = {
   placeOrder,
   viewOrderConfirmation,
   getUserOrders,
   viewOrderDetails,
+  cancelOrder,
+  returnOrder
 };
