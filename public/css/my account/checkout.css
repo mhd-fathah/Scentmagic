@@ -110,7 +110,7 @@ body {
 }
 
 .place-order-btn {
-    background: #fb641b;
+    background: #f714f0eb;
     color: white;
     border: none;
     padding: 15px;
@@ -123,7 +123,7 @@ body {
 }
 
 .place-order-btn:hover {
-    background: #e85a19;
+    background: #dd12d6eb;
 }
 
 .secure-badge {

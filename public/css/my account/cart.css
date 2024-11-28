@@ -162,7 +162,7 @@ body {
 }
 
 .checkout-btn {
-    background: #fb641b;
+    background: #f714f0eb;
     color: white;
     border: none;
     padding: 1rem;
@@ -174,7 +174,7 @@ body {
 }
 
 .checkout-btn:hover {
-    background: #e85d19;
+    background: #dd12d6eb;
 }
 
 .price-detail-row {
