@@ -6,7 +6,7 @@ const Cart = require("../models/cart");
 const placeOrder = async (req, res) => {
   try {
     const { paymentMethod, products, addressId, totalAmount } = req.body;
-    const userId = req.user?._id;
+    const userId = req.session.user?._id;
 
     if (!userId) {
       return res.status(400).json({ message: "User not authenticated" });
@@ -186,7 +186,7 @@ const viewOrderConfirmation = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user._id; 
+    const userId = req.session.user._id; 
 
     const orders = await Order.find({ userId })
       .populate({

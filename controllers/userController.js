@@ -421,7 +421,7 @@ const productDetails = async (req, res) => {
 
 const addReview = async (req, res) => {
   const { productId, rating, comment } = req.body;
-  const userId = req.user._id;
+  const userId = req.session.user._id;
 
   try {
     const newReview = new Review({
@@ -593,7 +593,7 @@ const getProductsPage = async (req, res) => {
 
 const loadMyAccount = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.session.user._id);
     res.render("my account/my_account", { title: "My Account", user });
   } catch (err) {
     console.error(err);
@@ -603,7 +603,7 @@ const loadMyAccount = async (req, res) => {
 
 const loadEditProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user._id;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -641,7 +641,7 @@ const loadEditProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id; 
+    const userId = req.session.user._id; 
     const { fullName, firstName, lastName, email, phone, gender } = req.body;
 
     if (!email || !fullName || !phone) {
@@ -713,7 +713,7 @@ const updateUserProfile = async (req, res) => {
 
 const loadAddressPage = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.session.user._id);
 
     const message = req.query.message || null; 
 
@@ -755,7 +755,7 @@ const addNewAddress = async (req, res) => {
       city,          
     };
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.session.user._id);
 
     if (!user) {
       return res.status(404).render('my account/view-profile', {
@@ -793,7 +793,7 @@ const getEditAddressForm = async (req, res) => {
   try {
     const addressId = req.params.id;  
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.session.user._id);
 
     if (!user) {
       return res.status(404).send('User not found');
@@ -831,7 +831,7 @@ const updateAddress = async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.session.user._id);
     const addressToUpdate = user.addresses.id(addressId);
 
     if (!addressToUpdate) {
@@ -870,7 +870,7 @@ const updateAddress = async (req, res) => {
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id; 
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const user = await User.findOne({ _id: userId, "addresses._id": addressId });
 
@@ -892,7 +892,7 @@ const deleteAddress = async (req, res) => {
 
 const loadCheckout = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.session.user._id;
 
     const user = await User.findById(userId).select("name addresses mobile").lean();
     if (!user) {

@@ -2,11 +2,11 @@ const Cart = require("../models/cart");
 const Product = require("../models/product");
 
 const getCart = async (req, res) => {
-  if (!req.user || !req.user._id) {
+  if (!req.session.user || !req.session.user._id) {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
-  const userId = req.user._id;
+  const userId = req.session.user._id;
 
   try {
     let cart = await Cart.findOne({ user: userId }).populate("items.productId");
@@ -108,7 +108,6 @@ const addToCart = async (req, res) => {
     
     const formattedDeliveryDate = `${day} ${monthName} ${year}`;
     
-    console.log(formattedDeliveryDate); 
     
     const cartItem = {
       productId: product._id,
@@ -116,11 +115,11 @@ const addToCart = async (req, res) => {
       deliveryDate: formattedDeliveryDate,
     };
 
-    let cart = await Cart.findOne({ user: req.user._id });
+    let cart = await Cart.findOne({ user: req.session.user._id });
 
     if (!cart) {
       cart = new Cart({
-        user: req.user._id,
+        user: req.session.user._id,
         items: [cartItem],
         totalPrice: product.discount_price * cartItem.quantity,
       });
@@ -171,7 +170,7 @@ const addToCart = async (req, res) => {
 
 const removeFromCart = async (req, res) => {
   const { productId } = req.body;
-  const userId = req.user._id;
+  const userId = req.session.user._id;
 
   try {
     if (!productId) {
@@ -242,7 +241,7 @@ const removeFromCart = async (req, res) => {
 
 const updateCartQuantity = async (req, res) => {
   const { productId, quantity } = req.body; 
-  const userId = req.user._id;
+  const userId = req.session.user._id;
 
   try {
       const cart = await Cart.findOne({ user: userId }).populate("items.productId");
@@ -329,7 +328,7 @@ const getCartDetails = async (req, res) => {
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: "User not authenticated" });
     }
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const cart = await Cart.findOne({ user: userId }).populate(
       "items.productId"
