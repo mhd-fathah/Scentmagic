@@ -6,6 +6,7 @@ const path = require("path");
 const adminRoutes = require('./routes/adminRoutes')
 const userRoutes = require("./routes/userRoutes");
 const connectDB = require("./config/db");
+require('dotenv').config();
 const session = require("express-session");
 const nocache = require('nocache')
 const cookieParser = require("cookie-parser")
@@ -23,7 +24,7 @@ app.use(nocache())
 
 app.use(
   session({
-    secret: "my-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 },

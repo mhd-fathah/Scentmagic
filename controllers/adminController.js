@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const Admin = require("../models/adminModel");
 const User = require("../models/user");
+const Order = require("../models/order");
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -61,7 +62,7 @@ const listUsers = async (req, res) => {
     const totalUsers = await User.countDocuments();
 
     const users = await User.find()
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -78,7 +79,6 @@ const listUsers = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
 
 const blockUser = async (req, res) => {
   try {
@@ -118,6 +118,124 @@ const viewUserDetails = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments();
+
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render("admin/orders", {
+      layout: false,
+      orders,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
+const getOrderDetails = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    const order = await Order.findOne({ orderId })
+      .populate("userId", "name email")
+      .populate("products.productId", "image")
+      .lean();
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    const totalAmount = parseFloat(order.totalAmount);
+    const formattedTotalAmount = isNaN(totalAmount)
+      ? 0.0
+      : totalAmount.toFixed(2);
+
+    const orderDetails = {
+      orderId: order.orderId,
+      date: order.createdAt.toLocaleString(),
+      customer: {
+        name: order.userId?.name || "Unknown",
+        email: order.userId?.email || "No Email",
+      },
+      deliveryAddress: {
+        fullName: order.deliveryAddress.fullName,
+        mobile: order.deliveryAddress.mobile,
+        pincode: order.deliveryAddress.pincode,
+        state: order.deliveryAddress.state,
+        address: order.deliveryAddress.address,
+        city: order.deliveryAddress.city,
+      },
+      paymentMethod: order.paymentMethod || "Not Specified",
+      totalAmount: formattedTotalAmount,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      products: order.products.map((product) => ({
+        name: product.name,
+        quantity: product.quantity,
+        price: parseFloat(product.price),
+        image: product.productId?.image || "/images/default-product.png",
+      })),
+    };
+
+    res.render("admin/order-details", { layout: false, order: orderDetails });
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  const { status } = req.body;
+  const orderId = req.params.id;
+
+  try {
+    const order = await Order.findOne({ orderId: orderId });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+
+    if (status === "Delivered") {
+      order.paymentStatus = "Paid";
+    } else if (status === "Cancelled") {
+      order.paymentStatus = "Unpaid";
+    } else if (status === "Returned") {
+      order.paymentStatus = "Refunded";
+    } else {
+      order.paymentStatus = "Pending";
+    }
+
+    await order.save();
+
+    res.status(200).json({ message: "Order status updated successfully!" });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   loadLoginPage,
   handleLogin,
@@ -127,4 +245,7 @@ module.exports = {
   blockUser,
   unblockUser,
   viewUserDetails,
+  getAllOrders,
+  getOrderDetails,
+  updateOrderStatus,
 };

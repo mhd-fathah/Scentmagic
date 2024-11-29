@@ -21,6 +21,12 @@ router.get('/users/unblock/:id', auth.isAdminAuthenticated, adminController.unbl
 router.get('/users/details/:id', auth.isAdminAuthenticated, adminController.viewUserDetails);
 
 router.post("/add-review",  reviewController.addReview);
+
+router.get('/orders',auth.isAdminAuthenticated , adminController.getAllOrders)
+
+router.get('/order/:id',auth.isAdminAuthenticated , adminController.getOrderDetails);
+router.post('/order/:id/update', auth.isAdminAuthenticated, adminController.updateOrderStatus);
+
 // router.get("/categories",categoriesController.loadCategories)
 
 module.exports = router;

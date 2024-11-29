@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Scentmagic - Order Details</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/img/logo.png">
+    <!-- Template CSS -->
+    <script src="/js/admin/color-modes.js"></script>
+    <link href="/css/admin/main.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="screen-overlay"></div>
+    <aside class="navbar-aside" id="offcanvas_aside">
+        <div class="aside-top">
+            <a href="index.html" class="brand-wrap">
+                <img src="/img/logo.png" class="logo" alt="Scentmagic logo" />
+            </a>
+            <div>
+                <button class="btn btn-icon btn-aside-minimize text-muted">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+            </div>
+        </div>
+        <nav>
+            <ul class="menu-aside">
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/dashboard">
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/products">
+                        <span class="text">Products</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/categories">
+                        <span class="text">Categories</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/orders">
+                      <span class="text" >Orders</span>
+                    </a>
+                  </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/users">
+                        <span class="text">Users</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/products/add">
+                        <span class="text">Add Product</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="#">
+                        <span class="text">Transactions</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="#">
+                        <span class="text">Reviews</span>
+                    </a>
+                </li>
+            </ul>
+            <hr />
+            <ul class="menu-aside">
+                <li class="menu-item">
+                    <a class="menu-link" href="#">
+                        <span class="text">Account</span>
+                    </a>
+                </li>
+            </ul>
+            <br />
+            <br />
+        </nav>
+    </aside>
+    <main class="main-wrap">
+        <header class="main-header navbar">
+            <div class="col-nav d-flex justify-content-end align-items-center w-100">
+                <!-- Mobile Menu Button -->
+                <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvas_aside">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+
+                <!-- Navbar -->
+                <ul class="nav ms-auto">
+                    <li class="dropdown nav-item">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                            aria-expanded="false">
+                            <img class="img-xs rounded-circle" src="/img/logo.png" alt="Admin" />
+                        </a>
+
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                            <!-- Uncomment or add any menu items you need -->
+                            <!-- <a class="dropdown-item" href="#">
+                          <i class="material-icons md-perm_identity"></i>Edit Profile
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          <i class="material-icons md-settings"></i>Account Settings
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          <i class="material-icons md-account_balance_wallet"></i>Wallet
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          <i class="material-icons md-receipt"></i>Billing
+                        </a>
+                        <a class="dropdown-item" href="#">
+                          <i class="material-icons md-help_outline"></i>Help Center
+                        </a> -->
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="/admin/logout">
+                                <i class="material-icons md-exit_to_app"></i>Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Order detail</h2>
+                    <p>Details for Order ID: <%= order.orderId %>
+                    </p>
+                </div>
+            </div>
+            <div class="card">
+                <header class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                            <span>
+                                <i class="material-icons md-calendar_today"></i>
+                                <b>
+                                    <%= new Date(order.createdAt).toLocaleString() %>
+                                </b>
+                            </span>
+                            <br>
+                            <small class="text-muted">Order ID: <%= order.orderId %></small>
+                        </div>
+                        <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                            <form id="updateOrderForm" class="d-inline-flex align-items-center">
+                                <select name="status" class="form-select me-3 mb-0 mw-200" id="orderStatus">
+                                    <option value="" disabled>Select status</option>
+                                    <option value="Pending" <%=order.status==="Pending" ? "selected" : "" %>>Pending
+                                    </option>
+                                    <option value="Shipped" <%=order.status==="Shipped" ? "selected" : "" %>>Shipped
+                                    </option>
+                                    <option value="Delivered" <%=order.status==="Delivered" ? "selected" : "" %>
+                                        >Delivered</option>
+                                    <option value="Cancelled" <%=order.status==="Cancelled" ? "selected" : "" %>
+                                        >Cancelled</option>
+                                    <option value="Returned" <%=order.status==="Returned" ? "selected" : "" %>>Returned
+                                    </option>
+                                </select>
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </header>
+                <div class="card-body">
+                    <div class="row mb-50 mt-20 order-info-wrap">
+                        <!-- Customer Info -->
+                        <div class="col-md-4">
+                            <article class="icontext align-items-start">
+                                <span class="icon icon-sm rounded-circle bg-primary-light">
+                                    <i class="text-primary material-icons md-person"></i>
+                                </span>
+                                <div class="text">
+                                    <h6 class="mb-1">Customer</h6>
+                                    <p class="mb-1">
+                                        User ID: <%= order.userId %> <br>
+                                            Name: <%= order.deliveryAddress.fullName %> <br>
+                                                Mobile: <%= order.deliveryAddress.mobile %>
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+                        <!-- Order Info -->
+                        <div class="col-md-4">
+                            <article class="icontext align-items-start">
+                                <span class="icon icon-sm rounded-circle bg-primary-light">
+                                    <i class="text-primary material-icons md-local_shipping"></i>
+                                </span>
+                                <div class="text">
+                                    <h6 class="mb-1">Order Info</h6>
+                                    <p class="mb-1">
+                                        Payment method: <%= order.paymentMethod %> <br>
+                                            Total amount: ₹<%= order.totalAmount %> <br>
+                                                <!-- No need for toFixed() here anymore -->
+                                                Status: <%= order.status %>
+                                    </p>
+
+                                </div>
+                            </article>
+                        </div>
+                        <!-- Delivery Info -->
+                        <div class="col-md-4">
+                            <article class="icontext align-items-start">
+                                <span class="icon icon-sm rounded-circle bg-primary-light">
+                                    <i class="text-primary material-icons md-place"></i>
+                                </span>
+                                <div class="text">
+                                    <h6 class="mb-1">Delivery Address</h6>
+                                    <p class="mb-1">
+                                        Address: <%= order.deliveryAddress.address %>, <%= order.deliveryAddress.city %>
+                                                , <%= order.deliveryAddress.state %> <br>
+                                                    Pincode: <%= order.deliveryAddress.pincode %>
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                    <!-- Products Table -->
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th width="40%">Product</th>
+                                            <th width="20%">Unit Price</th>
+                                            <th width="20%">Quantity</th>
+                                            <th width="20%" class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% order.products.forEach(product=> { %>
+                                            <tr>
+                                                <td>
+                                                    <a class="itemside" href="#">
+                                                        <div class="info">
+                                                            <%= product.name %>
+                                                        </div>
+                                                    </a>
+                                                </td>
+                                                <td>₹<%= product.price.toFixed(2) %>
+                                                </td> <!-- This is now safe to use -->
+                                                <td>
+                                                    <%= product.quantity %>
+                                                </td>
+                                                <td class="text-end">₹<%= (product.price * product.quantity).toFixed(2)
+                                                        %>
+                                                </td>
+
+                                            </tr>
+                                            <% }); %>
+                                                <tr>
+                                                    <td colspan="4">
+                                                        <article class="float-end">
+                                                            <dl class="dlist">
+                                                                <dt>Grand total:</dt>
+                                                                <dd><b class="h5">₹<%= order.totalAmount %></b></dd>
+                                                                <!-- Now, totalAmount is already formatted -->
+
+                                                            </dl>
+                                                            <dl class="dlist">
+                                                                <dt class="text-muted">Payment Status:</dt>
+                                                                <dd>
+                                                                    <span
+                                                                        class="badge rounded-pill alert-success text-success">
+                                                                        <%= order.paymentStatus %>
+                                                                    </span>
+                                                                </dd>
+                                                            </dl>
+                                                        </article>
+                                                    </td>
+                                                </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- content-main end// -->
+        <footer class="main-footer font-xs">
+            <div class="row pb-30 pt-15">
+                <div class="col-sm-6">
+                    <script>
+                        document.write(new Date().getFullYear());
+                    </script>
+                    2024 © Scentmagic.
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end">All rights reserved</div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Include SweetAlert JS and CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const form = document.getElementById('updateOrderForm');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const status = document.getElementById('orderStatus').value;
+
+            const orderId = window.location.pathname.split('/')[3];
+
+            try {
+                const response = await fetch(`/admin/order/${orderId}/update`, {
+                    method: 'POST',
+                    body: JSON.stringify({ status: status }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Order status updated successfully!'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.message || 'Something went wrong!'
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'There was an issue with the request. Please try again.'
+                });
+            }
+        });
+    </script>
+
+
+    <script src="/js/admin/jquery-3.6.0.min.js"></script>
+    <script src="/js/admin/bootstrap.bundle.min.js"></script>
+    <script src="/js/admin/select2.min.js"></script>
+    <script src="/js/admin/perfect-scrollbar.js"></script>
+    <script src="/js/admin/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="/js/admin/main.js" type="text/javascript"></script>
+
+
+</body>
+
+</html>
