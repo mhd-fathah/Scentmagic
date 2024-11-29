@@ -515,7 +515,34 @@ const searchProducts = async (query, categoryId = null) => {
       conditions.category = categoryId;
     }
 
-    const products = await Product.find(conditions);
+    const products = await Product.find(conditions)
+      .populate("reviews", "rating")
+      .lean();
+
+    products.forEach((product) => {
+      if (product.regular_price && product.discount_price) {
+        const discount =
+          ((product.regular_price - product.discount_price) /
+            product.regular_price) *
+          100;
+        product.discountPercentage = Math.round(discount);
+      } else {
+        product.discountPercentage = 0;
+      }
+
+      if (product.reviews && product.reviews.length > 0) {
+        const totalRatings = product.reviews.length;
+        const averageRating =
+          product.reviews.reduce((sum, review) => sum + review.rating, 0) /
+          totalRatings;
+
+        product.averageRating = averageRating.toFixed(1);
+        product.totalRatings = totalRatings;
+      } else {
+        product.averageRating = null;
+        product.totalRatings = 0;
+      }
+    });
 
     return products;
   } catch (error) {
@@ -608,22 +635,22 @@ const loadEditProfile = async (req, res) => {
 
     if (!user) {
       return res.status(404).render("my account/view-profile", {
-        title: "Edit Profile", 
-        user: null,         
+        title: "Edit Profile",
+        user: null,
         passwordResetSuccess: false,
-        addresses: [],      
+        addresses: [],
         layout: false,
-        message: "User not found.", 
+        message: "User not found.",
       });
     }
 
     res.render("my account/view-profile", {
-      title: "Edit Profile", 
-      user,              
-      passwordResetSuccess: req.query.passwordResetSuccess === "true", 
+      title: "Edit Profile",
+      user,
+      passwordResetSuccess: req.query.passwordResetSuccess === "true",
       addresses: user.addresses || [],
-      layout: false,       
-      message: "",         
+      layout: false,
+      message: "",
     });
   } catch (err) {
     console.error("Error loading profile page:", err);
@@ -631,24 +658,23 @@ const loadEditProfile = async (req, res) => {
       title: "Edit Profile",
       user: req.user || null,
       passwordResetSuccess: false,
-      addresses: [],        
+      addresses: [],
       layout: false,
-      message: "Internal Server Error. Please try again later.", 
+      message: "Internal Server Error. Please try again later.",
     });
   }
 };
 
-
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.session.user._id; 
+    const userId = req.session.user._id;
     const { fullName, firstName, lastName, email, phone, gender } = req.body;
 
     if (!email || !fullName || !phone) {
       return res.status(400).render("my account/view-profile", {
         message: "Required fields cannot be empty.",
         passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses, 
+        addresses: req.user.addresses,
         user: req.user,
         layout: false,
       });
@@ -660,7 +686,7 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).render("my account/view-profile", {
         message: "User not found.",
         passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: [], 
+        addresses: [],
         user: req.user,
         layout: false,
       });
@@ -684,7 +710,7 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).render("my account/view-profile", {
         message: "User not found.",
         passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: existingUser.addresses, 
+        addresses: existingUser.addresses,
         user: req.user,
         layout: false,
       });
@@ -700,22 +726,21 @@ const updateUserProfile = async (req, res) => {
   } catch (error) {
     console.error("Error updating profile:", error);
     res.status(500).render("my account/view-profile", {
-      message: "An error occurred while updating your profile. Please try again.",
+      message:
+        "An error occurred while updating your profile. Please try again.",
       passwordResetSuccess: req.query.passwordResetSuccess === "true",
-      addresses: req.user ? req.user.addresses : [], 
+      addresses: req.user ? req.user.addresses : [],
       user: req.user,
       layout: false,
     });
   }
 };
 
-
-
 const loadAddressPage = async (req, res) => {
   try {
     const user = await User.findById(req.session.user._id);
 
-    const message = req.query.message || null; 
+    const message = req.query.message || null;
 
     res.render("my account/address", {
       message: message,
@@ -730,39 +755,38 @@ const loadAddressPage = async (req, res) => {
   }
 };
 
-
 const addNewAddress = async (req, res) => {
   try {
     const { name, mobile, pincode, state, address, city, type } = req.body;
 
     if (!name || !mobile || !pincode || !state || !address || !city || !type) {
-      return res.status(400).render('my account/view-profile', {
-        message: 'All fields are required.',
+      return res.status(400).render("my account/view-profile", {
+        message: "All fields are required.",
         passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses, 
+        addresses: req.user.addresses,
         user: req.user,
         layout: false,
       });
     }
 
     const newAddress = {
-      type,            
-      fullName: name,  
-      mobile,          
-      pincode,         
-      state,           
-      address,       
-      city,          
+      type,
+      fullName: name,
+      mobile,
+      pincode,
+      state,
+      address,
+      city,
     };
 
     const user = await User.findById(req.session.user._id);
 
     if (!user) {
-      return res.status(404).render('my account/view-profile', {
-        message: 'User not found.',
+      return res.status(404).render("my account/view-profile", {
+        message: "User not found.",
         passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses, 
-        user: req.user, 
+        addresses: req.user.addresses,
+        user: req.user,
         layout: false,
       });
     }
@@ -773,15 +797,15 @@ const addNewAddress = async (req, res) => {
 
     res.render("my account/address", {
       title: "Address",
-      message: 'Address updated successfully!',
+      message: "Address updated successfully!",
       user,
       layout: false,
       addresses: user.addresses,
     });
   } catch (err) {
-    console.error('Error adding address:', err);
-    res.status(500).render('my account/view-profile', {
-      message: 'An error occurred while adding the address. Please try again.',
+    console.error("Error adding address:", err);
+    res.status(500).render("my account/view-profile", {
+      message: "An error occurred while adding the address. Please try again.",
       passwordResetSuccess: req.query.passwordResetSuccess === "true",
       user: req.user,
       layout: false,
@@ -791,40 +815,39 @@ const addNewAddress = async (req, res) => {
 
 const getEditAddressForm = async (req, res) => {
   try {
-    const addressId = req.params.id;  
+    const addressId = req.params.id;
 
     const user = await User.findById(req.session.user._id);
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
     const address = user.addresses.id(addressId);
 
     if (!address) {
-      return res.status(404).send('Address not found');
+      return res.status(404).send("Address not found");
     }
 
-    res.render('my account/edit-address', {
-      address: address, 
-      user: req.user,   
-      layout: false,      
+    res.render("my account/edit-address", {
+      address: address,
+      user: req.user,
+      layout: false,
     });
-    
   } catch (err) {
-    console.error('Error fetching address:', err);
-    res.status(500).send('An error occurred while fetching the address.');
+    console.error("Error fetching address:", err);
+    res.status(500).send("An error occurred while fetching the address.");
   }
 };
 
 const updateAddress = async (req, res) => {
   try {
     const { name, mobile, pincode, state, address, city, type } = req.body;
-    const addressId = req.params.id; 
+    const addressId = req.params.id;
 
     if (!name || !mobile || !pincode || !state || !address || !city || !type) {
-      return res.status(400).render('my account/edit-address', {
-        message: 'All fields are required.',
+      return res.status(400).render("my account/edit-address", {
+        message: "All fields are required.",
         address: { ...req.body },
         user: req.user,
         layout: false,
@@ -835,7 +858,7 @@ const updateAddress = async (req, res) => {
     const addressToUpdate = user.addresses.id(addressId);
 
     if (!addressToUpdate) {
-      return res.status(404).send('Address not found');
+      return res.status(404).send("Address not found");
     }
 
     addressToUpdate.fullName = name;
@@ -850,17 +873,17 @@ const updateAddress = async (req, res) => {
 
     res.render("my account/address", {
       title: "Address",
-      message: 'Address updated successfully!',
+      message: "Address updated successfully!",
       user,
       layout: false,
       addresses: user.addresses,
     });
-
   } catch (err) {
-    console.error('Error updating address:', err);
-    res.status(500).render('my account/edit-address', {
-      message: 'An error occurred while updating the address. Please try again.',
-      address: { ...req.body }, 
+    console.error("Error updating address:", err);
+    res.status(500).render("my account/edit-address", {
+      message:
+        "An error occurred while updating the address. Please try again.",
+      address: { ...req.body },
       user: req.user,
       layout: false,
     });
@@ -869,13 +892,21 @@ const updateAddress = async (req, res) => {
 
 const deleteAddress = async (req, res) => {
   try {
-    const addressId = req.params.id; 
+    const addressId = req.params.id;
     const userId = req.session.user._id;
 
-    const user = await User.findOne({ _id: userId, "addresses._id": addressId });
+    const user = await User.findOne({
+      _id: userId,
+      "addresses._id": addressId,
+    });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Address not found or user does not exist.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Address not found or user does not exist.",
+        });
     }
 
     await User.updateOne(
@@ -883,10 +914,15 @@ const deleteAddress = async (req, res) => {
       { $pull: { addresses: { _id: addressId } } }
     );
 
-    res.json({ success: true, message: 'Address deleted successfully!' });
+    res.json({ success: true, message: "Address deleted successfully!" });
   } catch (err) {
-    console.error('Error deleting address:', err);
-    res.status(500).json({ success: false, message: 'An error occurred while deleting the address.' });
+    console.error("Error deleting address:", err);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "An error occurred while deleting the address.",
+      });
   }
 };
 
@@ -894,14 +930,19 @@ const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user._id;
 
-    const user = await User.findById(userId).select("name addresses mobile").lean();
+    const user = await User.findById(userId)
+      .select("name addresses mobile")
+      .lean();
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    const addresses = user.addresses && user.addresses.length > 0 ? user.addresses : null;
+    const addresses =
+      user.addresses && user.addresses.length > 0 ? user.addresses : null;
 
-    const cart = await Cart.findOne({ user: userId }).populate('items.productId', 'product_name discount_price').lean();
+    const cart = await Cart.findOne({ user: userId })
+      .populate("items.productId", "product_name discount_price")
+      .lean();
     if (!cart || cart.items.length === 0) {
       return res.render("my account/checkout", {
         user: {
@@ -916,13 +957,16 @@ const loadCheckout = async (req, res) => {
       });
     }
 
-    const products = cart.items.map(item => ({
+    const products = cart.items.map((item) => ({
       ...item.productId,
       quantity: item.quantity,
       totalPrice: item.productId.discount_price * item.quantity,
     }));
 
-    const totalPrice = products.reduce((total, product) => total + product.totalPrice, 0);
+    const totalPrice = products.reduce(
+      (total, product) => total + product.totalPrice,
+      0
+    );
     const deliveryCharges = 0;
     const totalAmount = totalPrice + deliveryCharges;
 
@@ -942,7 +986,6 @@ const loadCheckout = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 module.exports = {
   signupUser,
@@ -973,5 +1016,5 @@ module.exports = {
   getEditAddressForm,
   updateAddress,
   deleteAddress,
-  loadCheckout
+  loadCheckout,
 };
