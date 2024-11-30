@@ -79,4 +79,6 @@ router.post('/my-account/address/delete/:id',auth.checkSession ,userController.d
 
 router.get('/checkout', auth.checkSession , userController.loadCheckout)
 
+router.post("/notify", userController.notifyUser);
+
 module.exports = router;

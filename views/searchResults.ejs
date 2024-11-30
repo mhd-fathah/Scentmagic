@@ -1,26 +1,33 @@
-<section class="breadcrumb-section py-3 bg-white border-bottom">
+<section class="breadcrumb-section py-4 bg-light">
   <div class="container">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb px-4 py-2 mb-0 rounded-0" style="background-color: transparent;">
-        <li class="breadcrumb-item">
-          <a href="/" class="text-decoration-none" style="color: #2874f0;">
-            <i class="bi bi-house-door"></i> Home
-          </a>
-        </li>
-        <li class="breadcrumb-item">
-          <a href="/shop" class="text-decoration-none" style="color: #2874f0;">Shop</a>
-        </li>
-        <% if (category) { %>
-          <li class="breadcrumb-item active text-muted">
-            <%= category.name %>
-          </li>
-          <% } else { %>
-            <li class="breadcrumb-item active text-muted">
-              All Products
-            </li>
-            <% } %>
-      </ol>
-    </nav>
+      <div class="row">
+          <div class="col-md-12">
+              <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
+                      style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+                      <li class="breadcrumb-item">
+                          <a href="/" class="text-decoration-none text-dark fw-bold">
+                              <i class="bi bi-house-door"></i> Home
+                          </a>
+                      </li>
+                      <li class="breadcrumb-item">
+                          <a href="/shop" class="text-decoration-none text-dark fw-bold">
+                              Shop
+                          </a>
+                      </li>
+                      <% if (category) { %>
+                          <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                              <%= category.name %> <!-- Display the selected category name in the breadcrumb -->
+                          </li>
+                          <% } else { %>
+                              <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                                  All Products
+                              </li>
+                              <% } %>
+                  </ol>
+              </nav>
+          </div>
+      </div>
   </div>
 </section>
 

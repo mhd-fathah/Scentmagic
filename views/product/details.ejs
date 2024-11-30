@@ -45,6 +45,94 @@
     color: #6c757d;
     /* Muted separator color */
   }
+
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #333;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .close-btn:hover {
+    color: #db10d5f3;
+  }
+
+  #emailInput {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  .primary-btn {
+    background-color: #f714f0eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+
+  .primary-btn:hover {
+    background-color: #db10d5f3;
+  }
+
+  .primary-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+
+  .popup {
+    background: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -156,7 +244,7 @@
 
           <div class="product__details__quantity">
             <div class="quantity">
-              <div class="pro-qty" data-left-stock="<%= product.leftStock %>" >
+              <div class="pro-qty" data-left-stock="<%= product.leftStock %>">
                 <input type="number" value="1" min="1" max="99" id="product-quantity" aria-label="Quantity">
               </div>
             </div>
@@ -164,7 +252,39 @@
 
           <% if (isOutOfStock) { %>
             <p class="sold-out-message text-danger">Sold Out</p>
-            <a href="#" class="primary-btn disabled">Notify Me</a>
+
+            <a href="#" class="primary-btn" id="notifyBtn">Notify Me</a>
+
+            <div id="emailModal" class="modal" style="display: none;">
+              <div class="modal-content">
+                <button id="closeModal" class="close-btn">&times;</button>
+                <h4>Enter your email to be notified</h4>
+                <form id="notifyForm">
+                  <input type="email" id="emailInput" placeholder="Enter your email" required>
+                  <div style="position: relative; display: inline-block;">
+                    <button id="submitBtn" type="submit" class="primary-btn">Submit</button>
+                    <div id="spinner" style="display: none; 
+                    position: absolute; 
+                    top: 50%; 
+                    left: 50%; 
+                    transform: translate(-50%, -50%); 
+                    border: 3px solid #f3f3f3; 
+                    border-top: 3px solid #2874f0; 
+                    border-radius: 50%; 
+                    width: 20px; 
+                    height: 20px; 
+                    animation: spin 1s linear infinite;">
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="successPopup" class="popup" style="display: none;">
+              <p>Notification request sent successfully!</p>
+            </div>
+
+
             <% } else { %>
               <a href="#" class="primary-btn add-to-cart-btn" data-product-id="<%= product._id %>"
                 data-product-name="<%= product.product_name %>" data-product-price="<%= product.discount_price %>">ADD
@@ -338,6 +458,77 @@
     </div>
   </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+  document.getElementById("notifyBtn").addEventListener("click", function (e) {
+    e.preventDefault();
+    document.getElementById("emailModal").style.display = "flex";
+  });
+
+  document.getElementById("closeModal").addEventListener("click", function () {
+    document.getElementById("emailModal").style.display = "none";
+  });
+
+  document.getElementById("notifyForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("emailInput").value;
+    const spinner = document.getElementById("spinner");
+    const submitBtn = document.getElementById("submitBtn");
+
+    submitBtn.disabled = true;
+    spinner.style.display = "inline-block";
+
+    try {
+      const response = await fetch("/notify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        document.getElementById("emailModal").style.display = "none";
+        document.getElementById("successPopup").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("successPopup").style.display = "none";
+        }, 3000);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'We have sent a notification to your email once the product is available!',
+          confirmButtonText: 'Close'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Something went wrong!',
+          text: 'Please try again later.',
+          confirmButtonText: 'Close'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'An error occurred!',
+        text: 'Please try again later.',
+        confirmButtonText: 'Close'
+      });
+    } finally {
+      spinner.style.display = "none";
+      submitBtn.disabled = false;
+    }
+  });
+
+</script>
+
+
 
 <!-- Related Products Section End -->
 

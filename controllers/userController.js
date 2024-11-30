@@ -987,6 +987,38 @@ const loadCheckout = async (req, res) => {
   }
 };
 
+const notifyUser = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", 
+      auth: {
+        user: "fathu6214@gmail.com",
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: "fathu6214@gmail.com",
+      to: email,
+      subject: "Product Notification",
+      text: "Thank you for your interest! We will notify you when the product becomes available.",
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Notification email sent successfully" });
+  } catch (err) {
+    console.error("Error sending email:", err);
+    res.status(500).json({ message: "Failed to send notification email" });
+  }
+};
+
 module.exports = {
   signupUser,
   loginUser,
@@ -1017,4 +1049,5 @@ module.exports = {
   updateAddress,
   deleteAddress,
   loadCheckout,
+  notifyUser
 };
