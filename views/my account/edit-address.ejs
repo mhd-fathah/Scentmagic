@@ -17,24 +17,24 @@
             <h2>Edit Address</h2>
         </div>
 
-        <form action="/my-account/address/edit/<%= address._id %>" method="POST">
+        <form id="editAddressForm" action="/my-account/address/edit/<%= address._id %>" method="POST">
             <div class="name-row">
                 <div class="form-group">
                     <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" value="<%= address.fullName %>" required>
+                    <input type="text" id="name" name="name" value="<%= address.fullName %>">
                 </div>
             </div>
             <div class="form-group">
                 <label for="mobile">Mobile Number</label>
-                <input type="tel" id="mobile" name="mobile" value="<%= address.mobile %>" required>
+                <input type="tel" id="mobile" name="mobile" value="<%= address.mobile %>">
             </div>
             <div class="form-group">
                 <label for="pincode">Pincode</label>
-                <input type="text" id="pincode" name="pincode" value="<%= address.pincode %>" required>
+                <input type="text" id="pincode" name="pincode" value="<%= address.pincode %>">
             </div>
             <div class="form-group">
                 <label for="state">State</label>
-                <input type="text" id="state" name="state" value="<%= address.state %>" required>
+                <input type="text" id="state" name="state" value="<%= address.state %>">
             </div>
             <div class="form-group full-width">
                 <label for="address">Address (Area and Street)</label>
@@ -42,24 +42,95 @@
             </div>
             <div class="form-group">
                 <label for="city">City/District/Town</label>
-                <input type="text" id="city" name="city" value="<%= address.city %>" required>
+                <input type="text" id="city" name="city" value="<%= address.city %>">
             </div>
             <div class="form-group">
                 <label for="type">Address Type</label>
                 <select id="type" name="type">
-                    <option value="home" <%=address.type==='home' ? 'selected' : '' %>>Home</option>
-                    <option value="work" <%=address.type==='work' ? 'selected' : '' %>>Work</option>
-                    <option value="other" <%=address.type==='other' ? 'selected' : '' %>>Other</option>
+                    <option value="home" <%=address.type==="home" ? "selected" : "" %>>Home</option>
+                    <option value="work" <%=address.type==="work" ? "selected" : "" %>>Work</option>
+                    <option value="other" <%=address.type==="other" ? "selected" : "" %>>Other</option>
                 </select>
             </div>
-
 
             <div class="btn-container">
                 <button type="button" class="btn btn-cancel" onclick="window.history.back();">CANCEL</button>
                 <button type="submit" class="btn btn-save">SAVE</button>
             </div>
+
+            <div id="error-message" style="color: red; display: none;"></div>
+            <div id="success-message" style="color: green; display: none;"></div>
         </form>
+
     </div>
+
+    <script>
+        document.getElementById('editAddressForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const pincode = document.getElementById('pincode').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const type = document.getElementById('type').value;
+
+            const mobileRegex = /^[0-9]{10}$/;
+            const pincodeRegex = /^\d{6}$/;
+
+            if (!name || name.length < 3) {
+                showError('Name must be at least 3 characters long.');
+                return;
+            }
+            if (!mobileRegex.test(mobile)) {
+                showError('Mobile number must be a valid 10-digit number.');
+                return;
+            }
+            if (!pincodeRegex.test(pincode)) {
+                showError('Pincode must be a valid 6-digit number.');
+                return;
+            }
+            if (!state || state.length < 2) {
+                showError('State must be at least 2 characters long.');
+                return;
+            }
+            if (!address || address.length < 10) {
+                showError('Address must be at least 10 characters long.');
+                return;
+            }
+            if (!city || city.length < 2) {
+                showError('City/District/Town must be at least 2 characters long.');
+                return;
+            }
+            if (!type) {
+                showError('Please select an address type.');
+                return;
+            }
+
+            showSuccess('All validations passed! Submitting the form...');
+            this.submit();
+        });
+
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+
+            const successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';
+        }
+
+    </script>
 </body>
 
 </html>

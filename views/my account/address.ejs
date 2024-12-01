@@ -21,31 +21,31 @@
         <h2>Add New Address</h2>
         <button class="close-btn">×</button>
       </div>
-      <form action="/my-account/address/add" method="POST">
+      <form id="addressForm" action="/my-account/address/add" method="POST">
         <div class="form-grid">
           <div class="form-group">
             <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name" >
           </div>
           <div class="form-group">
             <label for="mobile">Mobile Number</label>
-            <input type="tel" id="mobile" name="mobile" required>
+            <input type="tel" id="mobile" name="mobile" >
           </div>
           <div class="form-group">
             <label for="pincode">Pincode</label>
-            <input type="text" id="pincode" name="pincode" required>
+            <input type="text" id="pincode" name="pincode" >
           </div>
           <div class="form-group">
             <label for="state">State</label>
-            <input type="text" id="state" name="state" required>
+            <input type="text" id="state" name="state" >
           </div>
           <div class="form-group full-width">
             <label for="address">Address (Area and Street)</label>
-            <textarea id="address" name="address" required></textarea>
+            <textarea id="address" name="address" ></textarea>
           </div>
           <div class="form-group">
             <label for="city">City/District/Town</label>
-            <input type="text" id="city" name="city" required>
+            <input type="text" id="city" name="city" >
           </div>
           <div class="form-group">
             <label for="type">Address Type</label>
@@ -58,6 +58,10 @@
           <button type="submit" class="submit-btn">Save Address</button>
         </div>
       </form>
+      
+      <div id="error-message" style="color: red; display: none;"></div>
+      <div id="success-message" style="color: green; display: none;"></div>
+
     </div>
 
     <!-- Address Grid -->
@@ -111,6 +115,74 @@
     })
     }
   </script>
+
+<script>
+ document.getElementById('addressForm').addEventListener('submit', function (event) {
+  event.preventDefault(); 
+  
+  const name = document.getElementById('name').value.trim();
+  const mobile = document.getElementById('mobile').value.trim();
+  const pincode = document.getElementById('pincode').value.trim();
+  const state = document.getElementById('state').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const city = document.getElementById('city').value.trim();
+  const type = document.getElementById('type').value;
+
+  const mobileRegex = /^[0-9]{10}$/; 
+  const pincodeRegex = /^\d{6}$/;
+
+  if (!name || name.length < 3) {
+    showError('Name must be at least 3 characters long.');
+    return;
+  }
+  if (!mobileRegex.test(mobile)) {
+    showError('Mobile number must be a valid 10-digit number.');
+    return;
+  }
+  if (!pincodeRegex.test(pincode)) {
+    showError('Pincode must be a valid 6-digit number.');
+    return;
+  }
+  if (!state || state.length < 2) {
+    showError('State must be at least 2 characters long.');
+    return;
+  }
+  if (!address || address.length < 10) {
+    showError('Address must be at least 10 characters long.');
+    return;
+  }
+  if (!city || city.length < 2) {
+    showError('City/District/Town must be at least 2 characters long.');
+    return;
+  }
+
+  showSuccess('All validations passed! Submitting the form...');
+
+  document.getElementById('addressForm').submit();
+});
+
+function showError(message) {
+  const errorMessage = document.getElementById('error-message');
+  errorMessage.textContent = message;
+  errorMessage.style.display = 'block';
+
+  const successMessage = document.getElementById('success-message');
+  successMessage.style.display = 'none';
+}
+
+function showSuccess(message) {
+  const successMessage = document.getElementById('success-message');
+  successMessage.textContent = message;
+  successMessage.style.display = 'block';
+
+  const errorMessage = document.getElementById('error-message');
+  errorMessage.style.display = 'none';
+}
+
+</script>
+
+
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.delete-address-btn').forEach(button => {
