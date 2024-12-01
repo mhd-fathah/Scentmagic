@@ -4,14 +4,11 @@ const productController = require('../controllers/productController');
 const upload = require('../middleware/upload');
 const auth = require('../middleware/adminAuth');
 
-// Apply admin authentication middleware globally for all routes under /products
 router.use('/products', auth.isAdminAuthenticated);
 
-// Product routes
-router.get('/products', productController.getProducts); // Fetch and display all products
-router.get('/products/add', productController.showAddProducts); // Show the form to add a product
+router.get('/products', productController.getProducts); 
+router.get('/products/add', productController.showAddProducts); 
 
-// Handle adding a new product with multiple image uploads
 router.post('/products/add', 
   upload.fields([
     { name: 'image1', maxCount: 1 },
@@ -22,10 +19,8 @@ router.post('/products/add',
   productController.addProduct
 );
 
-// Show the form to edit a product
 router.get('/products/edit/:id', productController.editProduct);
 
-// Handle product update with multiple image uploads
 router.post('/products/edit/:id', 
   upload.fields([
     { name: 'image1', maxCount: 1 },
