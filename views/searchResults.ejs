@@ -1,33 +1,47 @@
+<div style="display: flex; justify-content: center;">
+  <div class="hero__search">
+    <div class="hero__search__form">
+      <form id="searchForm" method="GET" action="/search">
+        <input type="text" id="searchQuery" name="q" placeholder="What do you need?" required value="<%= query %>" />
+        <button type="submit" class="site-btn"
+          style="padding: 10px 20px; background-color: #f714f0eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          SEARCH
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <section class="breadcrumb-section py-4 bg-light">
   <div class="container">
-      <div class="row">
-          <div class="col-md-12">
-              <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
-                      style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
-                      <li class="breadcrumb-item">
-                          <a href="/" class="text-decoration-none text-dark fw-bold">
-                              <i class="bi bi-house-door"></i> Home
-                          </a>
-                      </li>
-                      <li class="breadcrumb-item">
-                          <a href="/shop" class="text-decoration-none text-dark fw-bold">
-                              Shop
-                          </a>
-                      </li>
-                      <% if (category) { %>
-                          <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                              <%= category.name %> 
-                          </li>
-                          <% } else { %>
-                              <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                                  All Products
-                              </li>
-                              <% } %>
-                  </ol>
-              </nav>
-          </div>
+    <div class="row">
+      <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
+            style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+            <li class="breadcrumb-item">
+              <a href="/" class="text-decoration-none text-dark fw-bold">
+                <i class="bi bi-house-door"></i> Home
+              </a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="/shop" class="text-decoration-none text-dark fw-bold">
+                Shop
+              </a>
+            </li>
+            <% if (category) { %>
+              <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                <%= category.name %>
+              </li>
+              <% } else { %>
+                <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
+                  All Products
+                </li>
+                <% } %>
+          </ol>
+        </nav>
       </div>
+    </div>
   </div>
 </section>
 
@@ -92,3 +106,23 @@
           </div>
           <% } %>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById("searchForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const query = document.getElementById("searchQuery").value.trim();
+
+    if (query === "") {
+      Swal.fire({
+        title: "Error!",
+        text: "Please enter a search term.",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+      return;
+    }
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  });
+</script>

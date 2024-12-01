@@ -1,3 +1,17 @@
+<div style="display: flex; justify-content: center;">
+    <div class="hero__search">
+        <div class="hero__search__form">
+            <form id="searchForm" method="GET" action="/search">
+                <input type="text" id="searchQuery" name="q" placeholder="What do you need?" required />
+                <button type="submit" class="site-btn"
+                    style=" background-color: #f714f0eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    SEARCH
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section py-4 bg-light">
     <div class="container">
@@ -162,11 +176,12 @@
                                                     <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                                     <li><a href="#"><i class="fa fa-retweet"></i></a></li>
                                                     <li>
-                                                        <a href="#" class="add-to-cart" data-id="<%= product._id %>" data-name="<%= product.product_name %>"
-                                                          data-price="<%= product.discount_price %>">
-                                                          <i class="fa fa-shopping-cart"></i>
+                                                        <a href="#" class="add-to-cart" data-id="<%= product._id %>"
+                                                            data-name="<%= product.product_name %>"
+                                                            data-price="<%= product.discount_price %>">
+                                                            <i class="fa fa-shopping-cart"></i>
                                                         </a>
-                                                      </li>
+                                                    </li>
                                                 </ul>
                                         </div>
                                         <div class="product__discount__item__text">
@@ -178,12 +193,12 @@
                                                 </a></h5>
                                             <div class="product__item__price">₹<%= product.discount_price %>
                                                     <span>₹<%= product.regular_price %></span>
-                                                </div>
-                                                <% if (product.stock_status==='in_stock' ) { %>
-                                                    <p style="color: green;">In Stock</p>
-                                                    <% } else { %>
-                                                      <p style="color: red;">Out of Stock</p>
-                                                      <% } %>
+                                            </div>
+                                            <% if (product.stock_status==='in_stock' ) { %>
+                                                <p style="color: green;">In Stock</p>
+                                                <% } else { %>
+                                                    <p style="color: red;">Out of Stock</p>
+                                                    <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -240,11 +255,12 @@
                                         <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                         <li><a href="#"><i class="fa fa-retweet"></i></a></li>
                                         <li>
-                                            <a href="#" class="add-to-cart" data-id="<%= product._id %>" data-name="<%= product.product_name %>"
-                                              data-price="<%= product.discount_price %>">
-                                              <i class="fa fa-shopping-cart"></i>
+                                            <a href="#" class="add-to-cart" data-id="<%= product._id %>"
+                                                data-name="<%= product.product_name %>"
+                                                data-price="<%= product.discount_price %>">
+                                                <i class="fa fa-shopping-cart"></i>
                                             </a>
-                                          </li>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
@@ -260,8 +276,8 @@
                                     <% if (product.stock_status==='in_stock' ) { %>
                                         <p style="color: green;">In Stock</p>
                                         <% } else { %>
-                                          <p style="color: red;">Out of Stock</p>
-                                          <% } %>
+                                            <p style="color: red;">Out of Stock</p>
+                                            <% } %>
                                 </div>
                             </div>
                         </div>
@@ -296,6 +312,26 @@
     </div>
 </section>
 <!-- Product Section End -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById("searchForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const query = document.getElementById("searchQuery").value.trim();
+
+    if (query === "") {
+      Swal.fire({
+        title: "Error!",
+        text: "Please enter a search term.",
+        icon: "error",
+        confirmButtonText: "Okay",
+      });
+      return;
+    }
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  });
+</script>
 
 <script>
 
@@ -372,7 +408,7 @@
             .then(response => response.json())
             .then(data => {
                 const productList = document.getElementById('product-list');
-                productList.innerHTML = ''; 
+                productList.innerHTML = '';
 
                 data.products.forEach(product => {
                     const productElement = document.createElement('div');
