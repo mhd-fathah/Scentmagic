@@ -17,6 +17,7 @@ const auth = require("./middleware/authMiddleware")
 const productRoutes = require('./routes/productRoutes')
 const cartRoutes = require('./routes/cartRoutes')
 const orderRoutes = require('./routes/orderRoutes')
+const wishlistRoutes = require('./routes/wishlistRoutes')
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -44,6 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
 app.use(auth.setCurrentRoute)
+app.use('/wishlist',wishlistRoutes)
 app.use(orderRoutes)
 app.use(cartRoutes)
 app.use("/admin",adminRoutes,categoryRoutes,productRoutes)

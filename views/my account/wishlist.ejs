@@ -1,58 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Wishlist</title>
     <link rel="stylesheet" href="/css/my account/wishlist.css">
 </head>
+
 <body>
     <div class="container">
         <div class="wishlist-header">
             <div>
                 <h1 class="wishlist-title">My Wishlist</h1>
-                <span class="items-count"><%= wishlistItems.length %> Items</span>
+                <span class="items-count">
+                    <%= wishlistItems.length %> Items
+                </span>
             </div>
         </div>
 
-        <% if (wishlistItems.length > 0) { %>
+        <% if (wishlistItems.length> 0) { %>
             <div class="wishlist-grid">
-                <% wishlistItems.forEach(item => { %>
+                <% wishlistItems.forEach(item=> { %>
                     <!-- Product Card -->
-                    <div class="product-card">
+                    <div class="product-card" data-product-id="<%= item._id %>">
                         <div class="wishlist-actions">
-                            <button class="action-btn" title="Remove">✕</button>
-                            <button class="action-btn" title="Share">↗</button>
+                            <button class="action-btn remove-item" title="Remove">✕</button>
+                            <button class="action-btn share-item" title="Share">↗</button>
                         </div>
                         <div class="product-image">
-                            <img src="<%= item.imageUrl %>" alt="<%= item.name %>">
+                            <img src="http://localhost:3000/public/uploads/products/<%= item.productId.product_images[0] %>" alt="<%= item.productId.product_name %>">
                         </div>
                         <div class="product-info">
-                            <div class="product-brand"><%= item.brand %></div>
-                            <h3 class="product-name"><%= item.name %></h3>
+                            <div class="product-brand">
+                                <%= item.productId.category %>
+                            </div>
+                            <h3 class="product-name">
+                                <%= item.productId.product_name %>
+                            </h3>
                             <div class="rating-section">
-                                <span class="product-rating"><%= item.rating %> ★</span>
-                                <span class="rating-count"><%= item.ratingCount %> ratings</span>
+                                <span class="product-rating">
+                                    <%= item.productId.reviewsCount %> ★
+                                </span>
+                                <span class="rating-count">
+                                    <%= item.productId.reviewsCount %> ratings
+                                </span>
                             </div>
                             <div class="product-price">
-                                <span class="current-price">₹<%= item.currentPrice %></span>
-                                <span class="original-price">₹<%= item.originalPrice %></span>
-                                <span class="discount"><%= item.discount %> off</span>
+                                <span class="current-price">₹<%= item.productId.discount_price %></span>
+                                <span class="original-price">₹<%= item.productId.regular_price %></span>
+                                <span class="discount">
+                                    <%= item.productId.discountPercentage %>% off
+                                </span>
                             </div>
-                            <button class="move-to-cart">Move to Cart</button>
+                            <button class="move-to-cart" data-product-id="<%= item._id %>">Move to Cart</button>
                         </div>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
-        <% } else { %>
-            <!-- Empty Wishlist State -->
-            <div class="empty-wishlist">
-                <img src="/api/placeholder/200/200" alt="Empty Wishlist">
-                <h2>Empty Wishlist</h2>
-                <p>You have no items in your wishlist. Start adding!</p>
-                <a href="#" class="browse-products">Browse Products</a>
-            </div>
-        <% } %>
+            <% } else { %>
+                <!-- Empty Wishlist State -->
+                <div class="empty-wishlist">
+                    <img src="/api/placeholder/200/200" alt="Empty Wishlist">
+                    <h2>Empty Wishlist</h2>
+                    <p>You have no items in your wishlist. Start adding!</p>
+                    <a href="#" class="browse-products">Browse Products</a>
+                </div>
+                <% } %>
     </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.querySelectorAll('.move-to-cart').forEach(button => {
+          button.addEventListener('click', async (event) => {
+            const productId = event.target.closest('.product-card').dataset.productId;
+            console.log("ProductId clicked:", productId);  
+      
+            try {
+              const response = await fetch('/wishlist/move-to-cart', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+              });
+      
+              if (response.ok) {
+                const data = await response.json();
+                console.log('Item moved to cart:', data);
+                Swal.fire({
+                  title: 'Success!',
+                  text: 'Item has been moved to your cart.',
+                  icon: 'success',
+                  confirmButtonText: 'Okay',
+                }).then(() => {
+                  location.reload();
+                });
+              } else {
+                console.log('Failed to move item to cart:', response.status);
+                Swal.fire({
+                  title: 'Failed!',
+                  text: 'Something went wrong. Please try again.',
+                  icon: 'error',
+                  confirmButtonText: 'Retry',
+                });
+              }
+            } catch (error) {
+              console.error('Error moving item to cart:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: 'There was an error processing your request. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'Okay',
+              });
+            }
+          });
+        });
+      </script>
+      
+    
+      
+      
 </body>
+
 </html>
