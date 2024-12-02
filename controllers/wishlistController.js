@@ -41,9 +41,11 @@ const moveToCart = async (req, res) => {
   try {
     const { productId } = req.body;
     console.log("Received productId:", productId);
+
     if (!req.session.user) {
       return res.status(400).send("User not authenticated.");
     }
+
     const wishlistItem = await Wishlist.findById(productId);
     console.log("Wishlist Item:", wishlistItem);
 
@@ -56,6 +58,12 @@ const moveToCart = async (req, res) => {
 
     if (!product) {
       return res.status(404).send("Product not found");
+    }
+
+    if (product.leftStock === 0) {
+      return res
+        .status(400)
+        .send("This product is out of stock and cannot be moved to the cart.");
     }
 
     const cartItem = {

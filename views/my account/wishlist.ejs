@@ -29,7 +29,8 @@
                             <button class="action-btn share-item" title="Share">↗</button>
                         </div>
                         <div class="product-image">
-                            <img src="http://localhost:3000/public/uploads/products/<%= item.productId.product_images[0] %>" alt="<%= item.productId.product_name %>">
+                            <img src="http://localhost:3000/public/uploads/products/<%= item.productId.product_images[0] %>"
+                                alt="<%= item.productId.product_name %>">
                         </div>
                         <div class="product-info">
                             <div class="product-brand">
@@ -74,55 +75,57 @@
 
     <script>
         document.querySelectorAll('.move-to-cart').forEach(button => {
-          button.addEventListener('click', async (event) => {
-            const productId = event.target.closest('.product-card').dataset.productId;
-            console.log("ProductId clicked:", productId);  
-      
-            try {
-              const response = await fetch('/wishlist/move-to-cart', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
-              });
-      
-              if (response.ok) {
-                const data = await response.json();
-                console.log('Item moved to cart:', data);
-                Swal.fire({
-                  title: 'Success!',
-                  text: 'Item has been moved to your cart.',
-                  icon: 'success',
-                  confirmButtonText: 'Okay',
-                }).then(() => {
-                  location.reload();
-                });
-              } else {
-                console.log('Failed to move item to cart:', response.status);
-                Swal.fire({
-                  title: 'Failed!',
-                  text: 'Something went wrong. Please try again.',
-                  icon: 'error',
-                  confirmButtonText: 'Retry',
-                });
-              }
-            } catch (error) {
-              console.error('Error moving item to cart:', error);
-              Swal.fire({
-                title: 'Error!',
-                text: 'There was an error processing your request. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Okay',
-              });
-            }
-          });
+            button.addEventListener('click', async (event) => {
+                const productId = event.target.closest('.product-card').dataset.productId;
+                console.log("ProductId clicked:", productId);
+
+                try {
+                    const response = await fetch('/wishlist/move-to-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Item moved to cart:', data);
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Item has been moved to your cart.',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        const errorMessage = await response.text();
+                        console.log('Failed to move item to cart:', response.status);
+                        Swal.fire({
+                            title: 'Failed!',
+                            text: errorMessage,
+                            icon: 'error',
+                            confirmButtonText: 'Retry',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error moving item to cart:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was an error processing your request. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Okay',
+                    });
+                }
+            });
         });
-      </script>
-      
-    
-      
-      
+    </script>
+
+
+
+
+
 </body>
 
 </html>
