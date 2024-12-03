@@ -113,8 +113,9 @@
                                 <% }); %>
                     </div>
                     <div id="payment-warning" style="display: none; color: red;">
-                        Please select Cash on Delivery (COD) as the only available payment option.
+                        <!-- Removed this section -->
                     </div>
+                    
                 </div>
 
                 <!-- Order Summary -->
@@ -171,20 +172,22 @@
 
     <script>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input[name="payment"]').forEach(input => {
-                input.addEventListener('change', () => {
-                    const paymentWarning = document.getElementById('payment-warning');
-                    const selectedPayment = document.querySelector('input[name="payment"]:checked').id;
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[name="payment"]').forEach(input => {
+        input.addEventListener('change', () => {
+            const selectedPayment = document.querySelector('input[name="payment"]:checked').id;
 
-                    if (selectedPayment !== 'cod') {
-                        paymentWarning.style.display = 'block';
-                    } else {
-                        paymentWarning.style.display = 'none';
-                    }
+            if (selectedPayment !== 'razorpay' && selectedPayment !== 'cod') {
+                Swal.fire({
+                    title: 'Invalid Payment Method',
+                    text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
                 });
-            });
+            }
         });
+    });
+});
 
 
         function addNewAddress() {
@@ -239,97 +242,99 @@
         });
 
         function placeOrder() {
-            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-            const selectedPayment = document.querySelector('input[name="payment"]:checked');
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
 
-            if (!selectedAddress || !selectedPayment) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Please select both an address and a payment method.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+    if (!selectedAddress || !selectedPayment) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Please select both an address and a payment method.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
-            if (selectedPayment.value !== 'cod') {
-                Swal.fire({
-                    title: 'Payment Error',
-                    text: 'Please select Cash on Delivery (COD) as the payment method.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+    // Ensure payment method is Razorpay or COD
+    if (selectedPayment.value !== 'razorpay' && selectedPayment.value !== 'cod') {
+        Swal.fire({
+            title: 'Payment Error',
+            text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
-            const products = [];
-            let totalAmount = 0;
+    const products = [];
+    let totalAmount = 0;
 
-            document.querySelectorAll('.cart-item').forEach(item => {
-                const productId = item.getAttribute('data-product-id');
-                const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
-                const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
+    document.querySelectorAll('.cart-item').forEach(item => {
+        const productId = item.getAttribute('data-product-id');
+        const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
+        const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
 
-                if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'One or more products have missing or invalid data.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                products.push({ productId, quantity, discountPrice });
-
-                totalAmount += discountPrice * quantity;
+        if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
+            Swal.fire({
+                title: 'Error',
+                text: 'One or more products have missing or invalid data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
             });
+            return;
+        }
 
-            if (products.length === 0) {
+        products.push({ productId, quantity, discountPrice });
+
+        totalAmount += discountPrice * quantity;
+    });
+
+    if (products.length === 0) {
+        Swal.fire({
+            title: 'Error',
+            text: 'No products selected.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    const orderData = {
+        addressId: selectedAddress.value,
+        paymentMethod: selectedPayment.value,
+        totalAmount: totalAmount,
+        products: products
+    };
+
+    console.log(orderData);
+
+    fetch('/order-confirmation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Order placed successfully") {
+                const orderId = data.orderId || generateOrderId();
+                window.location.href = `/order-confirmation/${orderId}`;
+            } else {
                 Swal.fire({
                     title: 'Error',
-                    text: 'No products selected.',
+                    text: data.message || 'An error occurred while placing the order.',
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                return;
             }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
+        });
+}
 
-            const orderData = {
-                addressId: selectedAddress.value,
-                paymentMethod: selectedPayment.value,
-                totalAmount: totalAmount,
-                products: products
-            };
-
-            console.log(orderData);
-
-            fetch('/order-confirmation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message === "Order placed successfully") {
-                        const orderId = data.orderId || generateOrderId();
-                        window.location.href = `/order-confirmation/${orderId}`;
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: data.message || 'An error occurred while placing the order.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
-                });
-        }
 
         function generateOrderId() {
             return Math.floor(Math.random() * 1000000);
