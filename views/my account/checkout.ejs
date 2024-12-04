@@ -115,7 +115,7 @@
                     <div id="payment-warning" style="display: none; color: red;">
                         <!-- Removed this section -->
                     </div>
-                    
+
                 </div>
 
                 <!-- Order Summary -->
@@ -168,26 +168,207 @@
         </div>
     </div>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    function placeOrder() {
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+
+        if (!selectedAddress || !selectedPayment) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Please select both an address and a payment method.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Ensure payment method is Razorpay or COD
+        if (selectedPayment.value !== 'razorpay' && selectedPayment.value !== 'cod') {
+            Swal.fire({
+                title: 'Payment Error',
+                text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const products = [];
+        let totalAmount = 0;
+
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const productId = item.getAttribute('data-product-id');
+            const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
+            const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
+
+            if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'One or more products have missing or invalid data.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            products.push({ productId, quantity, discountPrice });
+
+            totalAmount += discountPrice * quantity;
+        });
+
+        if (products.length === 0) {
+            Swal.fire({
+                title: 'Error',
+                text: 'No products selected.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const orderData = {
+            addressId: selectedAddress.value,
+            paymentMethod: selectedPayment.value,
+            totalAmount: totalAmount,
+            products: products
+        };
+
+        console.log(orderData);
+
+        // If the payment method is Razorpay, initiate the Razorpay payment
+        if (selectedPayment.value === 'razorpay') {
+            fetch('/order-confirmation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.razorpayOrderId) {
+                    initiateRazorpayPayment(data.razorpayOrderId, totalAmount, data.orderId);  // Pass orderId for confirmation after Razorpay payment
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message || 'Failed to initiate payment. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error!', 'An unexpected error occurred while initiating payment.', 'error');
+            });
+        } else {
+            // If payment method is COD, place the order directly
+            fetch('/order-confirmation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Order placed successfully") {
+                    window.location.href = `/order-confirmation/${data.orderId}`;
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message || 'An error occurred while placing the order.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
+            });
+        }
+    }
+
+    // Razorpay Payment Handler
+    function initiateRazorpayPayment(razorpayOrderId, amount, orderId) {
+    var options = {
+        key: "rzp_test_8WQufrEYZLgebT", // Replace with your Razorpay Key
+        amount: amount * 100, // Amount in paise
+        currency: "INR",
+        name: "Scentmagic",
+        description: "Payment for order " + orderId,
+        image: "path/to/logo.png",
+        order_id: razorpayOrderId,
+        handler: function (response) {
+            const paymentData = {
+                razorpayOrderId: razorpayOrderId,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+            };
+
+            // Send payment details to backend for confirmation
+            fetch('/order-payment-success', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.message === 'Payment successful!') {
+                    window.location.href = `/order-confirmation/${data.orderId}`;
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error confirming payment:', error);
+                Swal.fire('Error!', 'Payment confirmation failed. Please try again.', 'error');
+            });
+        },
+        prefill: {
+            name: "Customer Name", // Replace with the actual customer's name
+            email: "customer@example.com", // Replace with the actual customer's email
+            contact: "1234567890", // Replace with the actual customer's phone number
+        },
+        theme: {
+            color: "#F37254",
+        },
+    };
+
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+}
+
+</script>
+
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input[name="payment"]').forEach(input => {
-        input.addEventListener('change', () => {
-            const selectedPayment = document.querySelector('input[name="payment"]:checked').id;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[name="payment"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const selectedPayment = document.querySelector('input[name="payment"]:checked').id;
 
-            if (selectedPayment !== 'razorpay' && selectedPayment !== 'cod') {
-                Swal.fire({
-                    title: 'Invalid Payment Method',
-                    text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
+                    if (selectedPayment !== 'razorpay' && selectedPayment !== 'cod') {
+                        Swal.fire({
+                            title: 'Invalid Payment Method',
+                            text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 });
-            }
+            });
         });
-    });
-});
 
 
         function addNewAddress() {
@@ -240,100 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         });
-
-        function placeOrder() {
-    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-    const selectedPayment = document.querySelector('input[name="payment"]:checked');
-
-    if (!selectedAddress || !selectedPayment) {
-        Swal.fire({
-            title: 'Error',
-            text: 'Please select both an address and a payment method.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    // Ensure payment method is Razorpay or COD
-    if (selectedPayment.value !== 'razorpay' && selectedPayment.value !== 'cod') {
-        Swal.fire({
-            title: 'Payment Error',
-            text: 'Please select Razorpay or Cash on Delivery (COD) as the payment method.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    const products = [];
-    let totalAmount = 0;
-
-    document.querySelectorAll('.cart-item').forEach(item => {
-        const productId = item.getAttribute('data-product-id');
-        const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
-        const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
-
-        if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
-            Swal.fire({
-                title: 'Error',
-                text: 'One or more products have missing or invalid data.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-            return;
-        }
-
-        products.push({ productId, quantity, discountPrice });
-
-        totalAmount += discountPrice * quantity;
-    });
-
-    if (products.length === 0) {
-        Swal.fire({
-            title: 'Error',
-            text: 'No products selected.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    const orderData = {
-        addressId: selectedAddress.value,
-        paymentMethod: selectedPayment.value,
-        totalAmount: totalAmount,
-        products: products
-    };
-
-    console.log(orderData);
-
-    fetch('/order-confirmation', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === "Order placed successfully") {
-                const orderId = data.orderId || generateOrderId();
-                window.location.href = `/order-confirmation/${orderId}`;
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: data.message || 'An error occurred while placing the order.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire('Error!', 'An unexpected error occurred. Please try again.', 'error');
-        });
-}
 
 
         function generateOrderId() {

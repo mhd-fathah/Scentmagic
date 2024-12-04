@@ -12,6 +12,12 @@ router.get(
   orderController.viewOrderConfirmation
 );
 
+router.post("/order-initiate", auth.checkSession, orderController.initiateOrder);
+
+// Add this route to your existing routes
+router.post('/order-payment-success', auth.checkSession, orderController.confirmPayment);
+
+
 router.get('/my-orders',auth.checkBlocked,auth.checkSession , orderController.getUserOrders)
 
 router.get('/my-orders/order-details/:id' ,auth.checkBlocked,auth.checkSession , orderController.viewOrderDetails)
