@@ -91,6 +91,35 @@ const initiateOrder = async (req, res) => {
 
     const savedOrder = await newOrder.save();
 
+    const cart = await Cart.findOne({ user: userId });
+      if (cart) {
+        cart.items = [];
+        cart.totalPrice = 0;
+        cart.finalAmount = 0;
+        await cart.save();
+      }
+
+    // Decrease product quantities in the database
+    for (const product of products) {
+      const productDetail = productDetails.find(
+        (p) => p._id.toString() === product.productId.toString()
+      );
+
+      if (productDetail) {
+        const newStock = productDetail.leftStock - product.quantity;
+
+        if (newStock < 0) {
+          return res.status(400).json({
+            message: `Not enough stock for ${productDetail.product_name}`,
+          });
+        }
+
+        await Product.findByIdAndUpdate(product.productId, {
+          leftStock: newStock,
+        });
+      }
+    }
+
     res.status(200).json({
       message: "Order created successfully",
       orderId: savedOrder._id,
@@ -104,6 +133,7 @@ const initiateOrder = async (req, res) => {
     res.status(500).json({ message: "Failed to initiate order.", error: error.message });
   }
 };
+
 
 
 const confirmPayment = async (req, res) => {
