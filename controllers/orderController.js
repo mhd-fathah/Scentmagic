@@ -91,33 +91,7 @@ const initiateOrder = async (req, res) => {
 
     const savedOrder = await newOrder.save();
 
-    const cart = await Cart.findOne({ user: userId });
-    if (cart) {
-      cart.items = [];
-      cart.totalPrice = 0;
-      cart.finalAmount = 0;
-      await cart.save();
-    }
-
-    for (const product of products) {
-      const productDetail = productDetails.find(
-        (p) => p._id.toString() === product.productId.toString()
-      );
-
-      if (productDetail) {
-        const newStock = productDetail.leftStock - product.quantity;
-
-        if (newStock < 0) {
-          return res.status(400).json({
-            message: `Not enough stock for ${productDetail.product_name}`,
-          });
-        }
-
-        await Product.findByIdAndUpdate(product.productId, {
-          leftStock: newStock,
-        });
-      }
-    }
+    
 
     res.status(200).json({
       message: "Order created successfully",
@@ -138,6 +112,7 @@ const initiateOrder = async (req, res) => {
 const confirmPayment = async (req, res) => {
   try {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const userId = req.session.user?._id;
 
     const order = await Order.findOne({ razorpayOrderId });
 
@@ -158,12 +133,38 @@ const confirmPayment = async (req, res) => {
       order.paymentDate = new Date();
       await order.save();
 
+      const cart = await Cart.findOne({ user: userId });
+      if (cart) {
+        cart.items = [];
+        cart.totalPrice = 0;
+        cart.finalAmount = 0;
+        await cart.save();
+      }
+
+      for (const product of order.products) {
+        const productDetail = await Product.findById(product.productId);
+
+        if (productDetail) {
+          const newStock = productDetail.leftStock - product.quantity;
+
+          if (newStock < 0) {
+            return res.status(400).json({
+              message: `Not enough stock for ${productDetail.product_name}`,
+            });
+          }
+
+          productDetail.leftStock = newStock;
+          await productDetail.save();
+        }
+      }
+
       return res.status(200).json({
         message: "Payment successful!",
         orderId: order._id,
       });
     } else {
       order.paymentStatus = "Failed";
+      order.razorpayPaymentStatus = "failure";
       await order.save();
 
       return res.status(400).json({ message: "Payment verification failed" });
@@ -432,6 +433,8 @@ const viewOrderDetails = async (req, res) => {
         status: order.status || "Unknown",
         statusClass: order.status ? order.status.toLowerCase() : "unknown",
         paymentStatus: order.paymentStatus || "Unknown",
+        razorpayPaymentStatus: order.razorpayPaymentStatus || "Unknown",
+        paymentMethod: order.paymentMethod || "Unknown",
         paymentStatusClass: order.paymentStatus
           ? order.paymentStatus.toLowerCase()
           : "unknown",
