@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const orderSchema = new mongoose.Schema(
   {
-    orderId: { 
-      type: String, 
-      required: true, 
-      unique: true 
+    orderId: {
+      type: String,
+      required: true,
+      unique: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,50 +20,50 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        quantity: { 
-          type: Number, 
-          required: true, 
-          min: 1 
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
         },
-        price: { 
-          type: Number, 
-          required: true, 
-          min: 0 
+        price: {
+          type: Number,
+          required: true,
+          min: 0,
         },
-        name: { 
-          type: String, 
-          required: true 
+        name: {
+          type: String,
+          required: true,
         },
       },
     ],
     deliveryAddress: {
-      fullName: { 
-        type: String, 
-        required: true 
+      fullName: {
+        type: String,
+        required: true,
       },
-      mobile: { 
-        type: Number, 
-        required: true, 
-        minlength: 10, 
-        maxlength: 10 
-      }, 
-      pincode: { 
-        type: Number, 
-        required: true, 
-        minlength: 6, 
-        maxlength: 6 
+      mobile: {
+        type: Number,
+        required: true,
+        minlength: 10,
+        maxlength: 10,
       },
-      state: { 
-        type: String, 
-        required: true 
+      pincode: {
+        type: Number,
+        required: true,
+        minlength: 6,
+        maxlength: 6,
       },
-      address: { 
-        type: String, 
-        required: true 
+      state: {
+        type: String,
+        required: true,
       },
-      city: { 
-        type: String, 
-        required: true 
+      address: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
       },
     },
     paymentMethod: {
@@ -71,29 +71,28 @@ const orderSchema = new mongoose.Schema(
       enum: ["card", "upi", "cod", "razorpay"],
       default: "cod",
     },
-    razorpayPaymentId: { 
-      type: String, 
-      required: false, // Only populated after a successful Razorpay transaction 
+    razorpayPaymentId: {
+      type: String,
+      required: false,
     },
-    razorpayOrderId:{
+    razorpayOrderId: {
       type: String,
       required: false,
     },
     razorpayPaymentStatus: {
       type: String,
       enum: ["success", "failure", "pending"],
-      default: "pending", // Default status before actual payment happens
+      default: "pending",
     },
-    totalAmount: { 
-      type: Number, 
-      required: true, 
-      min: 0, 
-      // Razorpay expects amounts in paise (1 INR = 100 paise), you can store the amount in paise here
+    totalAmount: {
+      type: Number,
+      required: true,
+      min: 0,
     },
     status: {
       type: String,
-      enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
-      default: 'Pending',
+      enum: ["Pending", "Shipped", "Delivered", "Cancelled", "Returned"],
+      default: "Pending",
     },
     paymentStatus: {
       type: String,
@@ -101,7 +100,7 @@ const orderSchema = new mongoose.Schema(
       default: "Pending",
     },
   },
-  { timestamps: true } // Automatic createdAt and updatedAt fields
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Order", orderSchema);
