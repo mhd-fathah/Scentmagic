@@ -240,7 +240,7 @@
 
         // If the payment method is Razorpay, initiate the Razorpay payment
         if (selectedPayment.value === 'razorpay') {
-            fetch('/order-confirmation', {
+            fetch('/order-initiate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

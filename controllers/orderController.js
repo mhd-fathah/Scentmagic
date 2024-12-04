@@ -13,30 +13,98 @@ const razorpay = new Razorpay({
 
 const initiateOrder = async (req, res) => {
   try {
-      const { totalAmount } = req.body;
+    const { paymentMethod, products, addressId, totalAmount } = req.body;
+    const userId = req.session.user?._id;
 
-      if (!totalAmount || isNaN(totalAmount)) {
-          return res.status(400).json({ message: "Invalid total amount." });
+    if (!userId) {
+      return res.status(400).json({ message: "User not authenticated" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const selectedAddress = user.addresses.id(addressId);
+    if (!selectedAddress) {
+      return res.status(400).json({ message: "Address not found" });
+    }
+
+    if (!products || !products.length) {
+      return res.status(400).json({ message: "Products cannot be empty" });
+    }
+
+    const productIds = products.map((product) => product.productId);
+    const productDetails = await Product.find({ _id: { $in: productIds } });
+
+    if (!productDetails.length) {
+      return res.status(400).json({ message: "Some products not found" });
+    }
+
+    const orderId = `ORD-${Date.now()}`;
+    let razorpayOrder = null;
+
+    // Create Razorpay order if payment method is Razorpay
+    if (paymentMethod === "razorpay") {
+      razorpayOrder = await razorpay.orders.create({
+        amount: totalAmount * 100, // Amount in paisa
+        currency: "INR",
+        receipt: orderId,
+      });
+
+      if (!razorpayOrder) {
+        return res
+          .status(500)
+          .json({ message: "Error creating Razorpay order. Please try again." });
       }
+    }
 
-      // Create a Razorpay order
-      const order = await razorpay.orders.create({
-          amount: totalAmount * 100, // Amount in paisa (multiply by 100)
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-      });
+    // Save the order details to the database
+    const newOrder = new Order({
+      orderId: orderId,
+      userId: userId,
+      products: products.map((product) => {
+        const productDetail = productDetails.find(
+          (p) => p._id.toString() === product.productId.toString()
+        );
+        return {
+          productId: product.productId,
+          quantity: product.quantity,
+          price: productDetail.discount_price || 0,
+          name: productDetail.product_name || "Unnamed Product",
+        };
+      }),
+      deliveryAddress: {
+        fullName: selectedAddress.fullName,
+        mobile: selectedAddress.mobile,
+        pincode: selectedAddress.pincode,
+        state: selectedAddress.state,
+        address: selectedAddress.address,
+        city: selectedAddress.city,
+      },
+      paymentMethod: paymentMethod,
+      totalAmount: totalAmount,
+      paymentStatus: paymentMethod === "razorpay" ? "Pending" : "Paid",
+      orderStatus: "Pending",
+      razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
+    });
 
-      res.status(200).json({ 
-          razorpayOrderId: order.id 
-      });
+    const savedOrder = await newOrder.save();
+
+    res.status(200).json({
+      message: "Order created successfully",
+      orderId: savedOrder._id,
+      razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
+      amount: totalAmount,
+      currency: "INR",
+      paymentMethod: paymentMethod,
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ 
-          message: "Failed to initiate order.", 
-          error: error.message 
-      });
+    console.error("Error initiating order:", error.message);
+    res.status(500).json({ message: "Failed to initiate order.", error: error.message });
   }
 };
+
 
 const confirmPayment = async (req, res) => {
   try {
@@ -115,23 +183,8 @@ const placeOrder = async (req, res) => {
 
     const orderId = `ORD-${Date.now()}`;
 
-    // Create a Razorpay order if payment method is Razorpay
-    if (paymentMethod === "razorpay") {
-      const razorpayOrder = await razorpay.orders.create({
-        amount: totalAmount * 100, // Amount in paise
-        currency: "INR",
-        receipt: orderId,
-      });
-
-console.log("Razorpay Order:", razorpayOrder);
-
-      if (!razorpayOrder) {
-        return res
-          .status(500)
-          .json({ message: "Error creating Razorpay order. Please try again." });
-      }
-
-      // Store the Razorpay order details in the order document
+    // Handle COD orders
+    if (paymentMethod === "cod") {
       const newOrder = new Order({
         orderId: orderId,
         userId: userId,
@@ -156,24 +209,19 @@ console.log("Razorpay Order:", razorpayOrder);
         },
         paymentMethod: paymentMethod,
         totalAmount: totalAmount,
-        paymentStatus: "Pending", // Initial payment status
+        paymentStatus: "Pending",
         orderStatus: "Pending",
-        razorpayOrderId: razorpayOrder.id, // Store Razorpay order ID
       });
 
       const savedOrder = await newOrder.save();
 
-      // Clear cart if necessary and update stock
+      // Clear cart and update stock
       const cart = await Cart.findOne({ user: userId });
-
       if (cart) {
         cart.items = [];
         cart.totalPrice = 0;
         cart.finalAmount = 0;
         await cart.save();
-        console.log("Cart cleared for user:", userId);
-      } else {
-        console.log("Cart not found for user:", userId);
       }
 
       for (const product of products) {
@@ -196,18 +244,16 @@ console.log("Razorpay Order:", razorpayOrder);
         }
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Order placed successfully",
         orderId: savedOrder._id,
-        razorpayOrderId: razorpayOrder.id, // Return Razorpay order ID
-        amount: totalAmount,
-        currency: "INR",
-        paymentMethod: "Online Payment",
+        paymentMethod: "Cash on Delivery",
         paymentStatus: "Pending",
       });
     } else {
-      // Handle COD or other payment methods
-      // The same logic applies here, just with no Razorpay order details
+      return res
+        .status(400)
+        .json({ message: "Invalid payment method selected" });
     }
   } catch (error) {
     console.error("Error placing order:", error.message);
