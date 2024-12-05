@@ -1,43 +1,43 @@
 const Wallet = require("../models/wallet");
 const User = require('../models/user')
 
-const getWalletBalance = async (req, res) => {
-  try {
-    const userId = req.session.user?._id;
+// const getWalletBalance = async (req, res) => {
+//   try {
+//     const userId = req.session.user?._id;
 
-    if (!userId) {
-      return res.status(401).json({ message: "User not authenticated" });
-    }
+//     if (!userId) {
+//       return res.status(401).json({ message: "User not authenticated" });
+//     }
 
-    const wallet = await Wallet.findOne({ userId });
-    if (!wallet) {
-      return res.status(404).json({ message: "Wallet not found." });
-    }
+//     const wallet = await Wallet.findOne({ userId });
+//     if (!wallet) {
+//       return res.status(404).json({ message: "Wallet not found." });
+//     }
 
-    res.status(200).json({ balance: wallet.balance, transactions: wallet.transactions });
-  } catch (error) {
-    console.error("Error fetching wallet balance:", error.message);
-    res.status(500).json({ message: "Error fetching wallet balance." });
-  }
-};
+//     res.status(200).json({ balance: wallet.balance, transactions: wallet.transactions });
+//   } catch (error) {
+//     console.error("Error fetching wallet balance:", error.message);
+//     res.status(500).json({ message: "Error fetching wallet balance." });
+//   }
+// };
 
 const getWalletPage = async (req, res) => {
     try {
-      const userId = req.session.user._id;
+      const userId = req.session.user._id; // Get the userId from the session
   
-      // Find the user by their ID to get wallet balance and other details
-      const user = await User.findById(userId);
+      // Find the wallet by userId
+      const wallet = await Wallet.findOne({ userId });
   
-      if (!user) {
-        return res.status(404).send('User not found');
+      if (!wallet) {
+        return res.status(404).send("Wallet not found");
       }
   
-      // Pass wallet as an object containing balance to match EJS structure
+      // Pass the wallet and transactions to the view
       res.render('my account/wallet', {
         layout: false,
-        wallet: { balance: user.walletBalance || 0 }, // Pass wallet object with balance
-        transactions: user.transactions || [], // Pass transaction history if needed
-        user: user,  // You can pass other user details to display
+        wallet: wallet, // Pass the full wallet object
+        transactions: wallet.transactions || [], // Pass transaction history
+        user: req.session.user,  // Pass other user details to display
       });
     } catch (error) {
       console.error("Error rendering wallet page:", error);
@@ -45,6 +45,7 @@ const getWalletPage = async (req, res) => {
     }
   };
   
+  
 
 
-module.exports = {getWalletBalance , getWalletPage}
+module.exports = {  getWalletPage}

@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const Admin = require("../models/adminModel");
 const User = require("../models/user");
 const Order = require("../models/order");
+const Wallet = require("../models/wallet");
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -236,6 +237,93 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const approveReturn = async (req, res) => {
+  const orderId = req.params.orderId;
+
+  try {
+    const order = await Order.findOne({ orderId });
+
+    console.log(order);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    if (order.status !== "Return Requested") {
+      return res.status(400).json({
+        success: false,
+        message: "No return request found for this order",
+      });
+    }
+
+    const user = await User.findById(order.userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const wallet = await Wallet.findOne({ userId: order.userId });
+    if (!wallet) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Wallet not found for this user" });
+    }
+
+    wallet.balance += order.totalAmount;
+
+    wallet.transactions.push({
+      id: `txn_${Date.now()}`,
+      type: "Refund",
+      amount: order.totalAmount,
+      date: new Date(),
+    });
+
+    await wallet.save();
+
+    order.status = "Returned";
+    order.paymentStatus = "Refunded";
+    order.returnRequested = false;
+    await order.save();
+
+    res.json({
+      success: true,
+      message: "Return Approved and Refund Processed",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const rejectReturn = async (req, res) => {
+  const orderId = req.params.orderId;
+
+  try {
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    if (order.status !== "Return Requested") {
+      return res.status(400).send("No return request found for this order");
+    }
+
+    order.status = "Delivered";
+    order.returnRequested = false;
+    await order.save();
+    res.json({
+      success: true,
+      message: "Return Rejected !",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
+
 module.exports = {
   loadLoginPage,
   handleLogin,
@@ -248,4 +336,6 @@ module.exports = {
   getAllOrders,
   getOrderDetails,
   updateOrderStatus,
+  approveReturn,
+  rejectReturn,
 };

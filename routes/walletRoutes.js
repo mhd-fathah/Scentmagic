@@ -5,7 +5,7 @@ const auth = require("../middleware/authMiddleware");
 const walletController = require("../controllers/walletController");
 
 // router.post("/refund", auth.checkSession, orderController.handleOrderCancellationOrReturn);
-router.get("/balance", auth.checkSession, walletController.getWalletBalance);
+// router.get("/balance", auth.checkSession, walletController.getWalletBalance);
 
 router.get('/', auth.checkSession, walletController.getWalletPage);
 

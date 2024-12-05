@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
       city:{type : String},
     },
   ],
+  wallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Wallet", // Reference to the Wallet model
+  },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
   isBlocked: { type: Boolean, default: false },

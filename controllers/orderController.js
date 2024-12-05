@@ -2,6 +2,7 @@ const Order = require("../models/order");
 const User = require("../models/user");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const Wallet = require('../models/wallet')
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 require("dotenv").config();
@@ -483,8 +484,8 @@ const cancelOrder = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    if (order.status === "Canceled") {
-      return res.status(400).send("This order is already canceled");
+    if (order.status === "Cancelled") {
+      return res.status(400).send("This order is already cancelled");
     }
 
     for (let product of order.products) {
@@ -497,16 +498,54 @@ const cancelOrder = async (req, res) => {
 
     order.status = "Cancelled";
 
-    order.paymentStatus = "Unpaid";
+    if (order.paymentMethod === "razorpay") {
+      if (order.paymentStatus === "Paid") {
+        const user = await User.findById(order.userId);
 
-    await order.save();
+        if (!user) {
+          return res.status(404).send("User not found");
+        }
 
-    res.redirect("/my-orders?message=Order%20Canceled%20Successfully");
+        let wallet = await Wallet.findOne({ userId: order.userId });
+
+        if (!wallet) {
+          wallet = new Wallet({
+            userId: order.userId,
+            balance: 0,
+          });
+  
+          await wallet.save();
+        }
+
+        wallet.balance += order.totalAmount; 
+
+        wallet.transactions.push({
+          id: `txn_${Date.now()}`,
+          type: "Refund", 
+          amount: order.totalAmount, 
+          date: new Date(),
+        });
+
+        await wallet.save();
+
+        order.paymentStatus = "Refunded";
+      } else {
+        order.paymentStatus = "Unpaid"; 
+      }
+    } else if (order.paymentMethod === "cod") {
+      order.paymentStatus = "Unpaid"; 
+    }
+
+    await order.save(); 
+
+    res.redirect("/my-orders?message=Order%20Cancelled%20Successfully");
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
 };
+
+
 
 const returnOrder = async (req, res) => {
   const { orderId } = req.params;
@@ -519,19 +558,27 @@ const returnOrder = async (req, res) => {
     }
 
     if (order.status === "Delivered") {
-      order.status = "Returned";
-      order.paymentStatus = "Refunded";
+      if (order.returnRequested) {
+        return res.status(400).send("Return request already submitted for this order");
+      }
+
+      order.returnRequested = true;
+      order.status = "Return Requested";
       await order.save();
 
-      res.redirect("/my-orders?message=Order%20Returned%20Successfully");
+      console.log(`Return request submitted for order ID: ${orderId}`);
+
+      res.redirect("/my-orders?message=Return%20Request%20Submitted%20Successfully");
     } else {
-      res.status(400).send("This order cannot be returned");
+      res.status(400).send("This order cannot be returned as it is not delivered");
     }
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
 };
+
+
 
 module.exports = {
   placeOrder,
