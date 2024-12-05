@@ -414,10 +414,6 @@ const viewOrderDetails = async (req, res) => {
     const canCancel = order.status === "Pending" || order.status === "Shipped";
     const canReturn = order.status === "Delivered";
 
-    console.log(`Order Status: ${order.status}`);
-    console.log(`Can Cancel: ${canCancel}`);
-    console.log(`Can Return: ${canReturn}`);
-
     const orderData = {
       order: {
         orderId: order._id,
