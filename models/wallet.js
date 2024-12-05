@@ -4,30 +4,30 @@ const walletSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model
+      ref: "User",
       required: true,
     },
     balance: {
       type: Number,
-      default: 0, // Initial balance is 0
+      default: 0,
     },
     transactions: [
       {
         id: {
-          type: String, // Unique transaction ID
+          type: String,
           required: true,
         },
         type: {
-          type: String, // Transaction type (e.g., "Refund", "Order Cancel")
+          type: String,
           required: true,
         },
         amount: {
-          type: Number, // Positive for credit, negative for debit
+          type: Number,
           required: true,
         },
         date: {
           type: Date,
-          default: Date.now, // Automatically set the transaction date
+          default: Date.now,
         },
       },
     ],

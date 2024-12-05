@@ -152,12 +152,12 @@
               </a>
               <ul class="featured__item__pic__hover">
                 <li>
-                  <a href="#" class="add-to-wishlist" data-id="<%= product._id %>" data-name="<%= product.product_name %>"
-                    data-price="<%= product.discount_price %>">
-                    <i class="fa fa-heart"></i> 
+                  <a href="#" class="add-to-wishlist" data-id="<%= product._id %>"
+                    data-name="<%= product.product_name %>" data-price="<%= product.discount_price %>">
+                    <i class="fa fa-heart"></i>
                   </a>
                 </li>
-                
+
                 <li>
                   <a href="#"><i class="fa fa-retweet"></i></a>
                 </li>
@@ -297,69 +297,67 @@
 
 <script>
 
-document.querySelectorAll('.add-to-wishlist').forEach(button => {
+  document.querySelectorAll('.add-to-wishlist').forEach(button => {
     button.addEventListener('click', function (e) {
-        e.preventDefault();
+      e.preventDefault();
 
-        const productId = this.getAttribute('data-id');
-        const productName = this.getAttribute('data-name');
-        const productPrice = this.getAttribute('data-price');
+      const productId = this.getAttribute('data-id');
+      const productName = this.getAttribute('data-name');
+      const productPrice = this.getAttribute('data-price');
 
-        fetch('/wishlist/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productId: productId,
-                productName: productName,
-                productPrice: productPrice,
-            }),
-        })
+      fetch('/wishlist/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          productName: productName,
+          productPrice: productPrice,
+        }),
+      })
         .then(async response => {
-            // Parse the response JSON
-            const data = await response.json();
+          const data = await response.json();
 
-            // Check the response status
-            if (response.status === 400 || response.status === 500) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: data.message || 'Something went wrong!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else if (response.status === 201) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Product added to wishlist!',
-                    text: 'Your item has been added successfully.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Unexpected Error',
-                    text: 'An unexpected error occurred. Please try again.',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
+          if (response.status === 400 || response.status === 500) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: data.message || 'Something went wrong!',
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else if (response.status === 201) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Product added to wishlist!',
+              text: 'Your item has been added successfully.',
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Unexpected Error',
+              text: 'An unexpected error occurred. Please try again.',
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }
         })
         .catch(error => {
-            console.error('Error adding product to wishlist:', error);
+          console.error('Error adding product to wishlist:', error);
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Something went wrong!',
-                text: 'Please try again later.',
-                showConfirmButton: false,
-                timer: 1500
-            });
+          Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            text: 'Please try again later.',
+            showConfirmButton: false,
+            timer: 1500
+          });
         });
     });
-});
+  });
 
 
 

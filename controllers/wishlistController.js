@@ -37,6 +37,21 @@ const getWishlist = async (req, res) => {
   }
 };
 
+const getWishlistDetails = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+
+    const totalItems = await Wishlist.countDocuments({ userId });
+
+    res.json({
+      totalItems,
+    });
+  } catch (error) {
+    console.error("Error fetching wishlist details:", error);
+    res.status(500).json({ error: "Unable to fetch wishlist details" });
+  }
+};
+
 const moveToCart = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -113,4 +128,4 @@ const moveToCart = async (req, res) => {
   }
 };
 
-module.exports = { addToWishlist, getWishlist, moveToCart };
+module.exports = { addToWishlist, getWishlist, moveToCart, getWishlistDetails };

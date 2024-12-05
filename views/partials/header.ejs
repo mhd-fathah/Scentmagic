@@ -44,7 +44,8 @@
                     <ul>
                         <li class="<%= currentRoute === '/' ? 'active' : '' %>"><a href="/">Home</a></li>
                         <li class="<%= currentRoute === '/shop' ? 'active' : '' %>"><a href="/shop">Shop</a></li>
-                        <li class="<%= currentRoute === '/my-account' ? 'active' : '' %>"><a href="/my-account">My Account</a></li>
+                        <li class="<%= currentRoute === '/my-account' ? 'active' : '' %>"><a href="/my-account">My
+                                Account</a></li>
                         <li class="<%= currentRoute === '/contact' ? 'active' : '' %>"><a href="#">Contact</a></li>
                     </ul>
                 </nav>
@@ -83,7 +84,24 @@
                 });
         }
 
+        function updateWishlistUI() {
+            fetch('/wishlist/details')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.totalItems !== undefined) {
+                        const wishlistCount = document.querySelector('#wishlist-count');
+                        wishlistCount.textContent = data.totalItems;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching wishlist details:', error);
+                });
+        }
+
+        updateWishlistUI();
         updateCartUI();
+
+
 
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', function () {
