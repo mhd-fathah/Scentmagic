@@ -11,4 +11,6 @@ router.post('/move-to-cart',auth.checkSession , wishlistController.moveToCart);
 
 router.get('/details',auth.checkSession,wishlistController.getWishlistDetails)
 
+router.delete('/:productId',auth.checkSession , wishlistController.removeFromWishlist)
+
 module.exports = router;
