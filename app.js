@@ -18,6 +18,7 @@ const productRoutes = require('./routes/productRoutes')
 const cartRoutes = require('./routes/cartRoutes')
 const orderRoutes = require('./routes/orderRoutes')
 const wishlistRoutes = require('./routes/wishlistRoutes')
+const walletRoutes = require('./routes/walletRoutes')
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -45,6 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
 app.use(auth.setCurrentRoute)
+app.use('/wallet',walletRoutes)
 app.use('/wishlist',wishlistRoutes)
 app.use(orderRoutes)
 app.use(cartRoutes)

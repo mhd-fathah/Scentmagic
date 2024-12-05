@@ -1,17 +1,20 @@
+<!-- views/my account/wallet.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wallet</title>
   <!-- Bootstrap CSS -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/my account/view-wallet.css">
 </head>
+
 <body>
+  <button onclick="history.back()" class="btn btn-secondary m-3">Back</button>
+
   <div class="wallet-container">
     <!-- Wallet Header -->
     <div class="wallet-header">
@@ -20,7 +23,7 @@
 
     <!-- Wallet Balance -->
     <div class="wallet-balance">
-      <h2>$<%= wallet.balance.toFixed(2) %></h2>
+      <h2>₹<%= wallet.balance.toFixed(2) %></h2> 
       <p>Available Balance</p>
       <button class="btn btn-magenta">Add Money</button>
     </div>
@@ -28,19 +31,19 @@
     <!-- Transaction History -->
     <div class="transaction-history">
       <h3>Transaction History</h3>
-      
+
       <% if (transactions.length > 0) { %>
         <% transactions.forEach(transaction => { %>
           <!-- Transaction Card -->
           <div class="transaction-card">
             <div class="transaction-info">
-              <h5><%= transaction.type %> #<%= transaction.id %></h5>
+              <h5>
+                <%= transaction.type %> #<%= transaction.id %>
+              </h5>
               <p>Date: <%= transaction.date %></p>
             </div>
-            <div 
-              class="transaction-amount <%= transaction.amount > 0 ? 'text-success' : 'text-danger' %>"
-            >
-              <%= transaction.amount > 0 ? '+ ' : '- ' %>$<%= Math.abs(transaction.amount).toFixed(2) %>
+            <div class="transaction-amount <%= transaction.amount > 0 ? 'text-success' : 'text-danger' %>">
+              <%= transaction.amount > 0 ? '+ ' : '- ' %>₹<%= Math.abs(transaction.amount).toFixed(2) %>
             </div>
           </div>
         <% }) %>
@@ -51,8 +54,7 @@
   </div>
 
   <!-- Bootstrap JS -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"
-  ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
