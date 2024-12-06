@@ -1,10 +1,51 @@
-<div style="display: flex; justify-content: center;">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<style>
+    .price-range {
+        margin-bottom: 20px;
+    }
+
+    .price-input input {
+        width: 80px;
+        text-align: center;
+        margin-right: 10px;
+    }
+
+    #filter-btn {
+        padding: 5px 10px;
+        background-color: #ff2bdc;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    #filter-btn:hover {
+        background-color: #b60c9f;
+    }
+
+    .price-input input[type="number"]::-webkit-inner-spin-button,
+    .price-input input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .price-input input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+<div style="display: flex; justify-content: center">
     <div class="hero__search">
         <div class="hero__search__form">
             <form id="searchForm" method="GET" action="/search">
                 <input type="text" id="searchQuery" name="q" placeholder="What do you need?" required />
-                <button type="submit" class="site-btn"
-                    style=" background-color: #f714f0eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button type="submit" class="site-btn" style="
+            background-color: #f714f0eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          ">
                     SEARCH
                 </button>
             </form>
@@ -19,7 +60,7 @@
             <div class="col-md-12">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb px-4 py-3 mb-0 rounded shadow-sm"
-                        style="background-color: #f8f9fa; border-left: 4px solid #ffc107;">
+                        style="background-color: #f8f9fa; border-left: 4px solid #ffc107">
                         <li class="breadcrumb-item">
                             <a href="/" class="text-decoration-none text-dark fw-bold">
                                 <i class="bi bi-house-door"></i> Home
@@ -32,7 +73,7 @@
                         </li>
                         <% if (category) { %>
                             <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
-                                <%= category.name %> <!-- Display the selected category name in the breadcrumb -->
+                                <%= category.name %>
                             </li>
                             <% } else { %>
                                 <li class="breadcrumb-item active text-secondary fw-semibold" aria-current="page">
@@ -46,7 +87,6 @@
     </div>
 </section>
 
-
 <!-- Breadcrumb Section End -->
 
 <!-- Product Section Begin -->
@@ -55,13 +95,12 @@
         <div class="row">
             <div class="col-lg-3 col-md-5">
                 <div class="sidebar">
-                    <!-- Categories -->
                     <div class="sidebar__item">
                         <h4>Categories</h4>
                         <ul>
                             <% categories.forEach(category=> { %>
                                 <li>
-                                    <a href="#">
+                                    <a href="/shop?category=<%= category._id %>">
                                         <%= category.name %>
                                     </a>
                                 </li>
@@ -70,7 +109,7 @@
                     </div>
 
                     <!-- Gender Filter -->
-                    <div class="sidebar__item">
+                    <!-- <div class="sidebar__item">
                         <h4>Gender</h4>
                         <div class="sidebar__item__gender">
                             <label for="gender_male">
@@ -86,10 +125,10 @@
                                 <input type="checkbox" id="gender_unisex" name="gender" value="unisex">
                             </label>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Scent Type Filter -->
-                    <div class="sidebar__item">
+                    <!-- <div class="sidebar__item">
                         <h4>Scent Type</h4>
                         <ul>
                             <li><a href="#">Floral</a></li>
@@ -99,10 +138,10 @@
                             <li><a href="#">Fruity</a></li>
                             <li><a href="#">Fresh</a></li>
                         </ul>
-                    </div>
+                    </div> -->
 
                     <!-- Brand Filter -->
-                    <div class="sidebar__item">
+                    <!-- <div class="sidebar__item">
                         <h4>Brands</h4>
                         <ul>
                             <li><a href="#">Chanel</a></li>
@@ -111,22 +150,20 @@
                             <li><a href="#">Gucci</a></li>
                             <li><a href="#">Armani</a></li>
                         </ul>
-                    </div>
+                    </div> -->
 
                     <!-- Price Range -->
                     <div class="sidebar__item">
                         <h4>Price</h4>
                         <div class="price-range-wrap">
-                            <div
+                            <div id="slider-range"
                                 class="price-range ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content">
-                                <div class="ui-slider-range ui-corner-all ui-widget-header"></div>
-                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
-                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
                             </div>
                             <div class="range-slider">
                                 <div class="price-input">
-                                    <input type="text" id="minamount" placeholder="Min Price">
-                                    <input type="text" id="maxamount" placeholder="Max Price">
+                                    <input type="number" id="minamount" placeholder="Min Price" value="0" />
+                                    <input type="number" id="maxamount" placeholder="Max Price" value="10000" />
+                                    <button id="filter-btn">Filter</button>
                                 </div>
                             </div>
                         </div>
@@ -138,15 +175,15 @@
                         <div class="sidebar__item__size">
                             <label for="size_small">
                                 30ml
-                                <input type="radio" id="size_small" name="size" value="30">
+                                <input type="radio" id="size_small" name="size" value="30" />
                             </label>
                             <label for="size_medium">
                                 50ml
-                                <input type="radio" id="size_medium" name="size" value="50">
+                                <input type="radio" id="size_medium" name="size" value="50" />
                             </label>
                             <label for="size_large">
                                 100ml
-                                <input type="radio" id="size_large" name="size" value="100">
+                                <input type="radio" id="size_large" name="size" value="100" />
                             </label>
                         </div>
                     </div>
@@ -166,11 +203,12 @@
                                         <div class="product__discount__item__pic set-bg">
                                             <a href="/product/<%= product._id %>">
                                                 <img src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
-                                                    alt="<%= product.product_name %>">
+                                                    alt="<%= product.product_name %>" />
                                             </a>
                                             <% const discountPercentage=Math.round( ((product.regular_price -
                                                 product.discount_price) / product.regular_price) * 100 ); %>
-                                                <div class="product__discount__percent">-<%= discountPercentage %>%
+                                                <div class="product__discount__percent">
+                                                    -<%= discountPercentage %>%
                                                 </div>
                                                 <ul class="product__item__pic__hover">
                                                     <li>
@@ -180,7 +218,9 @@
                                                             <i class="fa fa-heart"></i>
                                                         </a>
                                                     </li>
-                                                    <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                                    <li>
+                                                        <a href="#"><i class="fa fa-retweet"></i></a>
+                                                    </li>
                                                     <li>
                                                         <a href="#" class="add-to-cart" data-id="<%= product._id %>"
                                                             data-name="<%= product.product_name %>"
@@ -194,16 +234,19 @@
                                             <span>
                                                 <%= product.category.name || 'General' %>
                                             </span>
-                                            <h5><a href="/product/<%= product._id %>">
+                                            <h5>
+                                                <a href="/product/<%= product._id %>">
                                                     <%= product.product_name %>
-                                                </a></h5>
-                                            <div class="product__item__price">₹<%= product.discount_price %>
+                                                </a>
+                                            </h5>
+                                            <div class="product__item__price">
+                                                ₹<%= product.discount_price %>
                                                     <span>₹<%= product.regular_price %></span>
                                             </div>
                                             <% if (product.stock_status==='in_stock' ) { %>
-                                                <p style="color: green;">In Stock</p>
+                                                <p style="color: green">In Stock</p>
                                                 <% } else { %>
-                                                    <p style="color: red;">Out of Stock</p>
+                                                    <p style="color: red">Out of Stock</p>
                                                     <% } %>
                                         </div>
                                     </div>
@@ -248,14 +291,14 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row product-listing">
                     <% products.forEach((product)=> { %>
                         <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="product__item">
                                 <div class="product__item__pic set-bg">
                                     <a href="/product/<%= product._id %>">
                                         <img src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
-                                            alt="<%= product.product_name %>">
+                                            alt="<%= product.product_name %>" />
                                     </a>
                                     <ul class="product__item__pic__hover">
                                         <li>
@@ -265,7 +308,9 @@
                                                 <i class="fa fa-heart"></i>
                                             </a>
                                         </li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                        <li>
+                                            <a href="#"><i class="fa fa-retweet"></i></a>
+                                        </li>
                                         <li>
                                             <a href="#" class="add-to-cart" data-id="<%= product._id %>"
                                                 data-name="<%= product.product_name %>"
@@ -280,15 +325,14 @@
                                             <%= product.product_name %>
                                         </a></h6>
                                     <h5>
-
                                         ₹<%= product.discount_price.toFixed(2) %>
-                                            <span style="text-decoration: line-through; color: #888;">₹<%=
+                                            <span style="text-decoration: line-through; color: #888">₹<%=
                                                     product.regular_price.toFixed(2) %></span>
                                     </h5>
                                     <% if (product.stock_status==='in_stock' ) { %>
-                                        <p style="color: green;">In Stock</p>
+                                        <p style="color: green">In Stock</p>
                                         <% } else { %>
-                                            <p style="color: red;">Out of Stock</p>
+                                            <p style="color: red">Out of Stock</p>
                                             <% } %>
                                 </div>
                             </div>
@@ -302,129 +346,165 @@
                             <i class="fa fa-long-arrow-left"></i>
                         </a>
                         <% } %>
-
                             <% for (let i=1; i <=totalPages; i++) { %>
                                 <a href="?page=<%= i %>&sort=<%= sortOption %>"
                                     class="<%= currentPage === i ? 'active' : '' %>">
                                     <%= i %>
                                 </a>
                                 <% } %>
-
                                     <% if (currentPage < totalPages) { %>
                                         <a href="?page=<%= currentPage + 1 %>&sort=<%= sortOption %>">
                                             <i class="fa fa-long-arrow-right"></i>
                                         </a>
                                         <% } %>
                 </div>
-
-
-
             </div>
         </div>
     </div>
 </section>
 <!-- Product Section End -->
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-
-    document.querySelectorAll('.add-to-wishlist').forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const productId = this.getAttribute('data-id');
-            const productName = this.getAttribute('data-name');
-            const productPrice = this.getAttribute('data-price');
-
-            fetch('/wishlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    productId: productId,
-                    productName: productName,
-                    productPrice: productPrice,
-                }),
-            })
-                .then(async response => {
-                    const data = await response.json();
-
-                    if (response.status === 400 || response.status === 500) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: data.message || 'Something went wrong!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    } else if (response.status === 201) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Product added to wishlist!',
-                            text: 'Your item has been added successfully.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Unexpected Error',
-                            text: 'An unexpected error occurred. Please try again.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error adding product to wishlist:', error);
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Something went wrong!',
-                        text: 'Please try again later.',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                });
+    $(function () {
+        $("#slider-range").slider({
+            range: true,
+            min: 0,
+            max: 10000,
+            values: [0, 10000],
+            slide: function (event, ui) {
+                $("#minamount").val(ui.values[0]);
+                $("#maxamount").val(ui.values[1]);
+            },
         });
-    });
 
+        $("#minamount").val($("#slider-range").slider("values", 0));
+        $("#maxamount").val($("#slider-range").slider("values", 1));
 
+        $("#minamount, #maxamount").on("change", function () {
+            let minPrice = parseInt($("#minamount").val()) || 0;
+            let maxPrice = parseInt($("#maxamount").val()) || 10000;
 
+            if (minPrice > maxPrice) {
+                minPrice = maxPrice;
+                $("#minamount").val(minPrice);
+            }
 
-    document.getElementById("searchForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+            if (maxPrice < minPrice) {
+                maxPrice = minPrice;
+                $("#maxamount").val(maxPrice);
+            }
 
-        const query = document.getElementById("searchQuery").value.trim();
-
-        if (query === "") {
-            Swal.fire({
-                title: "Error!",
-                text: "Please enter a search term.",
-                icon: "error",
-                confirmButtonText: "Okay",
-            });
-            return;
-        }
-        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            $("#slider-range").slider("values", [minPrice, maxPrice]);
+        });
     });
 </script>
 
 <script>
+    document.getElementById("filter-btn").addEventListener("click", function () {
+        const minPrice = document.getElementById("minamount").value;
+        const maxPrice = document.getElementById("maxamount").value;
 
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        button.addEventListener('click', function (e) {
+        if (!minPrice && !maxPrice) {
+            alert("Please provide at least one price value.");
+            return;
+        }
+
+        if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
+            alert("Minimum price cannot be greater than maximum price.");
+            return;
+        }
+
+        fetch(`/shop?minPrice=${minPrice}&maxPrice=${maxPrice}`, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const { products, totalProducts } = data;
+
+                const filterFoundElement = document.querySelector(
+                    ".filter__found h6 span"
+                );
+                if (filterFoundElement) {
+                    filterFoundElement.textContent = totalProducts;
+                }
+
+                const productList = document.querySelector(".product-listing");
+                productList.innerHTML = "";
+
+                products.forEach((product) => {
+                    const productHTML = `
+        <div class="col-lg-4 col-md-6 col-sm-6">
+          <div class="product__item">
+            <div class="product__item__pic set-bg">
+              <a href="/product/${product._id}">
+                <img src="http://localhost:3000/public/uploads/products/${product.product_images[0]
+                        }" alt="${product.product_name}">
+              </a>
+              <ul class="product__item__pic__hover">
+                <li>
+                  <a href="#" class="add-to-wishlist" data-id="${product._id
+                        }" data-name="${product.product_name}" data-price="${product.discount_price
+                        }">
+                    <i class="fa fa-heart"></i>
+                  </a>
+                </li>
+                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                <li>
+                  <a href="#" class="add-to-cart" data-id="${product._id
+                        }" data-name="${product.product_name}" data-price="${product.discount_price
+                        }">
+                    <i class="fa fa-shopping-cart"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="product__item__text">
+              <h6><a href="#">${product.product_name}</a></h6>
+              <h5>₹${product.discount_price.toFixed(2)}
+                <span style="text-decoration: line-through; color: #888;">₹${product.regular_price.toFixed(
+                            2
+                        )}</span>
+              </h5>
+              ${product.stock_status === "in_stock"
+                            ? '<p style="color: green;">In Stock</p>'
+                            : '<p style="color: red;">Out of Stock</p>'
+                        }
+            </div>
+          </div>
+        </div>
+      `;
+                    productList.innerHTML += productHTML;
+                });
+            })
+            .catch((error) => console.error("Error fetching products:", error));
+    });
+</script>
+
+<script>
+    document.querySelectorAll(".add-to-wishlist").forEach((button) => {
+        button.addEventListener("click", function (e) {
             e.preventDefault();
 
-            const productId = this.getAttribute('data-id');
-            const productName = this.getAttribute('data-name');
-            const productPrice = this.getAttribute('data-price');
+            const productId = this.getAttribute("data-id");
+            const productName = this.getAttribute("data-name");
+            const productPrice = this.getAttribute("data-price");
 
-            fetch('/cart/add', {
-                method: 'POST',
+            fetch("/wishlist/add", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     productId: productId,
@@ -432,42 +512,122 @@
                     productPrice: productPrice,
                 }),
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (response.status === 400 || response.status === 500) {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: data.message,
+                            icon: "error",
+                            title: "Oops...",
+                            text: data.message || "Something went wrong!",
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 1500,
+                        });
+                    } else if (response.status === 201) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Product added to wishlist!",
+                            text: "Your item has been added successfully.",
+                            showConfirmButton: false,
+                            timer: 1500,
                         });
                     } else {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Product added to cart!',
-                            text: 'Your item has been added successfully.',
+                            icon: "error",
+                            title: "Unexpected Error",
+                            text: "An unexpected error occurred. Please try again.",
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 1500,
                         });
-
                     }
                 })
-                .catch(error => {
-                    console.error('Error adding product to cart:', error);
+                .catch((error) => {
+                    console.error("Error adding product to wishlist:", error);
 
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Something went wrong!',
-                        text: 'Please try again later.',
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later.",
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 1500,
                     });
                 });
         });
     });
 
+    document
+        .getElementById("searchForm")
+        .addEventListener("submit", function (e) {
+            e.preventDefault();
 
+            const query = document.getElementById("searchQuery").value.trim();
+
+            if (query === "") {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Please enter a search term.",
+                    icon: "error",
+                    confirmButtonText: "Okay",
+                });
+                return;
+            }
+            window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        });
+</script>
+
+<script>
+    document.querySelectorAll(".add-to-cart").forEach((button) => {
+        button.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const productId = this.getAttribute("data-id");
+            const productName = this.getAttribute("data-name");
+            const productPrice = this.getAttribute("data-price");
+
+            fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    productName: productName,
+                    productPrice: productPrice,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.message) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Product added to cart!",
+                            text: "Your item has been added successfully.",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error adding product to cart:", error);
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later.",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                });
+        });
+    });
 
     function applySorting(sortOption) {
         const url = `/shop?sort=${sortOption}`;
@@ -475,22 +635,22 @@
     }
 
     function applyPagination(page) {
-        const sortValue = document.getElementById('sortOptions').value;
+        const sortValue = document.getElementById("sortOptions").value;
 
         fetch(`/products?page=${page}&sort=${sortValue}`, {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
         })
-            .then(response => response.json())
-            .then(data => {
-                const productList = document.getElementById('product-list');
-                productList.innerHTML = '';
+            .then((response) => response.json())
+            .then((data) => {
+                const productList = document.getElementById("product-list");
+                productList.innerHTML = "";
 
-                data.products.forEach(product => {
-                    const productElement = document.createElement('div');
-                    productElement.classList.add('product-item');
+                data.products.forEach((product) => {
+                    const productElement = document.createElement("div");
+                    productElement.classList.add("product-item");
                     productElement.innerHTML = `
         <h3>${product.product_name}</h3>
         <p>Price: ${product.regular_price}</p>
@@ -500,25 +660,26 @@
 
                 updatePagination(data.totalPages, data.currentPage);
             })
-            .catch(error => console.error('Error fetching products:', error));
+            .catch((error) => console.error("Error fetching products:", error));
     }
 
     function updatePagination(totalPages, currentPage) {
-        const paginationContainer = document.querySelector('.product__pagination');
-        paginationContainer.innerHTML = '';
+        const paginationContainer = document.querySelector(".product__pagination");
+        paginationContainer.innerHTML = "";
 
         if (currentPage > 1) {
-            paginationContainer.innerHTML += `<a href="#" onclick="applyPagination(${currentPage - 1})"><i class="fa fa-long-arrow-left"></i></a>`;
+            paginationContainer.innerHTML += `<a href="#" onclick="applyPagination(${currentPage - 1
+                })"><i class="fa fa-long-arrow-left"></i></a>`;
         }
 
         for (let i = 1; i <= totalPages; i++) {
-            paginationContainer.innerHTML += `<a href="#" class="${currentPage === i ? 'active' : ''}" onclick="applyPagination(${i})">${i}</a>`;
+            paginationContainer.innerHTML += `<a href="#" class="${currentPage === i ? "active" : ""
+                }" onclick="applyPagination(${i})">${i}</a>`;
         }
 
         if (currentPage < totalPages) {
-            paginationContainer.innerHTML += `<a href="#" onclick="applyPagination(${currentPage + 1})"><i class="fa fa-long-arrow-right"></i></a>`;
+            paginationContainer.innerHTML += `<a href="#" onclick="applyPagination(${currentPage + 1
+                })"><i class="fa fa-long-arrow-right"></i></a>`;
         }
     }
-
-
 </script>

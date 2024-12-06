@@ -565,42 +565,59 @@ const getProductsPage = async (req, res) => {
 
     let filter = { isDeleted: false };
 
+    // Category filter
     if (categoryId) {
       filter.category = categoryId;
     }
 
-    let sortCriteria = {};
+    // Price range filter
+    const { minPrice, maxPrice } = req.query;
+    if (minPrice) {
+      filter.discount_price = { $gte: parseFloat(minPrice) };
+    }
+    if (maxPrice) {
+      filter.discount_price = filter.discount_price
+        ? { ...filter.discount_price, $lte: parseFloat(maxPrice) }
+        : { $lte: parseFloat(maxPrice) };
+    }
 
+    // Sort criteria
+    let sortCriteria = {};
     if (sortOption === "price_asc") sortCriteria = { regular_price: 1 };
     if (sortOption === "price_desc") sortCriteria = { regular_price: -1 };
     if (sortOption === "name_asc") sortCriteria = { product_name: 1 };
     if (sortOption === "name_desc") sortCriteria = { product_name: -1 };
 
+    // Fetch products with filters and sorting
     const products = await Product.find(filter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
       .populate("category");
 
+    // Fetch discounted products for display
     const discountedProducts = await Product.find({
       isDeleted: false,
       discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") },
     }).populate("category");
 
+    // Total product count and pagination
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    if (req.xhr) {
+    // Handle AJAX requests
+    if (req.headers["x-requested-with"] === "XMLHttpRequest") {
       return res.json({
         products,
         discountedProducts,
         totalProducts,
         totalPages,
         currentPage: page,
-        sortOption: sortOption,
+        sortOption,
       });
     }
 
+    // Render shop page for normal requests
     res.render("shop", {
       title: "Shop",
       categories,
@@ -617,6 +634,7 @@ const getProductsPage = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
 
 const loadMyAccount = async (req, res) => {
   try {
