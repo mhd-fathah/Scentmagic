@@ -15,7 +15,6 @@ const couponSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ['percentage', 'fixed', 'free_shipping'], // Matches your dropdown values
-    required: true,
   },
   description: {
     type: String,

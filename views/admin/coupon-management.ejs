@@ -16,6 +16,12 @@
     <!-- Template CSS -->
     <script src="/js/admin/color-modes.js"></script>
     <link href="/css/admin/main.css" rel="stylesheet" type="text/css">
+    <style>
+        .hidden {
+  display: none;
+}
+
+    </style>
 </head>
 
 <body>
@@ -175,6 +181,15 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status" required>
+                                            <option value="active">Active</option>
+                                            <option value="expired">Expired</option>
+                                            <option value="scheduled">Scheduled</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Discount Amount</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control" name="amount"
@@ -263,6 +278,15 @@
                                             <option value="free_shipping">Free Shipping</option>
                                         </select>
                                     </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status" id="editStatus" required>
+                                            <option value="active">Active</option>
+                                            <option value="expired">Expired</option>
+                                            <option value="scheduled">Scheduled</option>
+                                        </select>
+                                    </div>
+                                    
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Discount Amount</label>
                                         <div class="input-group">
@@ -366,38 +390,33 @@
                                         <tr>
                                             <th>Coupon Code</th>
                                             <th>Discount</th>
-                                            <th>Type</th>
+                                            <th>Status</th>
                                             <th>Expiry Date</th>
                                             <th class="text-end">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% coupons.forEach(coupon=> { %>
-                                            <tr class="coupon-row" data-status="<%= coupon.status %>">
-                                                <td><b>
-                                                        <%= coupon.code %>
-                                                    </b></td>
+                                        <% coupons.forEach(coupon => { %>
+                                            <tr class="coupon-row" data-id="<%= coupon._id %>" data-coupon='<%= JSON.stringify(coupon) %>'>
+                                                <td><b><%= coupon.code %></b></td>
                                                 <td>
-                                                    <%= coupon.type==='percentage' ? coupon.discount + '%' : '$' +
-                                                        coupon.discount %>
+                                                    <%= coupon.type === 'percentage' ? coupon.discount + '%' : '$' + coupon.discount %>
                                                 </td>
                                                 <td>
                                                     <div
-                                                        class="badge <%= coupon.type === 'percentage' ? 'bg-success' : coupon.type === 'fixed' ? 'bg-primary' : 'bg-info' %>">
-                                                        <%= coupon.type==='percentage' ? 'Percentage' :
-                                                            coupon.type==='fixed' ? 'Fixed Amount' : 'Free Shipping' %>
+                                                        class="badge <%= coupon.status === 'active' ? 'bg-success' : coupon.status === 'expired' ? 'bg-danger' : 'bg-warning' %>">
+                                                        <%= coupon.status === 'active' ? 'Active' : coupon.status === 'expired' ? 'Expired' : 'Scheduled' %>
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <%= new Date(coupon.validUntil).toLocaleDateString() %>
-                                                </td>
-
+                                                <td><%= new Date(coupon.validUntil).toLocaleDateString() %></td>
                                                 <td class="text-end">
-                                                    <button class="btn btn-sm btn-light font-sm rounded select-coupon"
-                                                        data-id="<%= coupon._id %>">View Details</button>
+                                                    <button class="btn btn-sm btn-light font-sm rounded select-coupon" data-id="<%= coupon._id %>">
+                                                        View Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                             <% }) %>
+                                            
                                     </tbody>
 
 
@@ -405,15 +424,14 @@
                             </div>
                         </div>
                         <aside class="col-lg-3">
-                            <!-- Coupon Details Section -->
                             <div class="box bg-light" style="min-height: 80%">
                                 <h6 class="mt-15">Coupon Details</h6>
                                 <hr>
                                 <h6 class="mb-0">Code:</h6>
                                 <p id="coupon-code">Select a coupon to see details.</p>
                                 <br>
-                                <h6 class="mb-0">Type:</h6>
-                                <p id="coupon-type"></p>
+                                <h6 class="mb-0">Status:</h6>
+                                <p id="coupon-status"></p>
                                 <br>
                                 <h6 class="mb-0">Discount Amount:</h6>
                                 <p id="coupon-discount"></p>
@@ -434,21 +452,18 @@
                                 <p id="coupon-min-purchase"></p>
                                 <hr>
                                 <div class="d-grid gap-2">
-
-                                    <% coupons.forEach(coupon=> { %>
-                                        <a id="edit-coupon-btn" href="#" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#editCouponModal" data-coupon-id="<%= coupon._id %>">
-                                            Edit Coupon
-                                        </a>
-                                        <% }) %>
-
-
-                                            <form id="deactivate-form" action="" method="POST" style="display:inline;">
-                                                <button class="btn btn-outline-danger">Deactivate</button>
-                                            </form>
+                                    <a id="edit-coupon-btn" href="#" class="btn btn-primary hidden" data-bs-toggle="modal"
+                                        data-bs-target="#editCouponModal">
+                                        Edit Coupon
+                                    </a>
+                                    <form id="deactivate-form" action="/admin/coupon/deactivate" method="POST" class="hidden">
+                                        <input type="hidden" name="couponId" id="deactivate-coupon-id" />
+                                        <button type="submit" class="btn btn-outline-danger">Deactivate</button>
+                                    </form>
                                 </div>
                             </div>
                         </aside>
+                        
 
 
                     </div>
@@ -485,7 +500,129 @@
         </footer>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+ document.addEventListener("DOMContentLoaded", () => {
+  // Get references to coupon detail elements
+  const couponCode = document.getElementById("coupon-code");
+  const couponStatus = document.getElementById("coupon-status");
+  const couponDiscount = document.getElementById("coupon-discount");
+  const couponValidFrom = document.getElementById("coupon-valid-from");
+  const couponValidUntil = document.getElementById("coupon-valid-until");
+  const couponUsageLimit = document.getElementById("coupon-usage-limit");
+  const couponUsed = document.getElementById("coupon-used");
+  const couponMinPurchase = document.getElementById("coupon-min-purchase");
+  const editCouponBtn = document.getElementById("edit-coupon-btn");
+  const deactivateForm = document.getElementById("deactivate-form");
+  const deactivateCouponId = document.getElementById("deactivate-coupon-id");
+
+  // Add event listeners to all "View Details" buttons
+  const viewDetailsButtons = document.querySelectorAll(".select-coupon");
+  viewDetailsButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Get coupon details from data attribute
+      const couponRow = button.closest(".coupon-row");
+      const coupon = JSON.parse(couponRow.getAttribute("data-coupon"));
+
+      // Update coupon details in the aside section
+      couponCode.textContent = coupon.code || "N/A";
+      couponStatus.textContent = coupon.status || "N/A";
+      couponDiscount.textContent =
+        coupon.type === "percentage"
+          ? coupon.discount + "%"
+          : "$" + coupon.discount;
+      couponValidFrom.textContent = new Date(coupon.validFrom).toLocaleDateString() || "N/A";
+      couponValidUntil.textContent = new Date(coupon.validUntil).toLocaleDateString() || "N/A";
+      couponUsageLimit.textContent = coupon.usageLimit || "N/A";
+      couponUsed.textContent = coupon.used || "N/A";
+      couponMinPurchase.textContent = coupon.minPurchase || "N/A";
+
+      // Show and update the action buttons
+      editCouponBtn.classList.remove("hidden");
+      editCouponBtn.href = `/admin/coupon/edit/${coupon._id}`;
+      deactivateForm.classList.remove("hidden");
+      deactivateCouponId.value = coupon._id;
+    });
+  });
+});
+
+
+</script>
     <script>
+
+// document.querySelectorAll(".deactivate-btn").forEach(button => {
+//     button.addEventListener("click", async function () {
+//         const couponId = this.getAttribute("data-coupon-id");
+//         const form = document.getElementById(`deactivate-form-${couponId}`); // Corrected to include dynamic couponId
+
+//         if (!form || !couponId) {
+//             console.error("Form or Coupon ID not found.");
+//             return;
+//         }
+
+//         try {
+//             // Show confirmation dialog with SweetAlert
+//             const result = await Swal.fire({
+//                 title: "Are you sure?",
+//                 text: "You are about to deactivate this coupon. This action cannot be undone.",
+//                 icon: "warning",
+//                 showCancelButton: true,
+//                 confirmButtonText: "Yes, deactivate it!",
+//                 cancelButtonText: "Cancel",
+//                 reverseButtons: true
+//             });
+
+//             if (result.isConfirmed) {
+//                 // Submit the form using fetch API
+//                 const response = await fetch(form.action, {
+//                     method: "POST",
+//                     headers: {
+//                         "Content-Type": "application/json",
+//                     },
+//                     body: JSON.stringify({ couponId }), // Send coupon ID in the request body
+//                 });
+
+//                 if (response.ok) {
+//                     const result = await response.json();
+
+//                     // Success alert
+//                     await Swal.fire({
+//                         title: "Success!",
+//                         text: result.message || "The coupon has been successfully deactivated.",
+//                         icon: "success",
+//                         confirmButtonText: "OK"
+//                     });
+
+//                     // Optionally, remove the coupon row from the table without refreshing
+//                     const couponRow = document.querySelector(`tr[data-id='${couponId}']`);
+//                     if (couponRow) {
+//                         couponRow.remove();
+//                     }
+//                 } else {
+//                     const error = await response.json();
+//                     throw new Error(error.message || "Failed to deactivate the coupon.");
+//                 }
+//             }
+//         } catch (error) {
+//             console.error("Error deactivating coupon:", error);
+
+//             // Error alert
+//             Swal.fire({
+//                 title: "Error!",
+//                 text: error.message || "An error occurred while deactivating the coupon.",
+//                 icon: "error",
+//                 confirmButtonText: "OK"
+//             });
+//         }
+//     });
+// });
+
+
+
+
+
+
         document.getElementById("statusFilter").addEventListener("change", function () {
             const selectedStatus = this.value;
             const rows = document.querySelectorAll(".coupon-row");
@@ -502,32 +639,48 @@
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelector('#edit-coupon-btn').addEventListener('click', function (e) {
-                const couponId = e.target.getAttribute('data-coupon-id');
+    // Add event listeners for all edit buttons
+    document.querySelectorAll('.select-coupon').forEach(function (button) {
+        button.addEventListener('click', function (e) {
+            const couponId = e.target.getAttribute('data-id'); // Correctly retrieve the coupon ID
 
-                fetch(`/admin/coupon/details/${couponId}`)
-                    .then(response => response.json())
-                    .then(coupon => {
-                        document.querySelector('#editCouponId').value = coupon._id;
-                        document.querySelector('#editCode').value = coupon.code;
-                        document.querySelector('#editType').value = coupon.type;
-                        document.querySelector('#editAmount').value = coupon.discount;
-                        document.querySelector('#editMinPurchase').value = coupon.minPurchase || '';
-                        document.querySelector('#editStartDate').value = coupon.validFrom.split('T')[0];
-                        document.querySelector('#editEndDate').value = coupon.validUntil.split('T')[0];
-                        document.querySelector('#editUsageLimit').value = coupon.usageLimit || '';
-                        document.querySelector('#editUsagePerCustomer').value = coupon.usagePerCustomer || '';
-                        document.querySelector('#editDescription').value = coupon.description;
-                        document.querySelector('#editApplicableTo').value = coupon.applicableTo;
-                        document.querySelector('#editStatus').checked = coupon.status;
+            if (!couponId) {
+                console.error('Coupon ID is missing!');
+                return;
+            }
 
-                        document.querySelector('#editCurrentUsage').textContent = coupon.currentUsage || 0;
-                    })
-                    .catch(error => {
-                        console.error('Error fetching coupon data:', error);
-                    });
-            });
+            // Fetch coupon details from the server
+            fetch(`/admin/coupon/details/${couponId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch coupon details: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(coupon => {
+                    // Populate the form fields with the coupon details
+                    document.querySelector('#editCouponId').value = coupon._id || '';
+                    document.querySelector('#editCode').value = coupon.code || '';
+                    document.querySelector('#editType').value = coupon.type || '';
+                    document.querySelector('#editAmount').value = coupon.discount || '';
+                    document.querySelector('#editMinPurchase').value = coupon.minPurchase || '';
+                    document.querySelector('#editStartDate').value = coupon.validFrom ? coupon.validFrom.split('T')[0] : '';
+                    document.querySelector('#editEndDate').value = coupon.validUntil ? coupon.validUntil.split('T')[0] : '';
+                    document.querySelector('#editUsageLimit').value = coupon.usageLimit || '';
+                    document.querySelector('#editUsagePerCustomer').value = coupon.usagePerCustomer || '';
+                    document.querySelector('#editDescription').value = coupon.description || '';
+                    document.querySelector('#editApplicableTo').value = coupon.applicableTo || '';
+                    document.querySelector('#editStatus').checked = coupon.status === 'active'; // Set checkbox based on status
+                    document.querySelector('#editCurrentUsage').textContent = coupon.currentUsage || 0;
+                })
+                .catch(error => {
+                    console.error('Error fetching coupon data:', error);
+                    alert('Failed to load coupon details. Please try again.');
+                });
         });
+    });
+});
+
 
     </script>
 
@@ -548,7 +701,7 @@
                     const coupon = await response.json();
 
                     document.querySelector('#coupon-code').innerText = coupon.code;
-                    document.querySelector('#coupon-type').innerText = coupon.type;
+                    document.querySelector('#coupon-status').innerText = coupon.status;
                     document.querySelector('#coupon-discount').innerText = coupon.type === 'percentage' ? coupon.discount + '%' : '$' + coupon.discount;
                     document.querySelector('#coupon-valid-from').innerText = new Date(coupon.validFrom).toLocaleDateString();
                     document.querySelector('#coupon-valid-until').innerText = new Date(coupon.validUntil).toLocaleDateString();

@@ -41,6 +41,7 @@ const addCoupon = async (req, res) => {
     const {
       code,
       type,
+      status,
       amount,
       minPurchase,
       startDate,
@@ -53,6 +54,7 @@ const addCoupon = async (req, res) => {
       products,
     } = req.body;
 
+    // Validate `applicableTo` field
     const validApplicableToValues = [
       "All Products",
       "Specific Categories",
@@ -62,14 +64,23 @@ const addCoupon = async (req, res) => {
       return res.status(400).send('Invalid value for "applicableTo"');
     }
 
+    // Validate `status` field
+    const validStatuses = ["active", "expired", "scheduled"];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return res.status(400).send('Invalid value for "status"');
+    }
+
+    // Check if the coupon code already exists
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
       return res.status(400).send("Coupon code already exists.");
     }
 
+    // Prepare coupon data
     const couponData = {
       code,
       type,
+      status: status.toLowerCase(), // Ensure lowercase for consistency
       discount: amount,
       minPurchase: minPurchase || 0,
       validFrom: startDate,
@@ -84,8 +95,8 @@ const addCoupon = async (req, res) => {
         applicableTo === "Specific Products" ? products || [] : [],
     };
 
+    // Save the new coupon
     const newCoupon = new Coupon(couponData);
-
     await newCoupon.save();
 
     res.redirect("/admin/coupon");
@@ -99,8 +110,9 @@ const editCoupon = async (req, res) => {
   try {
     const {
       couponId,
-      code,
       type,
+      code,
+      status,
       amount,
       minPurchase,
       startDate,
@@ -111,9 +123,9 @@ const editCoupon = async (req, res) => {
       applicableTo,
       categories,
       products,
-      status,
     } = req.body;
 
+    // Validate `applicableTo` field
     const validApplicableToValues = [
       "All Products",
       "Specific Categories",
@@ -123,11 +135,19 @@ const editCoupon = async (req, res) => {
       return res.status(400).send('Invalid value for "applicableTo"');
     }
 
+    // Validate `status` field
+    const validStatuses = ["active", "expired", "scheduled"];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return res.status(400).send('Invalid value for "status"');
+    }
+
+    // Check if the coupon exists
     const coupon = await Coupon.findById(couponId);
     if (!coupon) {
       return res.status(404).send("Coupon not found.");
     }
 
+    // Check if the coupon code is being changed, and ensure uniqueness
     if (coupon.code !== code) {
       const existingCoupon = await Coupon.findOne({ code });
       if (existingCoupon) {
@@ -135,9 +155,11 @@ const editCoupon = async (req, res) => {
       }
     }
 
+    // Prepare updated coupon data
     const updatedCouponData = {
       code,
       type,
+      status: status.toLowerCase(), // Ensure lowercase for consistency
       discount: amount,
       minPurchase: minPurchase || 0,
       validFrom: startDate,
@@ -150,9 +172,9 @@ const editCoupon = async (req, res) => {
         applicableTo === "Specific Categories" ? categories || [] : [],
       applicableProducts:
         applicableTo === "Specific Products" ? products || [] : [],
-      status: status === "on" ? true : false,
     };
 
+    // Update the coupon
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
       updatedCouponData,
@@ -165,6 +187,7 @@ const editCoupon = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
 
 const getCouponDetails = async (req, res) => {
   try {
@@ -183,4 +206,32 @@ const getCouponDetails = async (req, res) => {
   }
 };
 
-module.exports = { getCouponsPage, addCoupon, getCouponDetails, editCoupon };
+const deactivateCoupon = async (req, res) => {
+  try {
+    const { couponId } = req.body;
+
+    // Validate if couponId is provided
+    if (!couponId) {
+      return res.status(400).json({ message: "Coupon ID is required" });
+    }
+
+    // Find and update the coupon's status
+    const updatedCoupon = await Coupon.findByIdAndUpdate(
+      couponId,
+      { status: "expired" },
+      { new: true }
+    );
+
+    if (!updatedCoupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    res.status(200).json({ message: "Coupon deactivated successfully" });
+  } catch (error) {
+    console.error("Error deactivating coupon:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+module.exports = { getCouponsPage, addCoupon, getCouponDetails, editCoupon , deactivateCoupon};

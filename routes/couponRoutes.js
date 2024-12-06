@@ -11,4 +11,6 @@ router.get('/coupon/details/:id',auth.isAdminAuthenticated , couponController.ge
 
 router.post('/coupon/edit',auth.isAdminAuthenticated , couponController.editCoupon)
 
+router.post('/coupon/deactivate',auth.isAdminAuthenticated,couponController.deactivateCoupon)
+
 module.exports = router;
