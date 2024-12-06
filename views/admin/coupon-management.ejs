@@ -232,6 +232,114 @@
                 </div>
             </div>
 
+            <!-- coupon editing modal -->
+
+            <div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="editCouponModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content" style="background-color: #222736;">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editCouponModalLabel">Edit Coupon</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/admin/coupon/edit" method="POST">
+                                <input type="hidden" name="couponId" id="editCouponId">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Coupon Code</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="code" id="editCode"
+                                                placeholder="Enter code" required>
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                id="editGenerateCode">Generate</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Discount Type</label>
+                                        <select class="form-select" name="type" id="editType" required>
+                                            <option value="percentage">Percentage</option>
+                                            <option value="fixed">Fixed Amount</option>
+                                            <option value="free_shipping">Free Shipping</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Discount Amount</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="amount" id="editAmount"
+                                                placeholder="Enter amount" required>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Minimum Purchase</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" name="minPurchase"
+                                                id="editMinPurchase" placeholder="Enter amount">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" name="startDate" id="editStartDate"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">End Date</label>
+                                        <input type="date" class="form-control" name="endDate" id="editEndDate"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Usage Limit</label>
+                                        <input type="number" class="form-control" name="usageLimit" id="editUsageLimit"
+                                            placeholder="Enter limit">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Usage Per Customer</label>
+                                        <input type="number" class="form-control" name="usagePerCustomer"
+                                            id="editUsagePerCustomer" placeholder="Enter limit">
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Description</label>
+                                        <textarea class="form-control" name="description" id="editDescription" rows="3"
+                                            placeholder="Enter coupon description"></textarea>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Apply to Products</label>
+                                        <select class="form-select" name="applicableTo" id="editApplicableTo">
+                                            <option value="All Products">All Products</option>
+                                            <option value="Specific Categories">Specific Categories</option>
+                                            <option value="Specific Products">Specific Products</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="status"
+                                                id="editStatus">
+                                            <label class="form-check-label" for="editStatus">
+                                                Active Status
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <small>
+                                                <i class="fas fa-info-circle"></i>
+                                                Current Usage: <span id="editCurrentUsage">0</span> times used
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Update Coupon</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Existing Coupons List -->
             <div class="card">
                 <div class="card-body">
@@ -264,29 +372,35 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% coupons.forEach(coupon => { %>
+                                        <% coupons.forEach(coupon=> { %>
                                             <tr>
-                                                <td><b><%= coupon.code %></b></td>
+                                                <td><b>
+                                                        <%= coupon.code %>
+                                                    </b></td>
                                                 <td>
-                                                    <%= coupon.type === 'percentage' ? coupon.discount + '%' : '$' + coupon.discount %>
+                                                    <%= coupon.type==='percentage' ? coupon.discount + '%' : '$' +
+                                                        coupon.discount %>
                                                 </td>
                                                 <td>
-                                                    <div class="badge <%= coupon.type === 'percentage' ? 'bg-success' : coupon.type === 'fixed' ? 'bg-primary' : 'bg-info' %>">
-                                                        <%= coupon.type === 'percentage' ? 'Percentage' : coupon.type === 'fixed' ? 'Fixed Amount' : 'Free Shipping' %>
+                                                    <div
+                                                        class="badge <%= coupon.type === 'percentage' ? 'bg-success' : coupon.type === 'fixed' ? 'bg-primary' : 'bg-info' %>">
+                                                        <%= coupon.type==='percentage' ? 'Percentage' :
+                                                            coupon.type==='fixed' ? 'Fixed Amount' : 'Free Shipping' %>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <%= new Date(coupon.validUntil).toLocaleDateString() %>
                                                 </td>
-                                                
+
                                                 <td class="text-end">
-                                                    <button class="btn btn-sm btn-light font-sm rounded select-coupon" data-id="<%= coupon._id %>">View Details</button>
+                                                    <button class="btn btn-sm btn-light font-sm rounded select-coupon"
+                                                        data-id="<%= coupon._id %>">View Details</button>
                                                 </td>
                                             </tr>
-                                        <% }) %>
+                                            <% }) %>
                                     </tbody>
-                                    
-                                    
+
+
                                 </table>
                             </div>
                         </div>
@@ -320,15 +434,23 @@
                                 <p id="coupon-min-purchase"></p>
                                 <hr>
                                 <div class="d-grid gap-2">
-                                    <a id="edit-coupon-btn" href="" class="btn btn-primary">Edit Coupon</a>
-                                    <form id="deactivate-form" action="" method="POST" style="display:inline;">
-                                        <button class="btn btn-outline-danger">Deactivate</button>
-                                    </form>
+
+                                    <% coupons.forEach(coupon=> { %>
+                                        <a id="edit-coupon-btn" href="#" class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#editCouponModal" data-coupon-id="<%= coupon._id %>">
+                                            Edit Coupon
+                                        </a>
+                                        <% }) %>
+
+
+                                            <form id="deactivate-form" action="" method="POST" style="display:inline;">
+                                                <button class="btn btn-outline-danger">Deactivate</button>
+                                            </form>
                                 </div>
                             </div>
                         </aside>
-                        
-                        
+
+
                     </div>
                 </div>
             </div>
@@ -364,10 +486,41 @@
     </main>
 
     <script>
-        // Add click event listener to the 'View Details' buttons
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelector('#edit-coupon-btn').addEventListener('click', function (e) {
+                const couponId = e.target.getAttribute('data-coupon-id');
+
+                fetch(`/admin/coupon/details/${couponId}`)
+                    .then(response => response.json())
+                    .then(coupon => {
+                        document.querySelector('#editCouponId').value = coupon._id;
+                        document.querySelector('#editCode').value = coupon.code;
+                        document.querySelector('#editType').value = coupon.type;
+                        document.querySelector('#editAmount').value = coupon.discount;
+                        document.querySelector('#editMinPurchase').value = coupon.minPurchase || '';
+                        document.querySelector('#editStartDate').value = coupon.validFrom.split('T')[0];
+                        document.querySelector('#editEndDate').value = coupon.validUntil.split('T')[0];
+                        document.querySelector('#editUsageLimit').value = coupon.usageLimit || '';
+                        document.querySelector('#editUsagePerCustomer').value = coupon.usagePerCustomer || '';
+                        document.querySelector('#editDescription').value = coupon.description;
+                        document.querySelector('#editApplicableTo').value = coupon.applicableTo;
+                        document.querySelector('#editStatus').checked = coupon.status;
+
+                        document.querySelector('#editCurrentUsage').textContent = coupon.currentUsage || 0;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching coupon data:', error);
+                    });
+            });
+        });
+
+    </script>
+
+    <script>
+
         document.querySelectorAll('.select-coupon').forEach(button => {
-            button.addEventListener('click', async function() {
-                const couponId = this.getAttribute('data-id'); // Get the coupon ID from data-id
+            button.addEventListener('click', async function () {
+                const couponId = this.getAttribute('data-id');
                 console.log(couponId)
                 const response = await fetch(`/admin/coupon/details/${couponId}`, {
                     method: 'GET',
@@ -375,11 +528,10 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 if (response.ok) {
-                    const coupon = await response.json(); // Get the coupon data from the response
-                    
-                    // Update the coupon details section with the fetched data
+                    const coupon = await response.json();
+
                     document.querySelector('#coupon-code').innerText = coupon.code;
                     document.querySelector('#coupon-type').innerText = coupon.type;
                     document.querySelector('#coupon-discount').innerText = coupon.type === 'percentage' ? coupon.discount + '%' : '$' + coupon.discount;
@@ -388,15 +540,14 @@
                     document.querySelector('#coupon-usage-limit').innerText = coupon.usageLimit;
                     document.querySelector('#coupon-used').innerText = coupon.used + ' times';
                     document.querySelector('#coupon-min-purchase').innerText = '$' + coupon.minPurchase;
-                    
-                    // Optionally, show/hide other elements based on coupon status
+
                 } else {
                     alert('Failed to fetch coupon details');
                 }
             });
         });
     </script>
-    
+
 
     <script>
         document.getElementById("generateCode").addEventListener("click", () => {

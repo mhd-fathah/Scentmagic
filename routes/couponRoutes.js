@@ -9,4 +9,6 @@ router.post('/coupon/add',auth.isAdminAuthenticated , couponController.addCoupon
 
 router.get('/coupon/details/:id',auth.isAdminAuthenticated , couponController.getCouponDetails)
 
+router.post('/coupon/edit',auth.isAdminAuthenticated , couponController.editCoupon)
+
 module.exports = router;
