@@ -347,15 +347,15 @@
                         <div class="col-lg-9">
                             <header class="border-bottom mb-4 pb-4">
                                 <div class="row">
-                                    <div class="col-lg-5 col-6 me-auto">
+                                    <!-- <div class="col-lg-5 col-6 me-auto">
                                         <input type="text" placeholder="Search coupons..." class="form-control">
-                                    </div>
+                                    </div> -->
                                     <div class="col-lg-2 col-6">
-                                        <select class="form-select">
-                                            <option>Status</option>
-                                            <option>Active</option>
-                                            <option>Expired</option>
-                                            <option>Scheduled</option>
+                                        <select id="statusFilter" class="form-select">
+                                            <option value="all">Status</option>
+                                            <option value="active">Active</option>
+                                            <option value="expired">Expired</option>
+                                            <option value="scheduled">Scheduled</option>
                                         </select>
                                     </div>
                                 </div>
@@ -373,7 +373,7 @@
                                     </thead>
                                     <tbody>
                                         <% coupons.forEach(coupon=> { %>
-                                            <tr>
+                                            <tr class="coupon-row" data-status="<%= coupon.status %>">
                                                 <td><b>
                                                         <%= coupon.code %>
                                                     </b></td>
@@ -486,6 +486,21 @@
     </main>
 
     <script>
+        document.getElementById("statusFilter").addEventListener("change", function () {
+            const selectedStatus = this.value;
+            const rows = document.querySelectorAll(".coupon-row");
+
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute("data-status");
+                if (selectedStatus === "all" || rowStatus === selectedStatus) {
+                    row.style.display = ""; // Show row
+                } else {
+                    row.style.display = "none"; // Hide row
+                }
+            });
+        });
+
+
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('#edit-coupon-btn').addEventListener('click', function (e) {
                 const couponId = e.target.getAttribute('data-coupon-id');
