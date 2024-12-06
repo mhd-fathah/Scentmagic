@@ -19,6 +19,7 @@ const cartRoutes = require('./routes/cartRoutes')
 const orderRoutes = require('./routes/orderRoutes')
 const wishlistRoutes = require('./routes/wishlistRoutes')
 const walletRoutes = require('./routes/walletRoutes')
+const couponRoutes = require('./routes/couponRoutes')
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -50,7 +51,7 @@ app.use('/wallet',walletRoutes)
 app.use('/wishlist',wishlistRoutes)
 app.use(orderRoutes)
 app.use(cartRoutes)
-app.use("/admin",adminRoutes,categoryRoutes,productRoutes)
+app.use("/admin",adminRoutes,categoryRoutes,productRoutes,couponRoutes)
 app.use("/", userRoutes);
 
 app.use(auth.checkBlocked)

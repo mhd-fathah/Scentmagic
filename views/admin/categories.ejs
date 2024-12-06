@@ -2,122 +2,106 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Scentmagic - Categories</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="/img/logo.png">
-    <link href="/css/admin/main.css" rel="stylesheet" type="text/css">
-    <script src="/js/admin/color-modes.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <meta charset="utf-8">
+  <title>Scentmagic - Categories</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="/img/logo.png">
+  <link href="/css/admin/main.css" rel="stylesheet" type="text/css">
+  <script src="/js/admin/color-modes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 </head>
 
 <body>
-    <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside">
-        <div class="aside-top">
-          <a href="index.html" class="brand-wrap">
-            <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard" />
+  <div class="screen-overlay"></div>
+  <aside class="navbar-aside" id="offcanvas_aside">
+    <div class="aside-top">
+      <a href="index.html" class="brand-wrap">
+        <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard" />
+      </a>
+      <div>
+        <button class="btn btn-icon btn-aside-minimize text-muted">
+          <i class="fas fa-bars"></i>
+        </button>
+
+      </div>
+    </div>
+    <nav>
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/dashboard">
+            <span class="text">Dashboard</span>
           </a>
-          <div>
-              <button class="btn btn-icon btn-aside-minimize text-muted">
-                  <i class="fas fa-bars"></i> 
-                </button>
-                
-          </div>
-        </div>
-        <nav>
-          <ul class="menu-aside">
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/dashboard">
-                <span class="text">Dashboard</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/products">
-                <span class="text">Products</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/categories">
-                <span class="text" >Categories</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/orders">
-                <span class="text" >Orders</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/users">
-                <span class="text" >Users</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="/admin/products/add">
-                <span class="text">Add Product</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="#">
-                <span class="text">Transactions</span>
-              </a>
-            </li>
-            <li class="menu-item">
-              <a class="menu-link" href="#">
-                <span class="text">Reviews</span>
-              </a>
-            </li>
-          </ul>
-          <hr />
-          <ul class="menu-aside">
-            <li class="menu-item">
-              <a class="menu-link" href="#">
-                <span class="text">Account</span>
-              </a>
-            </li>
-          </ul>
-          <br />
-          <br />
-        </nav>
-      </aside>
-      <main class="main-wrap">
-        <header class="main-header navbar">
-          <div class="col-nav d-flex justify-content-end align-items-center w-100">
-              <!-- Mobile Menu Button -->
-              <button
-              class="btn btn-icon btn-mobile me-auto d-lg-none"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvas_aside"
-            >
-              <i class="fas fa-bars"></i> 
-            </button>
-            
-            
-              <!-- Navbar -->
-              <ul class="nav ms-auto">
-                <li class="dropdown nav-item">
-                  <a
-                    class="dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    href="#"
-                    id="dropdownAccount"
-                    aria-expanded="false"
-                  >
-                    <img
-                      class="img-xs rounded-circle"
-                      src="/img/logo.png"
-                      alt="Admin"
-                    />
-                  </a>
-            
-                  <!-- Dropdown Menu -->
-                  <div
-                    class="dropdown-menu dropdown-menu-end"
-                    aria-labelledby="dropdownAccount"
-                  >
-                    <!-- Uncomment or add any menu items you need -->
-                    <!-- <a class="dropdown-item" href="#">
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products">
+            <span class="text">Products</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/categories">
+            <span class="text">Categories</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/orders">
+            <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/users">
+            <span class="text">Users</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products/add">
+            <span class="text">Add Product</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Transactions</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Reviews</span>
+          </a>
+        </li>
+      </ul>
+      <hr />
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Account</span>
+          </a>
+        </li>
+      </ul>
+      <br />
+      <br />
+    </nav>
+  </aside>
+  <main class="main-wrap">
+    <header class="main-header navbar">
+      <div class="col-nav d-flex justify-content-end align-items-center w-100">
+        <!-- Mobile Menu Button -->
+        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvas_aside">
+          <i class="fas fa-bars"></i>
+        </button>
+
+
+        <!-- Navbar -->
+        <ul class="nav ms-auto">
+          <li class="dropdown nav-item">
+            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
+              <img class="img-xs rounded-circle" src="/img/logo.png" alt="Admin" />
+            </a>
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+              <!-- Uncomment or add any menu items you need -->
+              <!-- <a class="dropdown-item" href="#">
                       <i class="material-icons md-perm_identity"></i>Edit Profile
                     </a>
                     <a class="dropdown-item" href="#">
@@ -132,121 +116,128 @@
                     <a class="dropdown-item" href="#">
                       <i class="material-icons md-help_outline"></i>Help Center
                     </a> -->
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger" href="/admin/logout">
-                      <i class="material-icons md-exit_to_app"></i>Logout
-                    </a>
-                  </div>
-                </li>
-              </ul>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="/admin/logout">
+                <i class="material-icons md-exit_to_app"></i>Logout
+              </a>
             </div>
-        </header>
-     
-        <section class="content-main">
-            <div class="content-header">
-                <h2 class="content-title card-title">Categories</h2>
-                <p>Add, edit or delete your products</p>
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <section class="content-main">
+      <div class="content-header">
+        <h2 class="content-title card-title">Categories</h2>
+        <p>Add, edit or delete your products</p>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <!-- Form Section -->
+            <div class="col-md-3">
+              <form action="/admin/categories/add" method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                  <label for="product_name" class="form-label">Category Name</label>
+                  <input type="text" name="name" placeholder="Type category name here" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label">Description</label>
+                  <textarea name="description" placeholder="Type description here" class="form-control"></textarea>
+                </div>
+                <div class="mb-4">
+                  <label for="product_image" class="form-label">Category Image</label>
+                  <input type="file" name="image" id="product_image" accept="image/*" class="form-control">
+                </div>
+
+                <div class="d-grid">
+                  <button class="btn btn-primary">Add Category</button>
+                </div>
+              </form>
             </div>
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Form Section -->
-                        <div class="col-md-3">
-                            <form action="/admin/categories/add" method="POST" enctype="multipart/form-data">
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Category Name</label>
-                                    <input type="text" name="name" placeholder="Type category name here" class="form-control" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Description</label>
-                                    <textarea name="description" placeholder="Type description here" class="form-control"></textarea>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_image" class="form-label">Category Image</label>
-                                    <input type="file" name="image" id="product_image" accept="image/*" class="form-control">
-                                </div>
-                                
-                                <div class="d-grid">
-                                    <button class="btn btn-primary">Add Category</button>
-                                </div>
-                            </form>
+
+            <!-- Table Section -->
+            <div class="col-md-9">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th class="text-center">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="">
                         </div>
-
-                        <!-- Table Section -->
-                        <div class="col-md-9">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="">
-                                                </div>
-                                            </th>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Description</th>
-                                            <th>Edit</th>
-                                            <th>Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if (categories && categories.length > 0) { %>
-                                            <% categories.forEach(category => { %>
-                                                <tr>
-                                                    <td>
-                                                        <% if (category.image) { %>
-                                                            <img src="http://localhost:3000/public/uploads/categories/<%= category.image%>" alt="Category Image" style="width: 50px; height: 50px;">
-                                                        <% } else { %>
-                                                            <span>No Image</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td><%= category.id %></td>
-                                                    <td><%= category.name %></td>
-                                                    <td><%= category.description %></td>
-                                                    <td>
-                                                        <a href="/admin/categories/edit/<%= category._id %>">Edit</a>
-                                                    </td>
-                                                    <td>
-                                                        <% if (!category.isDeleted) { %>
-                                                            <form action="/admin/categories/delete/<%= category._id %>" method="POST">
-                                                              <button type="submit" class="delete-btn">Delete</button>
-                                                            </form>
-                                                          <% } else { %>
-                                                            <form action="/admin/categories/delete/<%= category._id %>" method="POST">
-                                                              <button type="submit" class="undo-btn">Undo</button>
-                                                            </form>
-                                                          <% } %>
-                                                    </td>
-                                                </tr>
-                                            <% }); %>
-                                        <% } else { %>
-                                            <tr>
-                                                <td colspan="3">No categories found</td>
-                                            </tr>
-                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                      </th>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <th>Edit</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (categories && categories.length> 0) { %>
+                      <% categories.forEach(category=> { %>
+                        <tr>
+                          <td>
+                            <% if (category.image) { %>
+                              <img src="http://localhost:3000/public/uploads/categories/<%= category.image%>"
+                                alt="Category Image" style="width: 50px; height: 50px;">
+                              <% } else { %>
+                                <span>No Image</span>
+                                <% } %>
+                          </td>
+                          <td>
+                            <%= category.id %>
+                          </td>
+                          <td>
+                            <%= category.name %>
+                          </td>
+                          <td>
+                            <%= category.description %>
+                          </td>
+                          <td>
+                            <a href="/admin/categories/edit/<%= category._id %>">Edit</a>
+                          </td>
+                          <td>
+                            <% if (!category.isDeleted) { %>
+                              <form action="/admin/categories/delete/<%= category._id %>" method="POST">
+                                <button type="submit" class="delete-btn">Delete</button>
+                              </form>
+                              <% } else { %>
+                                <form action="/admin/categories/delete/<%= category._id %>" method="POST">
+                                  <button type="submit" class="undo-btn">Undo</button>
+                                </form>
+                                <% } %>
+                          </td>
+                        </tr>
+                        <% }); %>
+                          <% } else { %>
+                            <tr>
+                              <td colspan="3">No categories found</td>
+                            </tr>
+                            <% } %>
+                  </tbody>
+                </table>
+              </div>
             </div>
-        </section>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
-                <div class="col-sm-6">
-                    <script>document.write(new Date().getFullYear());</script> © Scentmagic - Perfume Ecommerce Template.
-                </div>
-                <div class="col-sm-6">
-                    <div class="text-sm-end">All rights reserved</div>
-                </div>
-            </div>
-        </footer>
-    </main>
+    <footer class="main-footer font-xs">
+      <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+          <script>document.write(new Date().getFullYear());</script> © Scentmagic - Perfume Ecommerce Template.
+        </div>
+        <div class="col-sm-6">
+          <div class="text-sm-end">All rights reserved</div>
+        </div>
+      </div>
+    </footer>
+  </main>
 
-   
+
   <% if (message) { %>
     <script>
       Swal.fire({
@@ -255,17 +246,17 @@
         showConfirmButton: true,
         timer: 3000
       }).then(() => {
-        window.location.href = "/admin/categories"; 
+        window.location.href = "/admin/categories";
       });
     </script>
-  <% } %>
+    <% } %>
 
-    <script src="/js/admin/jquery-3.6.0.min.js"></script>
-    <script src="/js/admin/bootstrap.bundle.min.js"></script>
-    <script src="/js/admin/select2.min.js"></script>
-    <script src="/js/admin/perfect-scrollbar.js"></script>
-    <script src="/js/admin/jquery.fullscreen.min.js"></script>
-    <script src="/js/admin/main.js" type="text/javascript"></script>
+      <script src="/js/admin/jquery-3.6.0.min.js"></script>
+      <script src="/js/admin/bootstrap.bundle.min.js"></script>
+      <script src="/js/admin/select2.min.js"></script>
+      <script src="/js/admin/perfect-scrollbar.js"></script>
+      <script src="/js/admin/jquery.fullscreen.min.js"></script>
+      <script src="/js/admin/main.js" type="text/javascript"></script>
 </body>
 
 </html>
