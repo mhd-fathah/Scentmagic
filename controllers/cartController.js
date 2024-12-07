@@ -376,8 +376,8 @@ const getCartDetails = async (req, res) => {
 };
 
 const applyCoupon = async (req, res) => {
-  const { userId } = req.params; // Get userId from URL parameters
-  const { couponCode } = req.body; // Get couponCode from request body
+  const { userId } = req.params;
+  const { couponCode } = req.body;
 
   try {
     // Find the coupon by the coupon code
@@ -387,7 +387,6 @@ const applyCoupon = async (req, res) => {
       return res.json({ success: false, message: "Invalid coupon code" });
     }
 
-    // Validate coupon (check if it's expired, usage limit, etc.)
     const currentDate = new Date();
     if (currentDate > coupon.validUntil) {
       return res.json({ success: false, message: "Coupon has expired" });
@@ -400,24 +399,12 @@ const applyCoupon = async (req, res) => {
       });
     }
 
-    // Check if the coupon applies to a specific category or product
     let applicableProducts = [];
-    if (
-      coupon.applicableTo === "Specific Categories" &&
-      coupon.applicableCategories.length > 0
-    ) {
-      applicableProducts = await Product.find({
-        category: { $in: coupon.applicableCategories },
-      });
-    } else if (
-      coupon.applicableTo === "Specific Products" &&
-      coupon.applicableProducts.length > 0
-    ) {
-      applicableProducts = await Product.find({
-        _id: { $in: coupon.applicableProducts },
-      });
+    if (coupon.applicableTo === "Specific Categories" && coupon.applicableCategories.length > 0) {
+      applicableProducts = await Product.find({ category: { $in: coupon.applicableCategories } });
+    } else if (coupon.applicableTo === "Specific Products" && coupon.applicableProducts.length > 0) {
+      applicableProducts = await Product.find({ _id: { $in: coupon.applicableProducts } });
     } else {
-      // If coupon is applicable to all products
       applicableProducts = await Product.find({});
     }
 
@@ -428,91 +415,96 @@ const applyCoupon = async (req, res) => {
       });
     }
 
-    // Find the user's cart
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId }).populate("items.productId");
 
     if (!cart) {
       return res.json({ success: false, message: "Cart not found" });
     }
 
-    let totalDiscount = 0;
     let totalPrice = 0;
-    let deliveryCharges = cart.deliveryCharges;
+    let totalDiscount = 0;
+    let finalAmount = 0;
+    let deliveryCharges = 0; // Default delivery charge, update if free shipping is applied
 
-    // Loop through products in the cart and apply the coupon
+    // Iterate through cart items and calculate discounts
     for (let item of cart.items) {
-      const product = await Product.findById(item.productId);
+      const product = item.productId;
+
+      // Store original product price
+      const originalPrice = product.discount_price;
+      let discountAmount = 0;
 
       // Check if the product is eligible for the coupon
-      if (
-        applicableProducts.some(
-          (p) => p._id.toString() === product._id.toString()
-        )
-      ) {
-        // Apply discount to the product price
+      if (applicableProducts.some(p => p._id.toString() === product._id.toString())) {
+        // Apply discount to the product price based on coupon type
         if (coupon.type === "percentage") {
-          // Apply percentage discount to the price
-          const discountAmount =
-            (product.discount_price * coupon.discount) / 100;
-          item.discountedPrice = product.discount_price - discountAmount;
-          totalDiscount += discountAmount;
+          discountAmount = (originalPrice * coupon.discount) / 100;
         } else if (coupon.type === "fixed") {
-          // Apply fixed discount to the price
-          item.discountedPrice = product.discount_price - coupon.discount;
-          totalDiscount += coupon.discount;
-        } else if (coupon.type === "free_shipping") {
-          // Apply free shipping (for simplicity, assume we set a shipping fee to 0)
-          item.shippingFee = 0;
+          discountAmount = coupon.discount;
         }
 
-        // Recalculate the total price of the cart item after applying the discount
-        totalPrice += item.discountedPrice * item.quantity;
+        // Calculate discounted price (ensuring it doesn't go below 0)
+        item.discountedPrice = Math.max(0, originalPrice - discountAmount);
       } else {
-        // If product is not applicable for the coupon, add original price to total
-        totalPrice += product.discount_price * item.quantity;
+        // If product is not eligible for the coupon, no discount applied
+        item.discountedPrice = originalPrice;
       }
+
+      // Update totals
+      totalDiscount += discountAmount * item.quantity;
+      totalPrice += item.discountedPrice * item.quantity;
+
+      // Store the original price in the cart item (to send back in response)
+      item.originalPrice = originalPrice;
     }
 
-    // Adjust delivery charges if applicable
-    if (coupon.freeShipping && totalPrice >= coupon.freeShippingThreshold) {
-      deliveryCharges = 0; // Free delivery if coupon offers free shipping on a minimum order amount
+    // Apply free shipping if applicable
+    if (coupon.type === "free_shipping" || (coupon.freeShipping && totalPrice >= coupon.freeShippingThreshold)) {
+      deliveryCharges = 0;
     }
 
-    // Update coupon usage count
-    coupon.used += 1;
-    await coupon.save();
+    // Calculate the final amount
+    finalAmount = totalPrice + deliveryCharges;
 
-    // Calculate the final amount after applying the discount and delivery charges
-    const finalAmount = totalPrice + deliveryCharges;
-
-    // Update the cart with new prices and total amount
+    // Do not increment the coupon.used counter here.
+    // Instead, mark the coupon as "applied" in the user's cart.
+    cart.couponCode = couponCode;
     cart.totalPrice = totalPrice;
     cart.totalDiscount = totalDiscount;
     cart.deliveryCharges = deliveryCharges;
     cart.finalAmount = finalAmount;
 
+    // Save the updated cart
     await cart.save();
 
-    // Send updated cart details in the response
-    // Inside the applyCoupon function, after the cart update
     return res.json({
       success: true,
       message: "Coupon applied successfully!",
       cartDetails: {
-          totalPrice: cart.totalPrice || 0,
-          totalDiscount: cart.totalDiscount || 0,
-          deliveryCharges: cart.deliveryCharges || 0,
-          finalAmount: cart.finalAmount || 0,
-      }
-  });
-  
+        totalPrice: cart.totalPrice || 0,
+        totalDiscount: cart.totalDiscount || 0,
+        deliveryCharges: cart.deliveryCharges || 0,
+        finalAmount: cart.finalAmount || 0,
+        items: cart.items.map(item => ({
+          productId: item.productId._id,
+          productName: item.productId.name,
+          quantity: item.quantity,
+          originalPrice: item.originalPrice,
+          discountedPrice: item.discountedPrice,
+        })),
+      },
+    });
+
   } catch (error) {
     console.error("Error applying coupon:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+    return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
+
+
+
+
+
 
 module.exports = {
   getCart,
