@@ -1,5 +1,6 @@
 const Cart = require("../models/cart");
 const Product = require("../models/product");
+const Coupon = require('../models/coupon')
 
 const getCart = async (req, res) => {
   if (!req.session.user || !req.session.user._id) {
@@ -58,8 +59,10 @@ const getCart = async (req, res) => {
 
     await cart.save(); 
 
+    // Pass userId, cartItems, and priceDetails to the EJS view
     res.render("my account/cart", {
       layout: false,
+      userId: userId,  // Add userId here
       cartItems: cart.items,
       priceDetails,
       isEmpty: cart.items.length === 0,
@@ -354,10 +357,58 @@ const getCartDetails = async (req, res) => {
   }
 };
 
+const applyCoupon = async (req, res) => {
+  const { userId } = req.params; // Get userId from URL parameters
+  const { couponCode } = req.body; // Get couponCode from request body
+
+  try {
+      // Find the coupon by the coupon code
+      const coupon = await Coupon.findOne({ code: couponCode });
+
+      if (!coupon) {
+          return res.json({ success: false, message: "Invalid coupon code" });
+      }
+
+      // Validate coupon (check if it's expired, usage limit, etc.)
+      const currentDate = new Date();
+      if (currentDate > coupon.expiryDate) {
+          return res.json({ success: false, message: "Coupon has expired" });
+      }
+
+      if (coupon.usageLimit <= coupon.usedCount) {
+          return res.json({ success: false, message: "Coupon usage limit reached" });
+      }
+
+      // Find the user's cart
+      const cart = await Cart.findOne({ user: userId });
+
+      if (!cart) {
+          return res.json({ success: false, message: "Cart not found" });
+      }
+
+      // Apply the coupon to the cart (e.g., subtract discount from totalPrice)
+      cart.totalPrice -= coupon.discount; // Adjust as per your logic for applying coupon discounts
+
+      // Update coupon usage count
+      coupon.usedCount += 1;
+      await coupon.save();
+
+      // Save updated cart
+      await cart.save();
+
+      return res.json({ success: true, message: "Coupon applied successfully!" });
+
+  } catch (error) {
+      console.error("Error applying coupon:", error);
+      return res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   getCart,
   addToCart,
   removeFromCart,
   updateCartQuantity,
   getCartDetails,
+  applyCoupon
 };

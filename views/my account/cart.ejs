@@ -137,6 +137,45 @@
     </div>
 
     <script>
+        const userId = "<%= userId %>"; // Inject userId from the backend
+
+        console.log(userId);
+        
+    
+        document.querySelector('.apply-btn').addEventListener('click', async () => {
+            const couponCode = document.querySelector('input[placeholder="Enter coupon code"]').value;
+    
+            if (!couponCode) {
+                alert("Please enter a coupon code");
+                return;
+            }
+    
+            try {
+                // Call your server-side API to apply the coupon
+                const response = await fetch(`/cart/apply-coupon/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ couponCode }),
+                });
+    
+                const result = await response.json();
+    
+                if (result.success) {
+                    // Handle successful coupon application
+                    alert("Coupon applied successfully!");
+                } else {
+                    // Handle coupon application error
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error("Error applying coupon:", error);
+            }
+        });
+    </script>
+    
+      
+
+    <script>
         // Handling 'Save for Later' action
         // document.querySelectorAll('.save-for-later').forEach((button) => {
         //     button.addEventListener('click', async (event) => {
@@ -229,18 +268,71 @@
 
 
 
+//         document.querySelector('.apply-btn').addEventListener('click', async function() {
+//   const couponCode = document.querySelector('.coupon-input input').value;
+
+//   // Validate if coupon code is entered
+//   if (!couponCode) {
+//     alert("Please enter a coupon code.");
+//     return;
+//   }
+
+//   try {
+//     // Send the coupon code to the backend API for validation
+//     const response = await fetch("cart/apply-coupon", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         couponCode: couponCode,
+//         userId: userId // Assuming userId is available in the frontend
+//       })
+//     });
+
+//     const data = await response.json();
+
+//     if (response.ok) {
+//       // Update the UI with the new cart values
+//       updateCartSummary(data.cart);
+//       alert(data.message); // Success message
+//     } else {
+//       alert(data.error); // Error message
+//     }
+//   } catch (error) {
+//     console.error("Error applying coupon:", error);
+//     alert("Something went wrong. Please try again.");
+//   }
+// });
+
         function updateCartSummary(cartDetails) {
-            document.querySelector('#total-price-value').textContent = `₹${cartDetails.totalPrice.toLocaleString()}`;
-            document.querySelector('#total-discount').textContent = `- ₹${cartDetails.totalDiscount.toLocaleString()}`;
-            const deliveryChargesElement = document.querySelector('#delivery-charges');
-            if (cartDetails.deliveryCharges > 0) {
-                deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
-            } else {
-                deliveryChargesElement.textContent = 'FREE';
-            }
-            document.querySelector('#savings').textContent = `You will save ₹${cartDetails.totalDiscount.toLocaleString()} on this order`;
-            document.querySelector('#total-price').textContent = `₹${cartDetails.finalAmount.toLocaleString()}`;
-        }
+  document.querySelector('#total-price-value').textContent = `₹${cartDetails.totalPrice.toLocaleString()}`;
+  document.querySelector('#total-discount').textContent = `- ₹${cartDetails.totalDiscount.toLocaleString()}`;
+  
+  const deliveryChargesElement = document.querySelector('#delivery-charges');
+  if (cartDetails.deliveryCharges > 0) {
+    deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
+  } else {
+    deliveryChargesElement.textContent = 'FREE';
+  }
+
+  document.querySelector('#savings').textContent = `You will save ₹${cartDetails.totalDiscount.toLocaleString()} on this order`;
+  document.querySelector('#total-price').textContent = `₹${cartDetails.finalAmount.toLocaleString()}`;
+}
+
+
+        // function updateCartSummary(cartDetails) {
+        //     document.querySelector('#total-price-value').textContent = `₹${cartDetails.totalPrice.toLocaleString()}`;
+        //     document.querySelector('#total-discount').textContent = `- ₹${cartDetails.totalDiscount.toLocaleString()}`;
+        //     const deliveryChargesElement = document.querySelector('#delivery-charges');
+        //     if (cartDetails.deliveryCharges > 0) {
+        //         deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
+        //     } else {
+        //         deliveryChargesElement.textContent = 'FREE';
+        //     }
+        //     document.querySelector('#savings').textContent = `You will save ₹${cartDetails.totalDiscount.toLocaleString()} on this order`;
+        //     document.querySelector('#total-price').textContent = `₹${cartDetails.finalAmount.toLocaleString()}`;
+        // }
 
 
         document.querySelectorAll('.remove-from-cart').forEach((button) => {
