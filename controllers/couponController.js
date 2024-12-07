@@ -27,6 +27,7 @@ const getCouponsPage = async (req, res) => {
 
     res.render("admin/coupon-management", {
       coupons,
+      alert: null,
       selectedCoupon,
       layout: false,
     });
@@ -54,7 +55,6 @@ const addCoupon = async (req, res) => {
       products,
     } = req.body;
 
-    // Validate `applicableTo` field
     const validApplicableToValues = [
       "All Products",
       "Specific Categories",
@@ -64,23 +64,20 @@ const addCoupon = async (req, res) => {
       return res.status(400).send('Invalid value for "applicableTo"');
     }
 
-    // Validate `status` field
     const validStatuses = ["active", "expired", "scheduled"];
     if (!validStatuses.includes(status.toLowerCase())) {
       return res.status(400).send('Invalid value for "status"');
     }
 
-    // Check if the coupon code already exists
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
       return res.status(400).send("Coupon code already exists.");
     }
 
-    // Prepare coupon data
     const couponData = {
       code,
       type,
-      status: status.toLowerCase(), // Ensure lowercase for consistency
+      status: status.toLowerCase(),
       discount: amount,
       minPurchase: minPurchase || 0,
       validFrom: startDate,
@@ -95,7 +92,6 @@ const addCoupon = async (req, res) => {
         applicableTo === "Specific Products" ? products || [] : [],
     };
 
-    // Save the new coupon
     const newCoupon = new Coupon(couponData);
     await newCoupon.save();
 
@@ -125,7 +121,6 @@ const editCoupon = async (req, res) => {
       products,
     } = req.body;
 
-    // Validate `applicableTo` field
     const validApplicableToValues = [
       "All Products",
       "Specific Categories",
@@ -135,19 +130,16 @@ const editCoupon = async (req, res) => {
       return res.status(400).send('Invalid value for "applicableTo"');
     }
 
-    // Validate `status` field
     const validStatuses = ["active", "expired", "scheduled"];
     if (!validStatuses.includes(status.toLowerCase())) {
       return res.status(400).send('Invalid value for "status"');
     }
 
-    // Check if the coupon exists
     const coupon = await Coupon.findById(couponId);
     if (!coupon) {
       return res.status(404).send("Coupon not found.");
     }
 
-    // Check if the coupon code is being changed, and ensure uniqueness
     if (coupon.code !== code) {
       const existingCoupon = await Coupon.findOne({ code });
       if (existingCoupon) {
@@ -155,11 +147,10 @@ const editCoupon = async (req, res) => {
       }
     }
 
-    // Prepare updated coupon data
     const updatedCouponData = {
       code,
       type,
-      status: status.toLowerCase(), // Ensure lowercase for consistency
+      status: status.toLowerCase(),
       discount: amount,
       minPurchase: minPurchase || 0,
       validFrom: startDate,
@@ -174,7 +165,6 @@ const editCoupon = async (req, res) => {
         applicableTo === "Specific Products" ? products || [] : [],
     };
 
-    // Update the coupon
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
       updatedCouponData,
@@ -187,7 +177,6 @@ const editCoupon = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 const getCouponDetails = async (req, res) => {
   try {
@@ -206,16 +195,58 @@ const getCouponDetails = async (req, res) => {
   }
 };
 
+// const deactivateCoupon = async (req, res) => {
+//   try {
+//     const { couponId } = req.body;
+
+//     // Validate if couponId is provided
+//     if (!couponId) {
+//       return res.status(400).json({ message: "Coupon ID is required" });
+//     }
+
+//     // Find and update the coupon's status
+//     const updatedCoupon = await Coupon.findByIdAndUpdate(
+//       couponId,
+//       { status: "expired" },
+//       { new: true }
+//     );
+
+//     if (!updatedCoupon) {
+//       return res.status(404).json({ message: "Coupon not found" });
+//     }
+
+//     res.status(200).json({ message: "Coupon deactivated successfully" });
+//   } catch (error) {
+//     console.error("Error deactivating coupon:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
 const deactivateCoupon = async (req, res) => {
   try {
     const { couponId } = req.body;
 
-    // Validate if couponId is provided
-    if (!couponId) {
-      return res.status(400).json({ message: "Coupon ID is required" });
+    const coupons = await Coupon.find();
+
+    let selectedCoupon = null;
+    if (req.params.couponId) {
+      selectedCoupon = await Coupon.findById(req.params.couponId);
     }
 
-    // Find and update the coupon's status
+    if (!couponId) {
+      return res.render("admin/coupon-management", {
+        coupons,
+        selectedCoupon,
+        layout: false,
+        alert: {
+          type: "error",
+          title: "Error",
+          message: "Coupon ID is required",
+          redirect: false,
+        },
+      });
+    }
+
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
       { status: "expired" },
@@ -223,15 +254,50 @@ const deactivateCoupon = async (req, res) => {
     );
 
     if (!updatedCoupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return res.render("admin/coupon-management", {
+        coupons,
+        selectedCoupon,
+        layout: false,
+        alert: {
+          type: "error",
+          title: "Error",
+          message: "Coupon not found",
+          redirect: false,
+        },
+      });
     }
 
-    res.status(200).json({ message: "Coupon deactivated successfully" });
+    res.render("admin/coupon-management", {
+      coupons,
+      selectedCoupon,
+      layout: false,
+      alert: {
+        type: "success",
+        title: "Success",
+        message: "Coupon deactivated successfully",
+        redirect: "/admin/coupon",
+      },
+    });
   } catch (error) {
     console.error("Error deactivating coupon:", error);
-    res.status(500).json({ message: "Server error" });
+    res.render("admin/coupon-management", {
+      coupons,
+      selectedCoupon,
+      layout: false,
+      alert: {
+        type: "error",
+        title: "Error",
+        message: "Server error. Please try again.",
+        redirect: false,
+      },
+    });
   }
 };
 
-
-module.exports = { getCouponsPage, addCoupon, getCouponDetails, editCoupon , deactivateCoupon};
+module.exports = {
+  getCouponsPage,
+  addCoupon,
+  getCouponDetails,
+  editCoupon,
+  deactivateCoupon,
+};

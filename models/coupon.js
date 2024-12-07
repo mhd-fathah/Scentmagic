@@ -1,25 +1,25 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const couponSchema = new mongoose.Schema({
   code: {
     type: String,
     required: true,
-    unique: true, // Ensure the coupon code is unique
+    unique: true,
     trim: true,
   },
   discount: {
-    type: Number, // Represents the discount amount
+    type: Number,
     required: true,
-    min: 0, // Ensures discount cannot be negative
+    min: 0,
   },
   type: {
     type: String,
-    enum: ['percentage', 'fixed', 'free_shipping'], // Matches your dropdown values
+    enum: ["percentage", "fixed", "free_shipping"],
   },
   description: {
     type: String,
-    default: '',
-    trim: true, // Removes unnecessary spaces
+    default: "",
+    trim: true,
   },
   validFrom: {
     type: Date,
@@ -30,57 +30,57 @@ const couponSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (value) {
-        return value > this.validFrom; // Ensures validUntil is after validFrom
+        return value > this.validFrom;
       },
-      message: 'Valid Until date must be after the Valid From date.',
+      message: "Valid Until date must be after the Valid From date.",
     },
   },
   minPurchase: {
     type: Number,
-    default: 0, // No minimum purchase required by default
-    min: 0, // Prevents negative values
+    default: 0,
+    min: 0,
   },
   usageLimit: {
     type: Number,
-    default: 0, // 0 means unlimited usage
-    min: 0, // Ensures positive values
+    default: 0,
+    min: 0,
   },
   usagePerCustomer: {
     type: Number,
-    default: 0, // 0 means unlimited usage per customer
+    default: 0,
     min: 0,
   },
   used: {
     type: Number,
-    default: 0, // Tracks the number of times the coupon is used
+    default: 0,
     min: 0,
   },
   applicableTo: {
     type: String,
-    enum: ['All Products', 'Specific Categories', 'Specific Products'], // Matches your form options
+    enum: ["All Products", "Specific Categories", "Specific Products"],
     required: true,
   },
   applicableCategories: {
-    type: [mongoose.Schema.Types.ObjectId], // Store references to category IDs
-    ref: 'Category',
-    default: [], // Empty array for "All Products"
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Category",
+    default: [],
   },
   applicableProducts: {
-    type: [mongoose.Schema.Types.ObjectId], // Store references to product IDs
-    ref: 'Product',
-    default: [], // Empty array for "All Products"
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Product",
+    default: [],
   },
   status: {
     type: String,
-    enum: ['active', 'expired', 'scheduled'], // Defines possible coupon states
-    default: 'active',
+    enum: ["active", "expired", "scheduled"],
+    default: "active",
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Automatically sets the creation date
+    default: Date.now,
   },
 });
 
-const Coupon = mongoose.model('Coupon', couponSchema);
+const Coupon = mongoose.model("Coupon", couponSchema);
 
 module.exports = Coupon;
