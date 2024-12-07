@@ -138,9 +138,8 @@
 
     <script>
         const userId = "<%= userId %>"; // Inject userId from the backend
-
-        console.log(userId);
-        
+    
+        console.log("User ID:", userId);
     
         document.querySelector('.apply-btn').addEventListener('click', async () => {
             const couponCode = document.querySelector('input[placeholder="Enter coupon code"]').value;
@@ -158,20 +157,34 @@
                     body: JSON.stringify({ couponCode }),
                 });
     
+                // Check if response was successful (status code 200)
+                if (!response.ok) {
+                    throw new Error(`Failed to apply coupon. Status: ${response.status}`);
+                }
+    
                 const result = await response.json();
     
                 if (result.success) {
                     // Handle successful coupon application
                     alert("Coupon applied successfully!");
+    
+                    // Assuming result.cartDetails or equivalent is returned from the server
+                    if (result.cartDetails) {
+                        updateCartSummary(result.cartDetails); // Pass cartDetails to the function
+                    } else {
+                        console.error("Cart details missing in the response.");
+                    }
                 } else {
                     // Handle coupon application error
-                    alert(result.message);
+                    alert(result.message || "Failed to apply coupon");
                 }
             } catch (error) {
                 console.error("Error applying coupon:", error);
+                alert("An error occurred while applying the coupon. Please try again.");
             }
         });
     </script>
+    
     
       
 
@@ -305,20 +318,30 @@
 //   }
 // });
 
-        function updateCartSummary(cartDetails) {
-  document.querySelector('#total-price-value').textContent = `₹${cartDetails.totalPrice.toLocaleString()}`;
-  document.querySelector('#total-discount').textContent = `- ₹${cartDetails.totalDiscount.toLocaleString()}`;
-  
-  const deliveryChargesElement = document.querySelector('#delivery-charges');
-  if (cartDetails.deliveryCharges > 0) {
-    deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
-  } else {
-    deliveryChargesElement.textContent = 'FREE';
-  }
+function updateCartSummary(cartDetails) {
+    if (!cartDetails) {
+        console.error("Cart details are missing.");
+        return;
+    }
 
-  document.querySelector('#savings').textContent = `You will save ₹${cartDetails.totalDiscount.toLocaleString()} on this order`;
-  document.querySelector('#total-price').textContent = `₹${cartDetails.finalAmount.toLocaleString()}`;
+    document.querySelector('#total-price-value').textContent = `₹${(cartDetails.totalPrice || 0).toLocaleString()}`;
+    document.querySelector('#total-discount').textContent = `- ₹${(cartDetails.totalDiscount || 0).toLocaleString()}`;
+
+    const deliveryChargesElement = document.querySelector('#delivery-charges');
+    if (cartDetails.deliveryCharges > 0) {
+        deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
+    } else if (cartDetails.deliveryCharges === 0) {
+        deliveryChargesElement.textContent = 'FREE';
+    } else {
+        deliveryChargesElement.textContent = 'N/A';
+    }
+
+    document.querySelector('#savings').textContent = `You will save ₹${(cartDetails.totalDiscount || 0).toLocaleString()} on this order`;
+    document.querySelector('#total-price').textContent = `₹${(cartDetails.finalAmount || 0).toLocaleString()}`;
 }
+
+
+
 
 
         // function updateCartSummary(cartDetails) {
