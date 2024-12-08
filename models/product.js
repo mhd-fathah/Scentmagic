@@ -22,15 +22,16 @@ const productSchema = new mongoose.Schema({
   quantity: { type: String },
   salesPackage: { type: String },
   leftStock: { type: Number, required: true },
+  extra_offer_percentage: { type: Number, default: 0 }, // New field
 });
 
-productSchema.virtual("discountPercentage").get(function () {
+// Virtual field for calculating total discounted price
+productSchema.virtual("total_discount_price").get(function () {
   if (this.regular_price && this.discount_price) {
-    const discount =
-      ((this.regular_price - this.discount_price) / this.regular_price) * 100;
-    return Math.round(discount);
+    const extraDiscount = (this.discount_price * this.extra_offer_percentage) / 100;
+    return Math.round(this.discount_price - extraDiscount);
   }
-  return 0;
+  return this.discount_price;
 });
 
 productSchema.pre("save", function (next) {

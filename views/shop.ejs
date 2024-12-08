@@ -314,7 +314,7 @@
                                         <li>
                                             <a href="#" class="add-to-cart" data-id="<%= product._id %>"
                                                 data-name="<%= product.product_name %>"
-                                                data-price="<%= product.discount_price %>">
+                                                data-price="<%= product.total_discount_price %>">
                                                 <i class="fa fa-shopping-cart"></i>
                                             </a>
                                         </li>
@@ -325,20 +325,24 @@
                                             <%= product.product_name %>
                                         </a></h6>
                                     <h5>
-                                        ₹<%= product.discount_price.toFixed(2) %>
+                                        ₹<%= product.total_discount_price.toFixed(2) %>
                                             <span style="text-decoration: line-through; color: #888">₹<%=
                                                     product.regular_price.toFixed(2) %></span>
                                     </h5>
-                                    <% if (product.stock_status==='in_stock' ) { %>
-                                        <p style="color: green">In Stock</p>
-                                        <% } else { %>
-                                            <p style="color: red">Out of Stock</p>
-                                            <% } %>
+                                    <% if (product.extra_offer_percentage> 0) { %>
+                                        <p style="color: blue">Extra Offer: <%= product.extra_offer_percentage %>%</p>
+                                        <% } %>
+                                            <% if (product.stock_status==='in_stock' ) { %>
+                                                <p style="color: green">In Stock</p>
+                                                <% } else { %>
+                                                    <p style="color: red">Out of Stock</p>
+                                                    <% } %>
                                 </div>
                             </div>
                         </div>
                         <% }); %>
                 </div>
+
 
                 <div class="product__pagination">
                     <% if (currentPage> 1) { %>

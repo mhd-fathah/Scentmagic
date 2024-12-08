@@ -50,39 +50,56 @@ const getProducts = async (req, res) => {
 // Add a new offer
 const addOffer = async (req, res) => {
     try {
-        const {
-            name,
-            type,
-            categoryOrProduct,
-            discountType,
-            discountValue,
-            minPurchase,
-            startDate,
-            endDate,
-            status,
-            description,
-        } = req.body;
-
-        const newOffer = new Offer({
-            name,
-            type,
-            categoryOrProduct,
-            discountType,
-            discountValue,
-            minPurchase,
-            startDate,
-            endDate,
-            status,
-            description,
-        });
-
-        await newOffer.save();
-        res.status(201).json({ message: "Offer added successfully" });
+      const {
+        name,
+        type,
+        categoryOrProduct,
+        discountType,
+        discountValue,
+        minPurchase,
+        startDate,
+        endDate,
+        status,
+        description,
+      } = req.body;
+  
+      const newOffer = new Offer({
+        name,
+        type,
+        categoryOrProduct,
+        discountType,
+        discountValue,
+        minPurchase,
+        startDate,
+        endDate,
+        status,
+        description,
+      });
+  
+      await newOffer.save();
+  
+      if (type === "Category") {
+        // Apply offer to all products in the selected category
+        const products = await Product.find({ category: categoryOrProduct });
+        for (let product of products) {
+          product.extra_offer_percentage = discountValue;
+          await product.save();
+        }
+      } else if (type === "Product") {
+        // Apply offer to a specific product
+        const product = await Product.findById(categoryOrProduct);
+        if (product) {
+          product.extra_offer_percentage = discountValue;
+          await product.save();
+        }
+      }
+  
+      res.status(201).json({ message: "Offer added and applied successfully" });
     } catch (error) {
-        console.error("Error adding offer:", error);
-        res.status(500).json({ message: "Error adding offer" });
+      console.error("Error adding offer:", error);
+      res.status(500).json({ message: "Error adding offer" });
     }
-};
+  };
 
 const editOffer = async (req, res) => {
     try {
