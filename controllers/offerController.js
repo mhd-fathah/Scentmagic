@@ -54,9 +54,7 @@ const addOffer = async (req, res) => {
         name,
         type,
         categoryOrProduct,
-        discountType,
-        discountValue,
-        minPurchase,
+        discountValue, // Assume this is in percentage
         startDate,
         endDate,
         status,
@@ -67,9 +65,7 @@ const addOffer = async (req, res) => {
         name,
         type,
         categoryOrProduct,
-        discountType,
         discountValue,
-        minPurchase,
         startDate,
         endDate,
         status,
@@ -79,17 +75,29 @@ const addOffer = async (req, res) => {
       await newOffer.save();
   
       if (type === "Category") {
-        // Apply offer to all products in the selected category
         const products = await Product.find({ category: categoryOrProduct });
         for (let product of products) {
-          product.extra_offer_percentage = discountValue;
+          const extraDiscount = (product.discount_price * discountValue) / 100;
+  
+          if (!product.previous_discount_price) {
+            product.previous_discount_price = product.discount_price; // Save current discount price
+          }
+  
+          product.discount_price = Math.round(product.discount_price - extraDiscount); // Update discount price
+          product.extra_offer_percentage = discountValue; // Save extra offer percentage
           await product.save();
         }
       } else if (type === "Product") {
-        // Apply offer to a specific product
         const product = await Product.findById(categoryOrProduct);
         if (product) {
-          product.extra_offer_percentage = discountValue;
+          const extraDiscount = (product.discount_price * discountValue) / 100;
+  
+          if (!product.previous_discount_price) {
+            product.previous_discount_price = product.discount_price; // Save current discount price
+          }
+  
+          product.discount_price = Math.round(product.discount_price - extraDiscount); // Update discount price
+          product.extra_offer_percentage = discountValue; // Save extra offer percentage
           await product.save();
         }
       }
@@ -100,6 +108,7 @@ const addOffer = async (req, res) => {
       res.status(500).json({ message: "Error adding offer" });
     }
   };
+  
 
 const editOffer = async (req, res) => {
     try {
@@ -125,13 +134,46 @@ const editOffer = async (req, res) => {
 
 const deleteOffer = async (req, res) => {
     try {
-        const { id } = req.params;
-        await Offer.findByIdAndDelete(id);
-        res.redirect('/offers');  // Redirect to the offers page after deleting the offer
+      const { offerId } = req.params;
+  
+      // Find the offer to delete
+      const offer = await Offer.findById(offerId);
+      if (!offer) {
+        return res.status(404).json({ message: "Offer not found" });
+      }
+  
+      // Determine whether the offer applies to a category or a product
+      if (offer.type === "Category") {
+        // Find all products in the category
+        const products = await Product.find({ category: offer.categoryOrProduct });
+        for (let product of products) {
+          if (product.previous_discount_price) {
+            product.discount_price = product.previous_discount_price; // Restore previous discount price
+            product.previous_discount_price = null; // Clear previous discount price
+          }
+          product.extra_offer_percentage = 0; // Remove extra offer percentage
+          await product.save();
+        }
+      } else if (offer.type === "Product") {
+        // Find the specific product
+        const product = await Product.findById(offer.categoryOrProduct);
+        if (product && product.previous_discount_price) {
+          product.discount_price = product.previous_discount_price; // Restore previous discount price
+          product.previous_discount_price = null; // Clear previous discount price
+          product.extra_offer_percentage = 0; // Remove extra offer percentage
+          await product.save();
+        }
+      }
+  
+      // Delete the offer
+      await offer.deleteOne();
+  
+      res.status(200).json({ message: "Offer deleted and prices reverted successfully" });
     } catch (error) {
-        console.error("Error deleting offer:", error);
-        res.status(500).send('Server error');
+      console.error("Error deleting offer:", error);
+      res.status(500).json({ message: "Error deleting offer" });
     }
-};
+  };
+  
 
 module.exports = {getOffers , addOffer, editOffer, deleteOffer , getCategories , getProducts};

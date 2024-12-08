@@ -12,7 +12,7 @@ router.post('/offers/add', offerController.addOffer);
 router.post('/offers/edit', offerController.editOffer);
 
 // Route to delete an offer
-router.delete('/offers/delete/:id', offerController.deleteOffer);
+router.delete('/offers/delete/:offerId', offerController.deleteOffer);
 
 router.get('/offers/category',offerController.getCategories)
 

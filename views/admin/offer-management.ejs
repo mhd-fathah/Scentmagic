@@ -441,6 +441,34 @@
     </footer>
   </main>
 
+<script>
+  function deleteOffer(offerId) {
+    if (confirm("Are you sure you want to delete this offer?")) {
+        fetch(`/admin/offers/delete/${offerId}`, {
+            method: "DELETE", // HTTP DELETE request
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then((response) => {
+            if (response.ok) {
+                alert("Offer deleted successfully.");
+                // Optionally reload the page or update the UI dynamically
+                location.reload(); // Reload the page to reflect changes
+            } else {
+                return response.json().then((data) => {
+                    throw new Error(data.message || "Error deleting offer.");
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error deleting offer:", error);
+            alert(error.message);
+        });
+    }
+}
+</script>
+
   <script>
    async function loadOptions() {
     const offerType = document.getElementById("offerType").value; // Get the selected offer type

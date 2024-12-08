@@ -553,24 +553,26 @@ const searchProducts = async (query, categoryId = null) => {
 
 const getProductsPage = async (req, res) => {
   try {
+    // Fetch categories
     const categories = await Category.find({ isDeleted: false });
 
+    // Handle sorting option
     const sortOption = req.query.sort || "price_asc";
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
     const skip = (page - 1) * limit;
 
+    // Handle category filter
     const categoryId = req.query.category;
     const category = categoryId ? await Category.findById(categoryId) : null;
 
     let filter = { isDeleted: false };
 
-    // Category filter
     if (categoryId) {
-      filter.category = categoryId;
+      filter.category = categoryId; // Filter by category
     }
 
-    // Price range filter
+    // Handle price range filter
     const { minPrice, maxPrice } = req.query;
     if (minPrice) {
       filter.discount_price = { $gte: parseFloat(minPrice) };
@@ -581,27 +583,36 @@ const getProductsPage = async (req, res) => {
         : { $lte: parseFloat(maxPrice) };
     }
 
-    // Sort criteria
+    // Define sort criteria
     let sortCriteria = {};
-    if (sortOption === "price_asc") sortCriteria = { regular_price: 1 };
-    if (sortOption === "price_desc") sortCriteria = { regular_price: -1 };
+    if (sortOption === "price_asc") sortCriteria = { discount_price: 1 };
+    if (sortOption === "price_desc") sortCriteria = { discount_price: -1 };
     if (sortOption === "name_asc") sortCriteria = { product_name: 1 };
     if (sortOption === "name_desc") sortCriteria = { product_name: -1 };
 
-    // Fetch products with filters and sorting
+    // Fetch products with filters, sorting, and pagination
     const products = await Product.find(filter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
-      .populate("category");
+      .populate("category")
+      .lean(); // Ensures virtual fields like total_discount_price are resolved
 
-    // Fetch discounted products for display
+    // Ensure virtual field `total_discount_price` is calculated
+    products.forEach((product) => {
+      product.total_discount_price =
+        product.total_discount_price ?? product.discount_price;
+    });
+
+    // Fetch discounted products for display (only products with a discount)
     const discountedProducts = await Product.find({
       isDeleted: false,
       discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") },
-    }).populate("category");
+    })
+      .populate("category")
+      .lean();
 
-    // Total product count and pagination
+    // Calculate total product count and total pages
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
 
@@ -630,7 +641,7 @@ const getProductsPage = async (req, res) => {
       category,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching products page:", err);
     res.status(500).send("Server Error");
   }
 };

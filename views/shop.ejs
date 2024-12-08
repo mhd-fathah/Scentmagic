@@ -292,56 +292,67 @@
                 </div>
 
                 <div class="row product-listing">
-                    <% products.forEach((product)=> { %>
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg">
-                                    <a href="/product/<%= product._id %>">
-                                        <img src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
-                                            alt="<%= product.product_name %>" />
-                                    </a>
-                                    <ul class="product__item__pic__hover">
-                                        <li>
-                                            <a href="#" class="add-to-wishlist" data-id="<%= product._id %>"
-                                                data-name="<%= product.product_name %>"
-                                                data-price="<%= product.discount_price %>">
-                                                <i class="fa fa-heart"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><i class="fa fa-retweet"></i></a>
-                                        </li>
-                                        <li>
-                                            <a href="#" class="add-to-cart" data-id="<%= product._id %>"
-                                                data-name="<%= product.product_name %>"
-                                                data-price="<%= product.total_discount_price %>">
-                                                <i class="fa fa-shopping-cart"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h6><a href="#">
-                                            <%= product.product_name %>
-                                        </a></h6>
-                                    <h5>
-                                        ₹<%= product.total_discount_price.toFixed(2) %>
-                                            <span style="text-decoration: line-through; color: #888">₹<%=
-                                                    product.regular_price.toFixed(2) %></span>
-                                    </h5>
-                                    <% if (product.extra_offer_percentage> 0) { %>
-                                        <p style="color: blue">Extra Offer: <%= product.extra_offer_percentage %>%</p>
-                                        <% } %>
-                                            <% if (product.stock_status==='in_stock' ) { %>
-                                                <p style="color: green">In Stock</p>
-                                                <% } else { %>
-                                                    <p style="color: red">Out of Stock</p>
-                                                    <% } %>
-                                </div>
-                            </div>
+                    <% products.forEach((product) => { %>
+                      <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="product__item">
+                          <div class="product__item__pic set-bg">
+                            <a href="/product/<%= product._id %>">
+                              <img
+                                src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+                                alt="<%= product.product_name %>"
+                              />
+                            </a>
+                            <ul class="product__item__pic__hover">
+                              <li>
+                                <a
+                                  href="#"
+                                  class="add-to-wishlist"
+                                  data-id="<%= product._id %>"
+                                  data-name="<%= product.product_name %>"
+                                  data-price="<%= product.discount_price %>"
+                                >
+                                  <i class="fa fa-heart"></i>
+                                </a>
+                              </li>
+                              <li>
+                                <a href="#"><i class="fa fa-retweet"></i></a>
+                              </li>
+                              <li>
+                                <a
+                                  href="#"
+                                  class="add-to-cart"
+                                  data-id="<%= product._id %>"
+                                  data-name="<%= product.product_name %>"
+                                  data-price="<%= product.discount_price %>"
+                                >
+                                  <i class="fa fa-shopping-cart"></i>
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="product__item__text">
+                            <h6><a href="#"><%= product.product_name %></a></h6>
+                            <h5>
+                              ₹<%= (product.total_discount_price || product.regular_price).toFixed(2) %>
+                              <span style="text-decoration: line-through; color: #888">
+                                ₹<%= product.regular_price.toFixed(2) %>
+                              </span>
+                            </h5>
+                            <% if (product.extra_offer_percentage > 0) { %>
+                              <p style="color: blue">Extra Offer: <%= product.extra_offer_percentage %>%</p>
+                            <% } %>
+                            <% if (product.stock_status === "in_stock") { %>
+                              <p style="color: green">In Stock</p>
+                            <% } else { %>
+                              <p style="color: red">Out of Stock</p>
+                            <% } %>
+                          </div>
                         </div>
-                        <% }); %>
-                </div>
+                      </div>
+                    <% }); %>
+                  </div>
+                  
+                
 
 
                 <div class="product__pagination">

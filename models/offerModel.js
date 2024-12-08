@@ -9,7 +9,7 @@ const offerSchema = new mongoose.Schema(
             refPath: "type", // Dynamically references "Category" or "Product"
             required: true,
         },
-        discountType: { type: String, enum: ["Percentage", "Fixed Amount"], required: true },
+        discountType: { type: String, enum: ["Percentage", "Fixed Amount"], required: false },
         discountValue: { type: Number, required: true },
         minPurchase: { type: Number, default: null },
         startDate: { type: Date, required: true },
