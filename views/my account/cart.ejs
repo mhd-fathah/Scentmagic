@@ -18,7 +18,40 @@
         .quantity-control input[type="number"] {
             -moz-appearance: textfield;
         }
+
+        .apply-btn {
+            background-color: rgb(241, 76, 200);
+            /* Default button color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            background-color: rgb(141, 11, 124);
+        }
+
+        .remove-btn {
+            background-color: red;
+            /* Change to red for REMOVE */
+        }
+
+        .remove-btn:hover {
+            background-color: darkred;
+        }
+
+        .coupon-message {
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            /* Initially hidden */
+
+        }
     </style>
+
 </head>
 
 <body>
@@ -94,7 +127,9 @@
                         <input type="text" placeholder="Enter coupon code">
                         <button class="apply-btn">APPLY</button>
                     </div>
+                    <span class="coupon-message" style="display: none;"></span>
                 </div>
+
 
                 <!-- Price Details -->
                 <div class="cart-summary">
@@ -137,56 +172,98 @@
     </div>
 
     <script>
-        const userId = "<%= userId %>"; // Inject userId from the backend
-    
+        const userId = "<%= userId %>";
+
         console.log("User ID:", userId);
-    
-        document.querySelector('.apply-btn').addEventListener('click', async () => {
-            const couponCode = document.querySelector('input[placeholder="Enter coupon code"]').value;
-    
-            if (!couponCode) {
-                alert("Please enter a coupon code");
-                return;
-            }
-    
-            try {
-                // Call your server-side API to apply the coupon
-                const response = await fetch(`/cart/apply-coupon/${userId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ couponCode }),
-                });
-    
-                // Check if response was successful (status code 200)
-                if (!response.ok) {
-                    throw new Error(`Failed to apply coupon. Status: ${response.status}`);
+
+        const applyButton = document.querySelector('.apply-btn');
+        const couponInput = document.querySelector('input[placeholder="Enter coupon code"]');
+        const couponMessage = document.querySelector('.coupon-message');
+
+        function showMessage(message, isError = false) {
+            couponMessage.textContent = message;
+            couponMessage.style.color = isError ? 'red' : 'green';
+            couponMessage.style.display = 'block';
+        }
+
+        applyButton.addEventListener('click', async () => {
+            if (applyButton.textContent === "APPLY") {
+                const couponCode = couponInput.value;
+
+                if (!couponCode) {
+                    showMessage("Please enter a coupon code", true);
+                    return;
                 }
-    
-                const result = await response.json();
-    
-                if (result.success) {
-                    // Handle successful coupon application
-                    alert("Coupon applied successfully!");
-    
-                    // Assuming result.cartDetails or equivalent is returned from the server
-                    if (result.cartDetails) {
-                        updateCartSummary(result.cartDetails); // Pass cartDetails to the function
-                    } else {
-                        console.error("Cart details missing in the response.");
+
+                try {
+
+                    const response = await fetch(`/cart/apply-coupon/${userId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ couponCode }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to apply coupon. Status: ${response.status}`);
                     }
-                } else {
-                    // Handle coupon application error
-                    alert(result.message || "Failed to apply coupon");
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showMessage("Coupon applied successfully!");
+                        if (result.cartDetails) {
+                            updateCartSummary(result.cartDetails);
+                        }
+
+                        applyButton.textContent = "REMOVE";
+                        applyButton.classList.add('remove-btn');
+
+                        couponInput.disabled = true;
+                    } else {
+                        showMessage(result.message || "Failed to apply coupon", true);
+                    }
+                } catch (error) {
+                    console.error("Error applying coupon:", error);
+                    showMessage("An error occurred while applying the coupon. Please try again.", true);
                 }
-            } catch (error) {
-                console.error("Error applying coupon:", error);
-                alert("An error occurred while applying the coupon. Please try again.");
+            } else if (applyButton.textContent === "REMOVE") {
+                try {
+                    const response = await fetch(`/cart/remove-coupon/${userId}`, {
+                        method: 'POST',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to remove coupon. Status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showMessage("Coupon removed successfully!");
+
+                        applyButton.textContent = "APPLY";
+                        applyButton.classList.remove('remove-btn');
+
+                        couponInput.disabled = false;
+                        couponInput.value = "";
+
+                        if (result.cartDetails) {
+                            updateCartSummary(result.cartDetails);
+                        }
+                    } else {
+                        showMessage(result.message || "Failed to remove coupon", true);
+                    }
+                } catch (error) {
+                    console.error("Error removing coupon:", error);
+                    showMessage("An error occurred while removing the coupon. Please try again.", true);
+                }
             }
         });
+
     </script>
-    
-    
-      
+
+
+
 
     <script>
         // Handling 'Save for Later' action
@@ -281,64 +358,64 @@
 
 
 
-//         document.querySelector('.apply-btn').addEventListener('click', async function() {
-//   const couponCode = document.querySelector('.coupon-input input').value;
+        //         document.querySelector('.apply-btn').addEventListener('click', async function() {
+        //   const couponCode = document.querySelector('.coupon-input input').value;
 
-//   // Validate if coupon code is entered
-//   if (!couponCode) {
-//     alert("Please enter a coupon code.");
-//     return;
-//   }
+        //   // Validate if coupon code is entered
+        //   if (!couponCode) {
+        //     alert("Please enter a coupon code.");
+        //     return;
+        //   }
 
-//   try {
-//     // Send the coupon code to the backend API for validation
-//     const response = await fetch("cart/apply-coupon", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         couponCode: couponCode,
-//         userId: userId // Assuming userId is available in the frontend
-//       })
-//     });
+        //   try {
+        //     // Send the coupon code to the backend API for validation
+        //     const response = await fetch("cart/apply-coupon", {
+        //       method: "POST",
+        //       headers: {
+        //         "Content-Type": "application/json",
+        //       },
+        //       body: JSON.stringify({
+        //         couponCode: couponCode,
+        //         userId: userId // Assuming userId is available in the frontend
+        //       })
+        //     });
 
-//     const data = await response.json();
+        //     const data = await response.json();
 
-//     if (response.ok) {
-//       // Update the UI with the new cart values
-//       updateCartSummary(data.cart);
-//       alert(data.message); // Success message
-//     } else {
-//       alert(data.error); // Error message
-//     }
-//   } catch (error) {
-//     console.error("Error applying coupon:", error);
-//     alert("Something went wrong. Please try again.");
-//   }
-// });
+        //     if (response.ok) {
+        //       // Update the UI with the new cart values
+        //       updateCartSummary(data.cart);
+        //       alert(data.message); // Success message
+        //     } else {
+        //       alert(data.error); // Error message
+        //     }
+        //   } catch (error) {
+        //     console.error("Error applying coupon:", error);
+        //     alert("Something went wrong. Please try again.");
+        //   }
+        // });
 
-function updateCartSummary(cartDetails) {
-    if (!cartDetails) {
-        console.error("Cart details are missing.");
-        return;
-    }
+        function updateCartSummary(cartDetails) {
+            if (!cartDetails) {
+                console.error("Cart details are missing.");
+                return;
+            }
 
-    document.querySelector('#total-price-value').textContent = `₹${(cartDetails.totalPrice || 0).toLocaleString()}`;
-    document.querySelector('#total-discount').textContent = `- ₹${(cartDetails.totalDiscount || 0).toLocaleString()}`;
+            document.querySelector('#total-price-value').textContent = `₹${(cartDetails.totalPrice || 0).toLocaleString()}`;
+            document.querySelector('#total-discount').textContent = `- ₹${(cartDetails.totalDiscount || 0).toLocaleString()}`;
 
-    const deliveryChargesElement = document.querySelector('#delivery-charges');
-    if (cartDetails.deliveryCharges > 0) {
-        deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
-    } else if (cartDetails.deliveryCharges === 0) {
-        deliveryChargesElement.textContent = 'FREE';
-    } else {
-        deliveryChargesElement.textContent = 'N/A';
-    }
+            const deliveryChargesElement = document.querySelector('#delivery-charges');
+            if (cartDetails.deliveryCharges > 0) {
+                deliveryChargesElement.textContent = `₹${cartDetails.deliveryCharges.toLocaleString()}`;
+            } else if (cartDetails.deliveryCharges === 0) {
+                deliveryChargesElement.textContent = 'FREE';
+            } else {
+                deliveryChargesElement.textContent = 'N/A';
+            }
 
-    document.querySelector('#savings').textContent = `You will save ₹${(cartDetails.totalDiscount || 0).toLocaleString()} on this order`;
-    document.querySelector('#total-price').textContent = `₹${(cartDetails.finalAmount || 0).toLocaleString()}`;
-}
+            document.querySelector('#savings').textContent = `You will save ₹${(cartDetails.totalDiscount || 0).toLocaleString()} on this order`;
+            document.querySelector('#total-price').textContent = `₹${(cartDetails.finalAmount || 0).toLocaleString()}`;
+        }
 
 
 
