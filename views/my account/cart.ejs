@@ -152,113 +152,131 @@
                         </span>
                     </div>
 
-                    <div class="savings">
-                        <strong id="savings">You will save ₹<%= priceDetails.totalDiscount.toLocaleString() %> on this
-                                order</strong>
-                    </div>
+                    <!-- Coupon Applied Row -->
+                    <% if (couponCode) { %>
+                        <div class="price-detail-row">
+                            <span>Coupon Status</span>
+                            <span id="coupon-applied">
+                                Coupon Applied
+                            </span>
+                        </div>
+                        <% } else { %>
+                            <div class="price-detail-row">
+                                <span>Coupon Applied</span>
+                                <span id="coupon-applied">None</span>
+                            </div>
+                            <% } %>
 
-                    <div class="price-detail-row" style="font-size: 1.2rem; font-weight: 500;">
-                        <span>Total Amount</span>
-                        <span id="total-price">₹<%= priceDetails.finalAmount.toLocaleString() %></span>
-                    </div>
 
-                    <button onclick="window.location.href='/checkout'" class="checkout-btn">
-                        CHECKOUT
-                    </button>
+                                <div class="savings">
+                                    <strong id="savings">You will save ₹<%= priceDetails.totalDiscount.toLocaleString()
+                                            %> on this order</strong>
+                                </div>
+
+                                <div class="price-detail-row" style="font-size: 1.2rem; font-weight: 500;">
+                                    <span>Total Amount</span>
+                                    <span id="total-price">₹<%= priceDetails.finalAmount.toLocaleString() %></span>
+                                </div>
+
+                                <button onclick="window.location.href='/checkout'" class="checkout-btn">
+                                    CHECKOUT
+                                </button>
                 </div>
+
+
 
             </div>
         </div>
     </div>
 
     <script>
-        const userId = "<%= userId %>";
+      const userId = "<%= userId %>";
 
-        console.log("User ID:", userId);
+console.log("User ID:", userId);
 
-        const applyButton = document.querySelector('.apply-btn');
-        const couponInput = document.querySelector('input[placeholder="Enter coupon code"]');
-        const couponMessage = document.querySelector('.coupon-message');
+const applyButton = document.querySelector('.apply-btn');
+const couponInput = document.querySelector('input[placeholder="Enter coupon code"]');
+const couponMessage = document.querySelector('.coupon-message');
 
-        function showMessage(message, isError = false) {
-            couponMessage.textContent = message;
-            couponMessage.style.color = isError ? 'red' : 'green';
-            couponMessage.style.display = 'block';
+function showMessage(message, isError = false) {
+    couponMessage.textContent = message;
+    couponMessage.style.color = isError ? 'red' : 'green';
+    couponMessage.style.display = 'block';
+}
+
+applyButton.addEventListener('click', async () => {
+    const couponCode = couponInput.value;
+
+    if (applyButton.textContent === "APPLY") {
+        if (!couponCode) {
+            showMessage("Please enter a coupon code", true);
+            return;
         }
 
-        applyButton.addEventListener('click', async () => {
-            if (applyButton.textContent === "APPLY") {
-                const couponCode = couponInput.value;
+        try {
+            const response = await fetch(`/cart/apply-coupon/${userId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ couponCode }),
+            });
 
-                if (!couponCode) {
-                    showMessage("Please enter a coupon code", true);
-                    return;
-                }
-
-                try {
-
-                    const response = await fetch(`/cart/apply-coupon/${userId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ couponCode }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to apply coupon. Status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        showMessage("Coupon applied successfully!");
-                        if (result.cartDetails) {
-                            updateCartSummary(result.cartDetails);
-                        }
-
-                        applyButton.textContent = "REMOVE";
-                        applyButton.classList.add('remove-btn');
-
-                        couponInput.disabled = true;
-                    } else {
-                        showMessage(result.message || "Failed to apply coupon", true);
-                    }
-                } catch (error) {
-                    console.error("Error applying coupon:", error);
-                    showMessage("An error occurred while applying the coupon. Please try again.", true);
-                }
-            } else if (applyButton.textContent === "REMOVE") {
-                try {
-                    const response = await fetch(`/cart/remove-coupon/${userId}`, {
-                        method: 'POST',
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to remove coupon. Status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        showMessage("Coupon removed successfully!");
-
-                        applyButton.textContent = "APPLY";
-                        applyButton.classList.remove('remove-btn');
-
-                        couponInput.disabled = false;
-                        couponInput.value = "";
-
-                        if (result.cartDetails) {
-                            updateCartSummary(result.cartDetails);
-                        }
-                    } else {
-                        showMessage(result.message || "Failed to remove coupon", true);
-                    }
-                } catch (error) {
-                    console.error("Error removing coupon:", error);
-                    showMessage("An error occurred while removing the coupon. Please try again.", true);
-                }
+            if (!response.ok) {
+                throw new Error(`Failed to apply coupon. Status: ${response.status}`);
             }
-        });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage("Coupon applied successfully!");
+                if (result.cartDetails) {
+                    updateCartSummary(result.cartDetails);
+                }
+
+                applyButton.textContent = "REMOVE";
+                applyButton.classList.add('remove-btn');
+
+                couponInput.disabled = true;
+            } else {
+                showMessage(result.message || "Failed to apply coupon", true);
+            }
+        } catch (error) {
+            console.error("Error applying coupon:", error);
+            showMessage("An error occurred while applying the coupon. Please try again.", true);
+        }
+    } else if (applyButton.textContent === "REMOVE") {
+        try {
+            const response = await fetch(`/cart/remove-coupon/${userId}`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to remove coupon. Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage("Coupon removed successfully!");
+
+                applyButton.textContent = "APPLY";
+                applyButton.classList.remove('remove-btn');
+
+                couponInput.disabled = false;
+                couponInput.value = "";
+
+                if (result.cartDetails) {
+                    updateCartSummary(result.cartDetails);
+                }
+            } else {
+                showMessage(result.message || "Failed to remove coupon", true);
+            }
+        } catch (error) {
+            console.error("Error removing coupon:", error);
+            showMessage("An error occurred while removing the coupon. Please try again.", true);
+        }
+    }
+});
+
 
     </script>
 

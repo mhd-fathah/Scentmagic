@@ -14,5 +14,6 @@ router.post('/cart/update',auth.checkSession , cartController.updateCartQuantity
 router.get('/cart/details',auth.checkBlocked,auth.checkSession , cartController.getCartDetails)
 
 router.post('/cart/apply-coupon/:userId',auth.checkSession,cartController.applyCoupon)
+router.post('/cart/remove-coupon/:userId',auth.checkSession,cartController.applyCoupon)
 
 module.exports = router;
