@@ -211,10 +211,20 @@
                     <td class="text-end">
                       <!-- Trigger Edit Offer Modal -->
                       <button class="btn btn-sm btn-light font-sm rounded" data-bs-toggle="modal"
-                        data-bs-target="#editOfferModal" data-id="<%= offer._id %>"
-                        onclick="populateEditForm('<%= offer._id %>')">
+                        data-bs-target="#editOfferModal" onclick='openEditOfferModal({
+                          id: "<%= offer._id %>",
+                          name: "<%= offer.name %>",
+                          type: "<%= offer.type %>",
+                          categoryOrProduct: "<%= offer.categoryOrProduct %>",
+                          discountType: "<%= offer.discountType %>",
+                          discountValue: "<%= offer.discountValue %>",
+                          startDate: "<%= offer.startDate %>",
+                          endDate: "<%= offer.endDate %>",
+                          status: "<%= offer.status %>"
+                      })'>
                         Edit
                       </button>
+
                       <button class="btn btn-sm btn-outline-danger font-sm rounded ms-2"
                         onclick="deleteOffer('<%= offer._id %>')">
                         Delete
@@ -346,6 +356,9 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+              <!-- Hidden Input for Offer ID -->
+              <input type="hidden" id="editOfferId" name="id" />
+
               <div class="mb-3">
                 <label for="editOfferName" class="form-label">Offer Name</label>
                 <input type="text" class="form-control" id="editOfferName" name="name" required />
@@ -397,6 +410,7 @@
         </div>
       </div>
     </div>
+
 
     <input type="hidden" id="offersData" value='<%- JSON.stringify(offers) %>' />
 
@@ -457,104 +471,10 @@
   </script>
 
   <script>
-    async function loadOptions() {
-      const offerType = document.getElementById("offerType").value;
-      const categoryOrProduct = document.getElementById("categoryOrProduct");
-
-      categoryOrProduct.innerHTML = '<option value="">Select a value</option>';
-
-      if (!offerType) return;
-
-      try {
-
-        const endpoint = `/admin/offers/${offerType.toLowerCase()}`;
-        const response = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-
-        data.forEach((item) => {
-          const option = document.createElement("option");
-          option.value = item._id;
-          option.textContent = item.product_name || item.name;
-          categoryOrProduct.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to load options. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
-    }
-
-    async function addOffer(event) {
+    async function validateAndSubmitForm(event) {
       event.preventDefault();
-      const formData = new FormData(document.getElementById("offerForm"));
 
-      const offerData = Object.fromEntries(formData.entries());
-
-      try {
-        const response = await fetch("/admin/offers/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(offerData),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-
-          Swal.fire({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(() => {
-
-            document.getElementById("offerForm").reset();
-            window.location.href = '/admin/offers'
-          });
-        } else {
-
-          Swal.fire({
-            title: "Error!",
-            text: data.message,
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-      } catch (error) {
-        console.error("Error adding offer:", error);
-
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to add offer. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
-    }
-
-    document.getElementById("offerForm").addEventListener("submit", addOffer);
-  </script>
-
-  <script>
-
-    function validateForm() {
-
-      document.querySelectorAll(".text-danger").forEach(span => span.textContent = "");
+      document.querySelectorAll(".text-danger").forEach((span) => (span.textContent = ""));
 
       const offerName = document.getElementById("offerName").value.trim();
       if (!offerName) {
@@ -597,7 +517,6 @@
         document.getElementById("endDateError").textContent = "End Date is required.";
         return false;
       } else {
-
         const parsedStartDate = new Date(startDate);
         const parsedEndDate = new Date(endDate);
 
@@ -613,87 +532,133 @@
         return false;
       }
 
-      return true;
+      const formData = new FormData(document.getElementById("offerForm"));
+      const offerData = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch("/admin/offers/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(offerData),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+            confirmButtonText: "OK",
+          }).then(() => {
+            document.getElementById("offerForm").reset();
+            window.location.href = "/admin/offers";
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: data.message,
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+      } catch (error) {
+        console.error("Error adding offer:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to add offer. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
     }
 
-    document.getElementById("offerForm").addEventListener("submit", function (event) {
-      if (!validateForm()) {
-        event.preventDefault();
-      } else {
-        addOffer(event);
+    document.getElementById("offerForm").addEventListener("submit", validateAndSubmitForm);
+
+    async function loadOptions() {
+      const offerType = document.getElementById("offerType").value;
+      const categoryOrProduct = document.getElementById("categoryOrProduct");
+
+      categoryOrProduct.innerHTML = '<option value="">Select a value</option>';
+
+      if (!offerType) return;
+
+      try {
+        const endpoint = `/admin/offers/${offerType.toLowerCase()}`;
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item._id;
+          option.textContent = item.product_name || item.name;
+          categoryOrProduct.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to load options. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
-    });
+    }
   </script>
-
-
-
-
-  <!-- <script>
-    document.getElementById('offerType').addEventListener('change', async function () {
-        const offerType = this.value;
-        const categoryOrProductSelect = document.getElementById('categoryOrProduct');
-        categoryOrProductSelect.innerHTML = '<option value="">Loading...</option>'; // Loading placeholder
-
-        try {
-            // Fetch categories or products based on the offer type
-            const response = await fetch(`/offers/${offerType.toLowerCase()}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                // Clear and populate the select options
-                categoryOrProductSelect.innerHTML = '<option value="">Select</option>';
-                data.forEach(item => {
-                    categoryOrProductSelect.innerHTML += `<option value="${item._id}">${item.name || item.product_name}</option>`;
-                });
-            } else {
-                categoryOrProductSelect.innerHTML = '<option value="">Error loading data</option>';
-                console.error('Error fetching data:', data.message);
-            }
-        } catch (err) {
-            categoryOrProductSelect.innerHTML = '<option value="">Error loading data</option>';
-            console.error('Fetch error:', err);
-        }
-    });
-</script> -->
 
 
   <script>
 
-    function populateEditForm(id) {
+    // function populateEditForm(id) {
 
-      const offersData = JSON.parse(document.getElementById('offersData').value);
+    //   const offersData = JSON.parse(document.getElementById('offersData').value);
 
-      const offer = offersData.find(o => o._id === id);
-      if (offer) {
-        document.getElementById('editOfferId').value = offer._id;
-        document.getElementById('offerName').value = offer.name;
-        document.getElementById('offerType').value = offer.type;
-        document.getElementById('categoryOrProduct').value = offer.categoryOrProduct;
-        document.getElementById('discountType').value = offer.discountType;
-        document.getElementById('discountValue').value = offer.discountValue;
-        document.getElementById('startDate').value = offer.startDate.split('T')[0];
-        document.getElementById('endDate').value = offer.endDate.split('T')[0];
-        document.getElementById('status').value = offer.status;
-      }
+    //   const offer = offersData.find(o => o._id === id);
+    //   if (offer) {
+    //     document.getElementById('editOfferId').value = offer._id;
+    //     document.getElementById('offerName').value = offer.name;
+    //     document.getElementById('offerType').value = offer.type;
+    //     document.getElementById('categoryOrProduct').value = offer.categoryOrProduct;
+    //     document.getElementById('discountType').value = offer.discountType;
+    //     document.getElementById('discountValue').value = offer.discountValue;
+    //     document.getElementById('startDate').value = offer.startDate.split('T')[0];
+    //     document.getElementById('endDate').value = offer.endDate.split('T')[0];
+    //     document.getElementById('status').value = offer.status;
+    //   }
+    // }
+
+    function openEditOfferModal(offer) {
+      console.log(offer);
+
+      document.getElementById('editOfferId').value = offer.id;
+
+      document.getElementById('editOfferName').value = offer.name;
+      document.getElementById('editOfferType').value = offer.type;
+      document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
+      document.getElementById('editDiscountType').value = offer.discountType;
+      document.getElementById('editDiscountValue').value = offer.discountValue;
+
+      const startDate = new Date(offer.startDate);
+      const endDate = new Date(offer.endDate);
+      document.getElementById('editStartDate').value = startDate.toISOString().split('T')[0];
+      document.getElementById('editEndDate').value = endDate.toISOString().split('T')[0];
+
+      document.getElementById('editStatus').value = offer.status;
+
+      new bootstrap.Modal(document.getElementById('editOfferModal')).show();
     }
 
-
-    // Example for triggering the modal and pre-filling the form
-    // function openEditOfferModal(offer) {
-    //     // Pre-fill the form fields with offer data
-    //     document.getElementById('editOfferId').value = offer.id;
-    //     document.getElementById('editOfferName').value = offer.name;
-    //     document.getElementById('editOfferType').value = offer.type;
-    //     document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
-    //     document.getElementById('editDiscountType').value = offer.discountType;
-    //     document.getElementById('editDiscountValue').value = offer.discountValue;
-    //     document.getElementById('editStartDate').value = offer.startDate;
-    //     document.getElementById('editEndDate').value = offer.endDate;
-    //     document.getElementById('editStatus').value = offer.status;
-
-    //     // Open the modal
-    //     new bootstrap.Modal(document.getElementById('editOfferModal')).show();
-    // }
 
   </script>
 

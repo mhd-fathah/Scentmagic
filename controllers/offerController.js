@@ -51,6 +51,7 @@ const addOffer = async (req, res) => {
     const {
       name,
       type,
+      discountType,
       categoryOrProduct,
       discountValue,
       startDate,
@@ -63,6 +64,7 @@ const addOffer = async (req, res) => {
       name,
       type,
       categoryOrProduct,
+      discountType,
       discountValue,
       startDate,
       endDate,
