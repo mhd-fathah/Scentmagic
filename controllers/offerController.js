@@ -104,10 +104,10 @@ const addOffer = async (req, res) => {
       }
     }
 
-    res.status(201).json({ message: "Offer added and applied successfully" });
+   return res.status(201).json({success:true, message: "Offer added and applied successfully" });
   } catch (error) {
     console.error("Error adding offer:", error);
-    res.status(500).json({ message: "Error adding offer" });
+    return res.status(500).json({success:false, message: "Error adding offer" });
   }
 };
 
