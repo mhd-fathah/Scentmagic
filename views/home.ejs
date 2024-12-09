@@ -141,7 +141,7 @@
       </div>
     </div>
     <div class="row featured__filter">
-      <% relatedProducts.forEach(product=> { %>
+      <% relatedProducts.forEach(product => { %>
         <div class="col-lg-3 col-md-4 col-sm-6 mix <%= product.category.name.toLowerCase() %>">
           <div class="featured__item">
             <div class="featured__item__pic set-bg">
@@ -157,7 +157,7 @@
                     <i class="fa fa-heart"></i>
                   </a>
                 </li>
-
+    
                 <li>
                   <a href="#"><i class="fa fa-retweet"></i></a>
                 </li>
@@ -172,7 +172,7 @@
             <div class="featured__item__text">
               <h6>
                 <a href="/product/<%= product._id %>">
-                  <%= product.product_name.length> 50 ? product.product_name.substring(0, 50) + '...' :
+                  <%= product.product_name.length > 50 ? product.product_name.substring(0, 50) + '...' :
                     product.product_name %>
                 </a>
               </h6>
@@ -182,16 +182,20 @@
                     ₹<%= product.regular_price.toLocaleString() %>
                   </span>
               </h5>
-              <% if (product.stock_status==='in_stock' ) { %>
+              <% if (product.extra_offer_percentage > 0) { %>
+                <p style="color: rgb(255, 17, 0)"><%= product.extra_offer_percentage %>% Off</p>
+              <% } %>
+              <% if (product.stock_status === 'in_stock') { %>
                 <p style="color: green;">In Stock</p>
-                <% } else { %>
-                  <p style="color: red;">Out of Stock</p>
-                  <% } %>
+              <% } else { %>
+                <p style="color: red;">Out of Stock</p>
+              <% } %>
             </div>
           </div>
         </div>
-        <% }) %>
+      <% }) %>
     </div>
+    
 
   </div>
 </section>

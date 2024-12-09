@@ -127,305 +127,270 @@
     </header>
 
     <section class="content-main">
-        <div class="content-header">
-            <h2 class="content-title">Offers</h2>
-            <div>
-                <!-- Button to trigger Add Offer Modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOfferModal">
-                    Add New Offer
-                </button>
-            </div>
+      <div class="content-header">
+        <h2 class="content-title">Offers</h2>
+        <div>
+          <!-- Button to trigger Add Offer Modal -->
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+            Add New Offer
+          </button>
         </div>
-        <div class="card">
-            <div class="card-body">
-                <!-- Filters -->
-                <div class="row mb-4">
-                    <div class="col-lg-4 col-6">
-                        <input type="text" placeholder="Search offers..." class="form-control" id="offerSearch" />
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <select class="form-select" id="offerTypeFilter">
-                            <option value="">All Types</option>
-                            <option value="Category">Category Offer</option>
-                            <option value="Product">Product Offer</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <select class="form-select" id="offerStatusFilter">
-                            <option value="">All Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Scheduled">Scheduled</option>
-                        </select>
-                    </div>
-                </div>
-    
-                <!-- Offers Table -->
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Offer Name</th>
-                                <th>Type</th>
-                                <th>Category/Product</th>
-                                <th>Discount</th>
-                                <th>Min. Purchase</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Status</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% offers.forEach(offer => { %>
-                                <tr>
-                                    <td><b><%= offer.name %></b></td>
-                                    <td>
-                                        <div class="badge bg-<%= offer.type === 'Category' ? 'success' : 'info' %>">
-                                            <%= offer.type %>
-                                        </div>
-                                    </td>
-                                    <td><%= offer.categoryOrProduct %></td>
-                                    <td>
-                                        <%= offer.discountType === 'Percentage' ? `${offer.discountValue}%` : `$${offer.discountValue}` %>
-                                    </td>
-                                    <td>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <!-- Filters -->
+          <div class="row mb-4">
+            <div class="col-lg-4 col-6">
+              <input type="text" placeholder="Search offers..." class="form-control" id="offerSearch" />
+            </div>
+            <div class="col-lg-2 col-6">
+              <select class="form-select" id="offerTypeFilter">
+                <option value="">All Types</option>
+                <option value="Category">Category Offer</option>
+                <option value="Product">Product Offer</option>
+              </select>
+            </div>
+            <div class="col-lg-2 col-6">
+              <select class="form-select" id="offerStatusFilter">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Scheduled">Scheduled</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Offers Table -->
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Offer Name</th>
+                  <th>Type</th>
+                  <th>Category/Product</th>
+                  <th>Discount</th>
+                  <!-- <th>Min. Purchase</th> -->
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Status</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% offers.forEach(offer=> { %>
+                  <tr>
+                    <td><b>
+                        <%= offer.name %>
+                      </b></td>
+                    <td>
+                      <div class="badge bg-<%= offer.type === 'Category' ? 'success' : 'info' %>">
+                        <%= offer.type %>
+                      </div>
+                    </td>
+                    <td>
+                      <%= offer.categoryOrProduct %>
+                    </td>
+                    <td>
+                      <%= offer.discountType==='Percentage' ? `${offer.discountValue}%` : `$${offer.discountValue}` %>
+                    </td>
+                    <!-- <td>
                                         <%= offer.minPurchase ? `$${offer.minPurchase}` : 'N/A' %>
-                                    </td>
-                                    <td><%= new Date(offer.startDate).toLocaleDateString() %></td>
-                                    <td><%= new Date(offer.endDate).toLocaleDateString() %></td>
-                                    <td>
-                                        <span class="badge bg-<%= offer.status === 'Active' ? 'primary' : offer.status === 'Scheduled' ? 'warning' : 'secondary' %>">
-                                            <%= offer.status %>
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <!-- Trigger Edit Offer Modal -->
-                                        <button class="btn btn-sm btn-light font-sm rounded" data-bs-toggle="modal" data-bs-target="#editOfferModal" data-id="<%= offer._id %>" onclick="populateEditForm('<%= offer._id %>')">
-                                            Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger font-sm rounded ms-2" onclick="deleteOffer('<%= offer._id %>')">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                    </td> -->
+                    <td>
+                      <%= new Date(offer.startDate).toLocaleDateString() %>
+                    </td>
+                    <td>
+                      <%= new Date(offer.endDate).toLocaleDateString() %>
+                    </td>
+                    <td>
+                      <span
+                        class="badge bg-<%= offer.status === 'Active' ? 'primary' : offer.status === 'Scheduled' ? 'warning' : 'secondary' %>">
+                        <%= offer.status %>
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <!-- Trigger Edit Offer Modal -->
+                      <button class="btn btn-sm btn-light font-sm rounded" data-bs-toggle="modal"
+                        data-bs-target="#editOfferModal" data-id="<%= offer._id %>"
+                        onclick="populateEditForm('<%= offer._id %>')">
+                        Edit
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger font-sm rounded ms-2"
+                        onclick="deleteOffer('<%= offer._id %>')">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                  <% }); %>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </section>
-    
+
     <!-- Add Offer Modal -->
     <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-          <div class="modal-content" style="background-color: #222736;">
-              <form action="/admin/offers/add" method="POST">
-                  <div class="modal-header">
-                      <h5 class="modal-title text-white" id="addOfferModalLabel">Add New Offer</h5>
-                      <button
-                          type="button"
-                          class="btn-close"
-                          data-bs-dismiss="modal"
-                          aria-label="Close"
-                          style="background-color: white; color: black;"
-                      ></button>
-                  </div>
-                  <div class="modal-body">
-                      <!-- Offer Name -->
-                      <div class="mb-3">
-                          <label for="offerName" class="form-label text-white">Offer Name</label>
-                          <input
-                              type="text"
-                              class="form-control"
-                              id="offerName"
-                              name="name"
-                              placeholder="Enter the offer name"
-                              required
-                          />
-                      </div>
-  
-                      <!-- Offer Type -->
-                      <div class="mb-3">
-                          <label for="offerType" class="form-label text-white">Offer Type</label>
-                          <select
-                              class="form-select"
-                              id="offerType"
-                              name="type"
-                              onchange="loadOptions()"
-                              required
-                          >
-                              <option value="">Select Offer Type</option>
-                              <option value="Category">Category</option>
-                              <option value="Product">Product</option>
-                          </select>
-                      </div>
-  
-                      <!-- Dynamic Category or Product -->
-                      <div class="mb-3">
-                          <label for="categoryOrProduct" class="form-label text-white">Category or Product</label>
-                          <select
-                              class="form-select"
-                              id="categoryOrProduct"
-                              name="categoryOrProduct"
-                              required
-                          >
-                              <option value="">Select a value</option>
-                          </select>
-                      </div>
-  
-                      <!-- Discount Type -->
-                      <div class="mb-3">
-                          <label for="discountType" class="form-label text-white">Discount Type</label>
-                          <select class="form-select" id="discountType" name="discountType" required>
-                              <option value="">Select Discount Type</option>
-                              <option value="Percentage">Percentage</option>
-                              <option value="Fixed Amount">Fixed Amount</option>
-                          </select>
-                      </div>
-  
-                      <!-- Discount Value -->
-                      <div class="mb-3">
-                          <label for="discountValue" class="form-label text-white">Discount Value</label>
-                          <input
-                              type="number"
-                              class="form-control"
-                              id="discountValue"
-                              name="discountValue"
-                              placeholder="Enter discount value"
-                              min="0"
-                              step="0.01"
-                              required
-                          />
-                          <div class="form-text text-muted">
-                              For percentage discounts, use values between 0 and 100.
-                          </div>
-                      </div>
-  
-                      <!-- Start Date -->
-                      <div class="mb-3">
-                          <label for="startDate" class="form-label text-white">Start Date</label>
-                          <input
-                              type="date"
-                              class="form-control"
-                              id="startDate"
-                              name="startDate"
-                              required
-                          />
-                      </div>
-  
-                      <!-- End Date -->
-                      <div class="mb-3">
-                          <label for="endDate" class="form-label text-white">End Date</label>
-                          <input
-                              type="date"
-                              class="form-control"
-                              id="endDate"
-                              name="endDate"
-                              required
-                          />
-                          <div class="form-text text-muted">
-                              Ensure the end date is after the start date.
-                          </div>
-                      </div>
-  
-                      <!-- Status -->
-                      <div class="mb-3">
-                          <label for="status" class="form-label text-white">Status</label>
-                          <select class="form-select" id="status" name="status" required>
-                              <option value="">Select Status</option>
-                              <option value="Active">Active</option>
-                              <option value="Inactive">Inactive</option>
-                              <option value="Scheduled">Scheduled</option>
-                          </select>
-                      </div>
-  
-                      <!-- Description -->
-                      <div class="mb-3">
-                          <label for="description" class="form-label text-white">Description</label>
-                          <textarea
-                              class="form-control"
-                              id="description"
-                              name="description"
-                              rows="3"
-                              placeholder="Provide a short description of the offer (optional)"
-                          ></textarea>
-                      </div>
-                  </div>
-  
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Add Offer</button>
-                  </div>
-              </form>
-          </div>
+        <div class="modal-content" style="background-color: #222736;">
+          <form action="/admin/offers/add" method="POST">
+            <div class="modal-header">
+              <h5 class="modal-title text-white" id="addOfferModalLabel">Add New Offer</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                style="background-color: white; color: black;"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Offer Name -->
+              <div class="mb-3">
+                <label for="offerName" class="form-label text-white">Offer Name</label>
+                <input type="text" class="form-control" id="offerName" name="name" placeholder="Enter the offer name"
+                  required />
+              </div>
+
+              <!-- Offer Type -->
+              <div class="mb-3">
+                <label for="offerType" class="form-label text-white">Offer Type</label>
+                <select class="form-select" id="offerType" name="type" onchange="loadOptions()" required>
+                  <option value="">Select Offer Type</option>
+                  <option value="Category">Category</option>
+                  <option value="Product">Product</option>
+                </select>
+              </div>
+
+              <!-- Dynamic Category or Product -->
+              <div class="mb-3">
+                <label for="categoryOrProduct" class="form-label text-white">Category or Product</label>
+                <select class="form-select" id="categoryOrProduct" name="categoryOrProduct" required>
+                  <option value="">Select a value</option>
+                </select>
+              </div>
+
+              <!-- Discount Type -->
+              <div class="mb-3">
+                <label for="discountType" class="form-label text-white">Discount Type</label>
+                <select class="form-select" id="discountType" name="discountType" required>
+                  <option value="">Select Discount Type</option>
+                  <option value="Percentage">Percentage</option>
+                  <option value="Fixed Amount">Fixed Amount</option>
+                </select>
+              </div>
+
+              <!-- Discount Value -->
+              <div class="mb-3">
+                <label for="discountValue" class="form-label text-white">Discount Value</label>
+                <input type="number" class="form-control" id="discountValue" name="discountValue"
+                  placeholder="Enter discount value" min="0" step="0.01" required />
+                <div class="form-text text-muted">
+                  For percentage discounts, use values between 0 and 100.
+                </div>
+              </div>
+
+              <!-- Start Date -->
+              <div class="mb-3">
+                <label for="startDate" class="form-label text-white">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="startDate" required />
+              </div>
+
+              <!-- End Date -->
+              <div class="mb-3">
+                <label for="endDate" class="form-label text-white">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="endDate" required />
+                <div class="form-text text-muted">
+                  Ensure the end date is after the start date.
+                </div>
+              </div>
+
+              <!-- Status -->
+              <div class="mb-3">
+                <label for="status" class="form-label text-white">Status</label>
+                <select class="form-select" id="status" name="status" required>
+                  <option value="">Select Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Scheduled">Scheduled</option>
+                </select>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <label for="description" class="form-label text-white">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"
+                  placeholder="Provide a short description of the offer (optional)"></textarea>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Add Offer</button>
+            </div>
+          </form>
+        </div>
       </div>
-  </div>
-  
-    
+    </div>
+
+
     <!-- Edit Offer Modal -->
     <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="background-color: #222736;">
-                <form id="editOfferForm" action="/offers/edit" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="editOfferName" class="form-label">Offer Name</label>
-                            <input type="text" class="form-control" id="editOfferName" name="name" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="editOfferType" class="form-label">Offer Type</label>
-                            <select class="form-select" id="editOfferType" name="type" required>
-                                <option value="Category">Category</option>
-                                <option value="Product">Product</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCategoryOrProduct" class="form-label">Category or Product</label>
-                            <input type="text" class="form-control" id="editCategoryOrProduct" name="categoryOrProduct" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="editDiscountType" class="form-label">Discount Type</label>
-                            <select class="form-select" id="editDiscountType" name="discountType" required>
-                                <option value="Percentage">Percentage</option>
-                                <option value="Fixed Amount">Fixed Amount</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editDiscountValue" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" id="editDiscountValue" name="discountValue" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="editStartDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="editStartDate" name="startDate" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="editEndDate" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="editEndDate" name="endDate" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="editStatus" class="form-label">Status</label>
-                            <select class="form-select" id="editStatus" name="status" required>
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                                <option value="Scheduled">Scheduled</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #222736;">
+          <form id="editOfferForm" action="/offers/edit" method="POST">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="editOfferName" class="form-label">Offer Name</label>
+                <input type="text" class="form-control" id="editOfferName" name="name" required />
+              </div>
+              <div class="mb-3">
+                <label for="editOfferType" class="form-label">Offer Type</label>
+                <select class="form-select" id="editOfferType" name="type" required>
+                  <option value="Category">Category</option>
+                  <option value="Product">Product</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editCategoryOrProduct" class="form-label">Category or Product</label>
+                <input type="text" class="form-control" id="editCategoryOrProduct" name="categoryOrProduct" required />
+              </div>
+              <div class="mb-3">
+                <label for="editDiscountType" class="form-label">Discount Type</label>
+                <select class="form-select" id="editDiscountType" name="discountType" required>
+                  <option value="Percentage">Percentage</option>
+                  <option value="Fixed Amount">Fixed Amount</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="editDiscountValue" class="form-label">Discount Value</label>
+                <input type="number" class="form-control" id="editDiscountValue" name="discountValue" required />
+              </div>
+              <div class="mb-3">
+                <label for="editStartDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="editStartDate" name="startDate" required />
+              </div>
+              <div class="mb-3">
+                <label for="editEndDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="editEndDate" name="endDate" required />
+              </div>
+              <div class="mb-3">
+                <label for="editStatus" class="form-label">Status</label>
+                <select class="form-select" id="editStatus" name="status" required>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Scheduled">Scheduled</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
-    
+
     <input type="hidden" id="offersData" value='<%- JSON.stringify(offers) %>' />
 
 
@@ -441,72 +406,72 @@
     </footer>
   </main>
 
-<script>
-  function deleteOffer(offerId) {
-    if (confirm("Are you sure you want to delete this offer?")) {
+  <script>
+    function deleteOffer(offerId) {
+      if (confirm("Are you sure you want to delete this offer?")) {
         fetch(`/admin/offers/delete/${offerId}`, {
-            method: "DELETE", // HTTP DELETE request
-            headers: {
-                "Content-Type": "application/json",
-            },
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         })
-        .then((response) => {
+          .then((response) => {
             if (response.ok) {
-                alert("Offer deleted successfully.");
-                // Optionally reload the page or update the UI dynamically
-                location.reload(); // Reload the page to reflect changes
+              alert("Offer deleted successfully.");
+
+              location.reload();
             } else {
-                return response.json().then((data) => {
-                    throw new Error(data.message || "Error deleting offer.");
-                });
+              return response.json().then((data) => {
+                throw new Error(data.message || "Error deleting offer.");
+              });
             }
-        })
-        .catch((error) => {
+          })
+          .catch((error) => {
             console.error("Error deleting offer:", error);
             alert(error.message);
-        });
+          });
+      }
     }
-}
-</script>
+  </script>
 
   <script>
-   async function loadOptions() {
-    const offerType = document.getElementById("offerType").value; // Get the selected offer type
-    const categoryOrProduct = document.getElementById("categoryOrProduct"); // Target the dropdown
+    async function loadOptions() {
+      const offerType = document.getElementById("offerType").value;
+      const categoryOrProduct = document.getElementById("categoryOrProduct");
 
-    // Clear existing options
-    categoryOrProduct.innerHTML = '<option value="">Select a value</option>';
 
-    if (!offerType) return; // Exit if no offer type is selected
+      categoryOrProduct.innerHTML = '<option value="">Select a value</option>';
 
-    try {
-        // Set the endpoint based on the offer type
+      if (!offerType) return;
+
+      try {
+
         const endpoint = `/admin/offers/${offerType.toLowerCase()}`;
         const response = await fetch(endpoint, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json", // Ensure content type is JSON
-            },
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
 
-        // Populate the dropdown with options from the fetched data
+
         data.forEach((item) => {
-            const option = document.createElement("option");
-            option.value = item._id; // Use _id as the value
-            option.textContent = item.product_name || item.name; // Display name or product_name
-            categoryOrProduct.appendChild(option);
+          const option = document.createElement("option");
+          option.value = item._id;
+          option.textContent = item.product_name || item.name;
+          categoryOrProduct.appendChild(option);
         });
-    } catch (error) {
-        console.error("Error fetching data:", error); // Log the error for debugging
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }
-}
 
 
-</script>
+  </script>
 
   <!-- <script>
     document.getElementById('offerType').addEventListener('change', async function () {
@@ -538,13 +503,13 @@
 
 
   <script>
-    // Populate edit form with selected offer data
-    function populateEditForm(id) {
-    // Get offers data from the hidden input
-    const offersData = JSON.parse(document.getElementById('offersData').value);
 
-    const offer = offersData.find(o => o._id === id);
-    if (offer) {
+    function populateEditForm(id) {
+
+      const offersData = JSON.parse(document.getElementById('offersData').value);
+
+      const offer = offersData.find(o => o._id === id);
+      if (offer) {
         document.getElementById('editOfferId').value = offer._id;
         document.getElementById('offerName').value = offer.name;
         document.getElementById('offerType').value = offer.type;
@@ -554,28 +519,28 @@
         document.getElementById('startDate').value = offer.startDate.split('T')[0];
         document.getElementById('endDate').value = offer.endDate.split('T')[0];
         document.getElementById('status').value = offer.status;
+      }
     }
-}
 
 
     // Example for triggering the modal and pre-filling the form
-// function openEditOfferModal(offer) {
-//     // Pre-fill the form fields with offer data
-//     document.getElementById('editOfferId').value = offer.id;
-//     document.getElementById('editOfferName').value = offer.name;
-//     document.getElementById('editOfferType').value = offer.type;
-//     document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
-//     document.getElementById('editDiscountType').value = offer.discountType;
-//     document.getElementById('editDiscountValue').value = offer.discountValue;
-//     document.getElementById('editStartDate').value = offer.startDate;
-//     document.getElementById('editEndDate').value = offer.endDate;
-//     document.getElementById('editStatus').value = offer.status;
+    // function openEditOfferModal(offer) {
+    //     // Pre-fill the form fields with offer data
+    //     document.getElementById('editOfferId').value = offer.id;
+    //     document.getElementById('editOfferName').value = offer.name;
+    //     document.getElementById('editOfferType').value = offer.type;
+    //     document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
+    //     document.getElementById('editDiscountType').value = offer.discountType;
+    //     document.getElementById('editDiscountValue').value = offer.discountValue;
+    //     document.getElementById('editStartDate').value = offer.startDate;
+    //     document.getElementById('editEndDate').value = offer.endDate;
+    //     document.getElementById('editStatus').value = offer.status;
 
-//     // Open the modal
-//     new bootstrap.Modal(document.getElementById('editOfferModal')).show();
-// }
+    //     // Open the modal
+    //     new bootstrap.Modal(document.getElementById('editOfferModal')).show();
+    // }
 
-</script>
+  </script>
 
   <% if (message) { %>
     <script>

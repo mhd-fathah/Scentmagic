@@ -10,7 +10,6 @@ const Category = require("../models/categories");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
 const mongoose = require("mongoose");
-const { title } = require("process");
 
 const signupUser = async (req, res) => {
   try {
@@ -250,11 +249,55 @@ const loadHome = async (req, res) => {
       .populate("category", "name")
       .lean();
 
+    latestProducts.forEach((product) => {
+      if (product.regular_price > product.discount_price) {
+        product.extra_offer_percentage = Math.round(
+          ((product.regular_price - product.discount_price) /
+            product.regular_price) *
+            100
+        );
+      } else {
+        product.extra_offer_percentage = 0;
+      }
+    });
+
+    relatedProducts.forEach((product) => {
+      if (product.regular_price > product.discount_price) {
+        product.extra_offer_percentage = Math.round(
+          ((product.regular_price - product.discount_price) /
+            product.regular_price) *
+            100
+        );
+      } else {
+        product.extra_offer_percentage = 0;
+      }
+    });
+
+    const discountedProducts = await Product.find({
+      isDeleted: false,
+      discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") },
+    })
+      .populate("category", "name")
+      .lean();
+
+    discountedProducts.forEach((product) => {
+      if (product.regular_price > product.discount_price) {
+        product.extra_offer_percentage = Math.round(
+          ((product.regular_price - product.discount_price) /
+            product.regular_price) *
+            100
+        );
+      } else {
+        product.extra_offer_percentage = 0;
+      }
+    });
+
     res.render("home", {
       title: "Home",
       categories,
       latestProducts,
       relatedProducts,
+      discountedProducts,
     });
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -553,26 +596,22 @@ const searchProducts = async (query, categoryId = null) => {
 
 const getProductsPage = async (req, res) => {
   try {
-    // Fetch categories
     const categories = await Category.find({ isDeleted: false });
 
-    // Handle sorting option
     const sortOption = req.query.sort || "price_asc";
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
     const skip = (page - 1) * limit;
 
-    // Handle category filter
     const categoryId = req.query.category;
     const category = categoryId ? await Category.findById(categoryId) : null;
 
     let filter = { isDeleted: false };
 
     if (categoryId) {
-      filter.category = categoryId; // Filter by category
+      filter.category = categoryId;
     }
 
-    // Handle price range filter
     const { minPrice, maxPrice } = req.query;
     if (minPrice) {
       filter.discount_price = { $gte: parseFloat(minPrice) };
@@ -583,28 +622,24 @@ const getProductsPage = async (req, res) => {
         : { $lte: parseFloat(maxPrice) };
     }
 
-    // Define sort criteria
     let sortCriteria = {};
     if (sortOption === "price_asc") sortCriteria = { discount_price: 1 };
     if (sortOption === "price_desc") sortCriteria = { discount_price: -1 };
     if (sortOption === "name_asc") sortCriteria = { product_name: 1 };
     if (sortOption === "name_desc") sortCriteria = { product_name: -1 };
 
-    // Fetch products with filters, sorting, and pagination
     const products = await Product.find(filter)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit)
       .populate("category")
-      .lean(); // Ensures virtual fields like total_discount_price are resolved
+      .lean();
 
-    // Ensure virtual field `total_discount_price` is calculated
     products.forEach((product) => {
       product.total_discount_price =
         product.total_discount_price ?? product.discount_price;
     });
 
-    // Fetch discounted products for display (only products with a discount)
     const discountedProducts = await Product.find({
       isDeleted: false,
       discount_price: { $lt: mongoose.Types.Decimal128.fromString("Infinity") },
@@ -612,11 +647,9 @@ const getProductsPage = async (req, res) => {
       .populate("category")
       .lean();
 
-    // Calculate total product count and total pages
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Handle AJAX requests
     if (req.headers["x-requested-with"] === "XMLHttpRequest") {
       return res.json({
         products,
@@ -628,7 +661,6 @@ const getProductsPage = async (req, res) => {
       });
     }
 
-    // Render shop page for normal requests
     res.render("shop", {
       title: "Shop",
       categories,
@@ -645,7 +677,6 @@ const getProductsPage = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 const loadMyAccount = async (req, res) => {
   try {
@@ -930,12 +961,10 @@ const deleteAddress = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Address not found or user does not exist.",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Address not found or user does not exist.",
+      });
     }
 
     await User.updateOne(
@@ -946,12 +975,10 @@ const deleteAddress = async (req, res) => {
     res.json({ success: true, message: "Address deleted successfully!" });
   } catch (err) {
     console.error("Error deleting address:", err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while deleting the address.",
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the address.",
+    });
   }
 };
 
@@ -1025,7 +1052,7 @@ const notifyUser = async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: "Gmail", 
+      service: "Gmail",
       auth: {
         user: "fathu6214@gmail.com",
         pass: process.env.EMAIL_PASSWORD,
@@ -1078,5 +1105,5 @@ module.exports = {
   updateAddress,
   deleteAddress,
   loadCheckout,
-  notifyUser
+  notifyUser,
 };

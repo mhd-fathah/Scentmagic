@@ -243,6 +243,9 @@
                                                 ₹<%= product.discount_price %>
                                                     <span>₹<%= product.regular_price %></span>
                                             </div>
+                                            <% if (product.extra_offer_percentage > 0) { %>
+                                                <p style="color: rgb(214, 2, 2); font-weight: bold;">Extra Offer: <%= product.extra_offer_percentage %>%</p>
+                                              <% } %>
                                             <% if (product.stock_status==='in_stock' ) { %>
                                                 <p style="color: green">In Stock</p>
                                                 <% } else { %>
@@ -339,7 +342,7 @@
                               </span>
                             </h5>
                             <% if (product.extra_offer_percentage > 0) { %>
-                              <p style="color: blue">Extra Offer: <%= product.extra_offer_percentage %>%</p>
+                              <p style="color: rgb(214, 2, 2); font-weight: bold;">Extra Offer: <%= product.extra_offer_percentage %>%</p>
                             <% } %>
                             <% if (product.stock_status === "in_stock") { %>
                               <p style="color: green">In Stock</p>

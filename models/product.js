@@ -6,8 +6,8 @@ const productSchema = new mongoose.Schema({
   shortDescription: { type: String, required: true },
   longDescription: { type: String },
   regular_price: { type: Number, required: true },
-  discount_price: { type: Number, required: true }, // Current discount price
-  previous_discount_price: { type: Number }, // Previous discount price
+  discount_price: { type: Number, required: true },
+  previous_discount_price: { type: Number },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
@@ -26,7 +26,6 @@ const productSchema = new mongoose.Schema({
   extra_offer_percentage: { type: Number, default: 0 },
 });
 
-// Virtual field for calculating total discounted price
 productSchema.virtual("total_discount_price").get(function () {
   if (this.regular_price && this.discount_price) {
     const extraDiscount =
