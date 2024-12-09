@@ -4,16 +4,30 @@ const Product = require("../models/product");
 
 const getOffers = async (req, res) => {
   try {
-    const offers = await Offer.find().populate({
+    const { status, type, search } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (type) filter.type = type;
+
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    const offers = await Offer.find(filter).populate({
       path: "categoryOrProduct",
       select: "name product_name",
     });
+
     const message = req.query.message || null;
-    const status = req.query.status || "error";
+    const responseStatus = req.query.status || "error";
+
     res.render("admin/offer-management", {
       offers,
       message,
-      status,
+      status: responseStatus,
+      type,
+      search,
       layout: false,
     });
   } catch (error) {
@@ -195,12 +209,10 @@ const editOffer = async (req, res) => {
       }
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Offer updated and applied successfully",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Offer updated and applied successfully",
+    });
   } catch (error) {
     console.error("Error updating offer:", error);
     return res

@@ -16,77 +16,77 @@
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
-            <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard">
-        </a>
-        <div>
-            <button class="btn btn-icon btn-aside-minimize text-muted">
-                <i class="fas fa-bars"></i> 
-              </button>
-              
-        </div>
+      <a href="index.html" class="brand-wrap">
+        <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard">
+      </a>
+      <div>
+        <button class="btn btn-icon btn-aside-minimize text-muted">
+          <i class="fas fa-bars"></i>
+        </button>
+
+      </div>
     </div>
     <nav>
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/dashboard">
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products">
-              <span class="text">Products</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/categories">
-              <span class="text" >Categories</span>
-            </a>
-          </li>
-          
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/orders">
-              <span class="text" >Orders</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/users">
-              <span class="text" >Users</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products/add">
-              <span class="text">Add Product</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/coupon">
-              <span class="text">Coupons</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/offers">
-              <span class="text">Offers</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Reviews</span>
-            </a>
-          </li>
-        </ul>
-        <hr />
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Account</span>
-            </a>
-          </li>
-        </ul>
-        <br />
-        <br />
-      </nav>
-</aside>
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/dashboard">
+            <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products">
+            <span class="text">Products</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/categories">
+            <span class="text">Categories</span>
+          </a>
+        </li>
+
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/orders">
+            <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/users">
+            <span class="text">Users</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products/add">
+            <span class="text">Add Product</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/coupon">
+            <span class="text">Coupons</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/offers">
+            <span class="text">Offers</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Reviews</span>
+          </a>
+        </li>
+      </ul>
+      <hr />
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Account</span>
+          </a>
+        </li>
+      </ul>
+      <br />
+      <br />
+    </nav>
+  </aside>
   <main class="main-wrap">
     <header class="main-header navbar">
       <div class="col-nav d-flex justify-content-end align-items-center w-100">
@@ -136,7 +136,6 @@
       <div class="content-header">
         <h2 class="content-title">Offers</h2>
         <div>
-          <!-- Button to trigger Add Offer Modal -->
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOfferModal">
             Add New Offer
           </button>
@@ -144,26 +143,30 @@
       </div>
       <div class="card">
         <div class="card-body">
-          <!-- Filters -->
+
           <div class="row mb-4">
             <div class="col-lg-4 col-6">
-              <input type="text" placeholder="Search offers..." class="form-control" id="offerSearch" />
+              <input type="text" placeholder="Search offers..." class="form-control" id="offerSearch"
+                value="<%= search || '' %>" />
             </div>
+
             <div class="col-lg-2 col-6">
               <select class="form-select" id="offerTypeFilter">
-                <option value="">All Types</option>
-                <option value="Category">Category Offer</option>
-                <option value="Product">Product Offer</option>
+                <option value="" <%=!type ? "selected" : "" %>>All Types</option>
+                <option value="Category" <%=type==="Category" ? "selected" : "" %>>Category Offer</option>
+                <option value="Product" <%=type==="Product" ? "selected" : "" %>>Product Offer</option>
               </select>
             </div>
+
             <div class="col-lg-2 col-6">
               <select class="form-select" id="offerStatusFilter">
-                <option value="">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Scheduled">Scheduled</option>
+                <option value="" <%=!status ? "selected" : "" %>>All Status</option>
+                <option value="Active" <%=status==="Active" ? "selected" : "" %>>Active</option>
+                <option value="Inactive" <%=status==="Inactive" ? "selected" : "" %>>Inactive</option>
+                <option value="Scheduled" <%=status==="Scheduled" ? "selected" : "" %>>Scheduled</option>
               </select>
             </div>
+
           </div>
 
           <!-- Offers Table -->
@@ -215,7 +218,7 @@
                       </span>
                     </td>
                     <td class="text-end">
-                      <!-- Trigger Edit Offer Modal -->
+
                       <button class="btn btn-sm btn-light font-sm rounded" data-bs-toggle="modal"
                         data-bs-target="#editOfferModal-<%= offer._id %>">
                         Edit
@@ -355,7 +358,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-              
+
                 <input type="hidden" id="editOfferId" name="id" value="<%= offer._id %>" />
 
                 <div class="mb-3">
@@ -371,14 +374,14 @@
                     <option value="Category" <%=offer.type==="Category" ? "selected" : "" %>>Category</option>
                     <option value="Product" <%=offer.type==="Product" ? "selected" : "" %>>Product</option>
                   </select>
-                  <span id="errorOfferType" class="text-danger"></span> 
+                  <span id="errorOfferType" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                   <label for="editCategoryOrProduct" class="form-label">Category or Product</label>
                   <input type="text" class="form-control" id="editCategoryOrProduct" name="categoryOrProduct"
                     value="<%= offer.categoryOrProduct %>" />
-                  <span id="errorCategoryOrProduct" class="text-danger"></span> 
+                  <span id="errorCategoryOrProduct" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -389,7 +392,7 @@
                     <option value="Fixed Amount" <%=offer.discountType==="Fixed Amount" ? "selected" : "" %>>Fixed
                       Amount</option>
                   </select>
-                  <span id="errorDiscountType" class="text-danger"></span> 
+                  <span id="errorDiscountType" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -410,7 +413,7 @@
                   <label for="editEndDate" class="form-label">End Date</label>
                   <input type="date" class="form-control" id="editEndDate" name="endDate"
                     value="<%= offer.endDate.toISOString().split('T')[0] %>" />
-                  <span id="errorEndDate" class="text-danger"></span> 
+                  <span id="errorEndDate" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -442,7 +445,9 @@
         <footer class="main-footer font-xs">
           <div class="row pb-30 pt-15">
             <div class="col-sm-6">
-              <script>document.write(new Date().getFullYear());</script> © Scentmagic - Perfume Ecommerce Template.
+              <script>
+                document.write(new Date().getFullYear());
+              </script> © Scentmagic - Perfume Ecommerce Template.
             </div>
             <div class="col-sm-6">
               <div class="text-sm-end">All rights reserved</div>
@@ -452,6 +457,34 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const offerSearch = document.getElementById("offerSearch");
+      const offerTypeFilter = document.getElementById("offerTypeFilter");
+      const offerStatusFilter = document.getElementById("offerStatusFilter");
+
+      function updateFilters() {
+        const status = offerStatusFilter.value;
+        const type = offerTypeFilter.value;
+        const search = offerSearch.value;
+
+        window.location.href = `/admin/offers?status=${status}&type=${type}&search=${search}`;
+      }
+
+      offerSearch.addEventListener("input", function () {
+
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(updateFilters, 500);
+      });
+
+      offerTypeFilter.addEventListener("change", updateFilters);
+      offerStatusFilter.addEventListener("change", updateFilters);
+    });
+  </script>
+
+
+
 
   <script>
     document.getElementById("editOfferForm").addEventListener("submit", async (e) => {
@@ -562,8 +595,6 @@
 
       return isValid;
     }
-
-
   </script>
 
 
@@ -756,7 +787,6 @@
 
 
   <script>
-
     // function populateEditForm(id) {
 
     //   const offersData = JSON.parse(document.getElementById('offersData').value);
@@ -795,8 +825,6 @@
 
     //   new bootstrap.Modal(document.getElementById('editOfferModal')).show();
     // }
-
-
   </script>
 
   <% if (message) { %>

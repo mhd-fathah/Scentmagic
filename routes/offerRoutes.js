@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const offerController = require('../controllers/offerController'); 
+const auth = require('../middleware/adminAuth')
+
+router.use('/offers',auth.isAdminAuthenticated)
 
 router.get('/offers', offerController.getOffers);
 
