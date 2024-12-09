@@ -37,7 +37,7 @@ body {
 }
 
 .apply-btn {
-    background: #2874f0;
+    background: #f714f0eb;
     color: white;
     border: none;
     padding: 0.5rem 2rem;
@@ -46,9 +46,19 @@ body {
 }
 
 .apply-btn:hover {
-    background: #1c4f9c;
+    background: #dd12d6eb;
 }
-
+.remove-btn{
+    color: white;
+    border: none;
+    padding: 0.5rem 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    background: red;
+}
+.remove-btn:hover{
+    background: rgb(138, 4, 4);
+}
 .checkout-grid {
     display: grid;
     grid-template-columns: 1fr 350px;

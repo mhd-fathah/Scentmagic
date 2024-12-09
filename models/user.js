@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   ],
   wallet: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Wallet", // Reference to the Wallet model
+    ref: "Wallet", 
   },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },

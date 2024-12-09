@@ -10,7 +10,7 @@ const Category = require("../models/categories");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
 const mongoose = require("mongoose");
-const Coupon = require('../models/coupon')
+const Coupon = require("../models/coupon");
 
 const signupUser = async (req, res) => {
   try {
@@ -987,7 +987,6 @@ const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user._id;
 
-    // Fetch user details
     const user = await User.findById(userId)
       .select("name addresses mobile")
       .lean();
@@ -998,7 +997,6 @@ const loadCheckout = async (req, res) => {
     const addresses =
       user.addresses && user.addresses.length > 0 ? user.addresses : null;
 
-    // Fetch cart details
     const cart = await Cart.findOne({ user: userId })
       .populate("items.productId", "product_name discount_price")
       .lean();
@@ -1030,13 +1028,12 @@ const loadCheckout = async (req, res) => {
     const deliveryCharges = 0;
     const totalAmount = totalPrice + deliveryCharges;
 
-    // Fetch available coupons
     const today = new Date();
     const coupons = await Coupon.find({
       status: "active",
       validFrom: { $lte: today },
       validUntil: { $gte: today },
-      minPurchase: { $lte: totalPrice }, // Coupons applicable to the current cart amount
+      minPurchase: { $lte: totalPrice },
     }).lean();
 
     res.render("my account/checkout", {
@@ -1049,7 +1046,7 @@ const loadCheckout = async (req, res) => {
       totalPrice,
       deliveryCharges,
       totalAmount,
-      coupons, // Pass coupons to the template
+      coupons,
     });
   } catch (error) {
     console.error("Error fetching checkout data:", error);
@@ -1073,20 +1070,64 @@ const applyCoupon = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired coupon." });
     }
 
-    res.json({ message: `${coupon.discount}${coupon.type === "percentage" ? "%" : "₹"} discount applied!` });
+    const cart = await Cart.findOne({ user: req.session.user._id })
+      .populate("items.productId", "discount_price")
+      .lean();
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found." });
+    }
+
+    const totalPrice = cart.items.reduce(
+      (total, item) => total + item.productId.discount_price * item.quantity,
+      0
+    );
+
+    let discount = 0;
+    if (coupon.type === "percentage") {
+      discount = (coupon.discount / 100) * totalPrice;
+    } else if (coupon.type === "fixed") {
+      discount = coupon.discount;
+    }
+
+    const totalAmount = totalPrice - discount;
+
+    res.json({
+      message: `${coupon.discount}${
+        coupon.type === "percentage" ? "%" : "₹"
+      } discount applied!`,
+      discount,
+      totalAmount,
+    });
   } catch (error) {
     console.error("Error applying coupon:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
-const removeCoupon = (req, res) => {
+const removeCoupon = async (req, res) => {
   try {
-    // Simulate coupon removal process (no need to save anything in the DB as per your request)
-    return res.json({ success: true, message: "Coupon removed successfully!" });
+    const cart = await Cart.findOne({ user: req.session.user._id })
+      .populate("items.productId", "discount_price")
+      .lean();
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found." });
+    }
+
+    const totalPrice = cart.items.reduce(
+      (total, item) => total + item.productId.discount_price * item.quantity,
+      0
+    );
+
+    return res.json({
+      success: true,
+      message: "Coupon removed successfully!",
+      totalAmount: totalPrice,
+    });
   } catch (error) {
     console.error("Error removing coupon:", error);
-    return res.status(500).json({ message: "An error occurred. Please try again." });
+    return res
+      .status(500)
+      .json({ message: "An error occurred. Please try again." });
   }
 };
 
@@ -1154,5 +1195,5 @@ module.exports = {
   loadCheckout,
   notifyUser,
   applyCoupon,
-  removeCoupon
+  removeCoupon,
 };
