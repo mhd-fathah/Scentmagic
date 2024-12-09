@@ -211,17 +211,7 @@
                     <td class="text-end">
                       <!-- Trigger Edit Offer Modal -->
                       <button class="btn btn-sm btn-light font-sm rounded" data-bs-toggle="modal"
-                        data-bs-target="#editOfferModal" onclick='openEditOfferModal({
-                          id: "<%= offer._id %>",
-                          name: "<%= offer.name %>",
-                          type: "<%= offer.type %>",
-                          categoryOrProduct: "<%= offer.categoryOrProduct %>",
-                          discountType: "<%= offer.discountType %>",
-                          discountValue: "<%= offer.discountValue %>",
-                          startDate: "<%= offer.startDate %>",
-                          endDate: "<%= offer.endDate %>",
-                          status: "<%= offer.status %>"
-                      })'>
+                        data-bs-target="#editOfferModal-<%= offer._id %>">
                         Edit
                       </button>
 
@@ -347,140 +337,226 @@
 
 
     <!-- Edit Offer Modal -->
-    <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background-color: #222736;">
-          <form id="editOfferForm" action="/admin/offers/edit" method="POST">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <!-- Hidden Input for Offer ID -->
-              <input type="hidden" id="editOfferId" name="id" />
+    <% offers.forEach(offer=> { %>
+      <!-- Modal for Editing Each Offer -->
+      <div class="modal fade" id="editOfferModal-<%= offer._id %>" tabindex="-1" aria-labelledby="editOfferModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content" style="background-color: #222736;">
+            <form id="editOfferForm" action="/admin/offers/edit" method="POST">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+              
+                <input type="hidden" id="editOfferId" name="id" value="<%= offer._id %>" />
 
-              <div class="mb-3">
-                <label for="editOfferName" class="form-label">Offer Name</label>
-                <input type="text" class="form-control" id="editOfferName" name="name" required />
+                <div class="mb-3">
+                  <label for="editOfferName" class="form-label">Offer Name</label>
+                  <small class="text-muted d-block">Existing: <%= offer.name %></small>
+                  <input type="text" class="form-control" id="editOfferName" name="name" value="<%= offer.name %>" />
+                  <span id="errorOfferName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editOfferType" class="form-label">Offer Type</label>
+                  <select class="form-select" id="editOfferType" name="type">
+                    <option value="Category" <%=offer.type==="Category" ? "selected" : "" %>>Category</option>
+                    <option value="Product" <%=offer.type==="Product" ? "selected" : "" %>>Product</option>
+                  </select>
+                  <span id="errorOfferType" class="text-danger"></span> 
+                </div>
+
+                <div class="mb-3">
+                  <label for="editCategoryOrProduct" class="form-label">Category or Product</label>
+                  <input type="text" class="form-control" id="editCategoryOrProduct" name="categoryOrProduct"
+                    value="<%= offer.categoryOrProduct %>" />
+                  <span id="errorCategoryOrProduct" class="text-danger"></span> 
+                </div>
+
+                <div class="mb-3">
+                  <label for="editDiscountType" class="form-label">Discount Type</label>
+                  <select class="form-select" id="editDiscountType" name="discountType">
+                    <option value="Percentage" <%=offer.discountType==="Percentage" ? "selected" : "" %>>Percentage
+                    </option>
+                    <option value="Fixed Amount" <%=offer.discountType==="Fixed Amount" ? "selected" : "" %>>Fixed
+                      Amount</option>
+                  </select>
+                  <span id="errorDiscountType" class="text-danger"></span> 
+                </div>
+
+                <div class="mb-3">
+                  <label for="editDiscountValue" class="form-label">Discount Value</label>
+                  <input type="number" class="form-control" id="editDiscountValue" name="discountValue"
+                    value="<%= offer.discountValue %>" />
+                  <span id="errorDiscountValue" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editStartDate" class="form-label">Start Date</label>
+                  <input type="date" class="form-control" id="editStartDate" name="startDate"
+                    value="<%= offer.startDate.toISOString().split('T')[0] %>" />
+                  <span id="errorStartDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editEndDate" class="form-label">End Date</label>
+                  <input type="date" class="form-control" id="editEndDate" name="endDate"
+                    value="<%= offer.endDate.toISOString().split('T')[0] %>" />
+                  <span id="errorEndDate" class="text-danger"></span> 
+                </div>
+
+                <div class="mb-3">
+                  <label for="editStatus" class="form-label">Status</label>
+                  <select class="form-select" id="editStatus" name="status">
+                    <option value="Active" <%=offer.status==="Active" ? "selected" : "" %>>Active</option>
+                    <option value="Inactive" <%=offer.status==="Inactive" ? "selected" : "" %>>Inactive</option>
+                    <option value="Scheduled" <%=offer.status==="Scheduled" ? "selected" : "" %>>Scheduled</option>
+                  </select>
+                  <span id="errorStatus" class="text-danger"></span>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="editOfferType" class="form-label">Offer Type</label>
-                <select class="form-select" id="editOfferType" name="type" required>
-                  <option value="Category">Category</option>
-                  <option value="Product">Product</option>
-                </select>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
               </div>
-              <div class="mb-3">
-                <label for="editCategoryOrProduct" class="form-label">Category or Product</label>
-                <input type="text" class="form-control" id="editCategoryOrProduct" name="categoryOrProduct" required />
-              </div>
-              <div class="mb-3">
-                <label for="editDiscountType" class="form-label">Discount Type</label>
-                <select class="form-select" id="editDiscountType" name="discountType" required>
-                  <option value="Percentage">Percentage</option>
-                  <option value="Fixed Amount">Fixed Amount</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="editDiscountValue" class="form-label">Discount Value</label>
-                <input type="number" class="form-control" id="editDiscountValue" name="discountValue" required />
-              </div>
-              <div class="mb-3">
-                <label for="editStartDate" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="editStartDate" name="startDate" required />
-              </div>
-              <div class="mb-3">
-                <label for="editEndDate" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="editEndDate" name="endDate" required />
-              </div>
-              <div class="mb-3">
-                <label for="editStatus" class="form-label">Status</label>
-                <select class="form-select" id="editStatus" name="status" required>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Scheduled">Scheduled</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+      <% }); %>
 
 
-    <input type="hidden" id="offersData" value='<%- JSON.stringify(offers) %>' />
 
 
-    <footer class="main-footer font-xs">
-      <div class="row pb-30 pt-15">
-        <div class="col-sm-6">
-          <script>document.write(new Date().getFullYear());</script> © Scentmagic - Perfume Ecommerce Template.
-        </div>
-        <div class="col-sm-6">
-          <div class="text-sm-end">All rights reserved</div>
-        </div>
-      </div>
-    </footer>
+        <input type="hidden" id="offersData" value='<%- JSON.stringify(offers) %>' />
+
+
+        <footer class="main-footer font-xs">
+          <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+              <script>document.write(new Date().getFullYear());</script> © Scentmagic - Perfume Ecommerce Template.
+            </div>
+            <div class="col-sm-6">
+              <div class="text-sm-end">All rights reserved</div>
+            </div>
+          </div>
+        </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
     document.getElementById("editOfferForm").addEventListener("submit", async (e) => {
-  e.preventDefault(); // Prevent default form submission behavior
+      e.preventDefault();
 
-  // Gather form data
-  const formData = new FormData(e.target);
-  const offerData = Object.fromEntries(formData.entries());
+      clearErrorMessages();
 
-  try {
-    // Send request to the backend using fetch
-    const response = await fetch("/admin/offers/edit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(offerData),
+      const form = e.target;
+      const formData = new FormData(form);
+      const offerData = Object.fromEntries(formData.entries());
+
+      const isValid = validateOfferForm(offerData);
+
+      if (!isValid) return;
+
+      try {
+
+        const response = await fetch("/admin/offers/edit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(offerData),
+        });
+
+        const result = await response.json();
+        if (response.ok && result.success) {
+          Swal.fire({
+            title: "Success",
+            text: result.message,
+            icon: "success",
+            confirmButtonText: "OK"
+          });
+          setTimeout(() => {
+            window.location.href = "/admin/offers";
+
+          }, 1000)
+        } else {
+
+          console.error("Error updating offer:", result.message || "Failed to update offer.");
+          Swal.fire({
+            title: "Error",
+            text: result.message || "Failed to update the offer.",
+            icon: "error",
+            confirmButtonText: "OK"
+          });
+        }
+
+      } catch (error) {
+        console.error("Error updating offer:", error);
+      }
     });
 
-    // Parse the response
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      // Show success Swal
-      Swal.fire({
-        title: "Success!",
-        text: result.message,
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        // Redirect or refresh offers page after success
-        window.location.href = "/admin/offers";
-      });
-    } else {
-      // Show error Swal for application errors
-      Swal.fire({
-        title: "Error!",
-        text: result.message || "Failed to update offer.",
-        icon: "error",
-        confirmButtonText: "OK",
+    function clearErrorMessages() {
+      document.querySelectorAll(".text-danger").forEach((span) => {
+        span.textContent = "";
       });
     }
-  } catch (error) {
-    // Show error Swal for server/network issues
-    Swal.fire({
-      title: "Error!",
-      text: "Something went wrong while updating the offer.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-    console.error("Error updating offer:", error);
-  }
-});
+
+    function validateOfferForm(offerData) {
+      let isValid = true;
+
+      if (!offerData.name || offerData.name.trim() === "") {
+        document.getElementById("errorOfferName").textContent = "Offer name is required.";
+        isValid = false;
+      }
+
+      if (!offerData.type || (offerData.type !== "Category" && offerData.type !== "Product")) {
+        document.getElementById("errorOfferType").textContent = "Please select a valid offer type.";
+        isValid = false;
+      }
+
+      if (!offerData.categoryOrProduct || offerData.categoryOrProduct.trim() === "") {
+        document.getElementById("errorCategoryOrProduct").textContent = "Category or Product field is required.";
+        isValid = false;
+      }
+
+      if (!offerData.discountType || (offerData.discountType !== "Percentage" && offerData.discountType !== "Fixed Amount")) {
+        document.getElementById("errorDiscountType").textContent = "Please select a valid discount type.";
+        isValid = false;
+      }
+
+      if (!offerData.discountValue || isNaN(offerData.discountValue) || offerData.discountValue <= 0) {
+        document.getElementById("errorDiscountValue").textContent = "Discount value must be a positive number.";
+        isValid = false;
+      }
+
+      if (!offerData.startDate) {
+        document.getElementById("errorStartDate").textContent = "Start date is required.";
+        isValid = false;
+      }
+
+      if (!offerData.endDate) {
+        document.getElementById("errorEndDate").textContent = "End date is required.";
+        isValid = false;
+      }
+
+      if (new Date(offerData.startDate) > new Date(offerData.endDate)) {
+        document.getElementById("errorStartDate").textContent = "Start date cannot be after the end date.";
+        document.getElementById("errorEndDate").textContent = "End date must be after the start date.";
+        isValid = false;
+      }
+
+      if (!offerData.status || (offerData.status !== "Active" && offerData.status !== "Inactive" && offerData.status !== "Scheduled")) {
+        document.getElementById("errorStatus").textContent = "Please select a valid status.";
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
 
   </script>
 
@@ -693,26 +769,26 @@
     //   }
     // }
 
-    function openEditOfferModal(offer) {
-      console.log(offer);
+    // function openEditOfferModal(offer) {
+    //   console.log(offer);
 
-      document.getElementById('editOfferId').value = offer.id;
+    //   document.getElementById('editOfferId').value = offer.id;
 
-      document.getElementById('editOfferName').value = offer.name;
-      document.getElementById('editOfferType').value = offer.type;
-      document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
-      document.getElementById('editDiscountType').value = offer.discountType;
-      document.getElementById('editDiscountValue').value = offer.discountValue;
+    //   document.getElementById('editOfferName').value = offer.name;
+    //   document.getElementById('editOfferType').value = offer.type;
+    //   document.getElementById('editCategoryOrProduct').value = offer.categoryOrProduct;
+    //   document.getElementById('editDiscountType').value = offer.discountType;
+    //   document.getElementById('editDiscountValue').value = offer.discountValue;
 
-      const startDate = new Date(offer.startDate);
-      const endDate = new Date(offer.endDate);
-      document.getElementById('editStartDate').value = startDate.toISOString().split('T')[0];
-      document.getElementById('editEndDate').value = endDate.toISOString().split('T')[0];
+    //   const startDate = new Date(offer.startDate);
+    //   const endDate = new Date(offer.endDate);
+    //   document.getElementById('editStartDate').value = startDate.toISOString().split('T')[0];
+    //   document.getElementById('editEndDate').value = endDate.toISOString().split('T')[0];
 
-      document.getElementById('editStatus').value = offer.status;
+    //   document.getElementById('editStatus').value = offer.status;
 
-      new bootstrap.Modal(document.getElementById('editOfferModal')).show();
-    }
+    //   new bootstrap.Modal(document.getElementById('editOfferModal')).show();
+    // }
 
 
   </script>
