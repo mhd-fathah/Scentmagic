@@ -18,7 +18,13 @@ const Coupon = require("../models/coupon");
 
 const getCouponsPage = async (req, res) => {
   try {
-    const coupons = await Coupon.find();
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10; 
+    const skip = (page - 1) * limit;
+
+    const totalItems = await Coupon.countDocuments();
+    const totalPages = Math.ceil(totalItems / limit);
+    const coupons = await Coupon.find().skip(skip).limit(limit);
 
     let selectedCoupon = null;
     if (req.params.couponId) {
@@ -29,6 +35,9 @@ const getCouponsPage = async (req, res) => {
       coupons,
       alert: null,
       selectedCoupon,
+      currentPage: page,
+      totalPages,
+      totalItems,
       layout: false,
     });
   } catch (err) {
@@ -36,6 +45,7 @@ const getCouponsPage = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 const addCoupon = async (req, res) => {
   try {
