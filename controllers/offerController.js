@@ -4,7 +4,10 @@ const Product = require("../models/product");
 
 const getOffers = async (req, res) => {
   try {
-    const offers = await Offer.find();
+    const offers = await Offer.find().populate({
+      path: "categoryOrProduct",
+      select: "name product_name",
+    });
     const message = req.query.message || null;
     const status = req.query.status || "error";
     res.render("admin/offer-management", {
@@ -106,10 +109,14 @@ const addOffer = async (req, res) => {
       }
     }
 
-   return res.status(201).json({success:true, message: "Offer added and applied successfully" });
+    return res
+      .status(201)
+      .json({ success: true, message: "Offer added and applied successfully" });
   } catch (error) {
     console.error("Error adding offer:", error);
-    return res.status(500).json({success:false, message: "Error adding offer" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error adding offer" });
   }
 };
 
@@ -131,7 +138,9 @@ const editOffer = async (req, res) => {
     // Fetch the existing offer
     const existingOffer = await Offer.findById(id);
     if (!existingOffer) {
-      return res.status(404).json({ success: false, message: "Offer not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Offer not found" });
     }
 
     // Update the offer fields
@@ -160,7 +169,9 @@ const editOffer = async (req, res) => {
 
         // Apply the new discount
         product.previous_discount_price = product.discount_price;
-        product.discount_price = Math.round(product.discount_price - extraDiscount);
+        product.discount_price = Math.round(
+          product.discount_price - extraDiscount
+        );
         product.extra_offer_percentage = discountValue;
         await product.save();
       }
@@ -176,19 +187,27 @@ const editOffer = async (req, res) => {
 
         // Apply the new discount
         product.previous_discount_price = product.discount_price;
-        product.discount_price = Math.round(product.discount_price - extraDiscount);
+        product.discount_price = Math.round(
+          product.discount_price - extraDiscount
+        );
         product.extra_offer_percentage = discountValue;
         await product.save();
       }
     }
 
-    return res.status(200).json({ success: true, message: "Offer updated and applied successfully" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Offer updated and applied successfully",
+      });
   } catch (error) {
     console.error("Error updating offer:", error);
-    return res.status(500).json({ success: false, message: "Error updating offer" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error updating offer" });
   }
 };
-
 
 const deleteOffer = async (req, res) => {
   try {

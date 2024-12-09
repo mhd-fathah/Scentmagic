@@ -194,7 +194,7 @@
                       </div>
                     </td>
                     <td>
-                      <%= offer.categoryOrProduct %>
+                      <%= offer.categoryOrProduct?.name || offer.categoryOrProduct?.product_name || "N/A" %>
                     </td>
                     <td>
                       <%= offer.discountType==='Percentage' ? `${offer.discountValue}%` : `$${offer.discountValue}` %>
