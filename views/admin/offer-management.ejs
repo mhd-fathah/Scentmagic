@@ -350,7 +350,7 @@
     <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content" style="background-color: #222736;">
-          <form id="editOfferForm" action="/offers/edit" method="POST">
+          <form id="editOfferForm" action="/admin/offers/edit" method="POST">
             <div class="modal-header">
               <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -428,6 +428,61 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.getElementById("editOfferForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); // Prevent default form submission behavior
+
+  // Gather form data
+  const formData = new FormData(e.target);
+  const offerData = Object.fromEntries(formData.entries());
+
+  try {
+    // Send request to the backend using fetch
+    const response = await fetch("/admin/offers/edit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(offerData),
+    });
+
+    // Parse the response
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      // Show success Swal
+      Swal.fire({
+        title: "Success!",
+        text: result.message,
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        // Redirect or refresh offers page after success
+        window.location.href = "/admin/offers";
+      });
+    } else {
+      // Show error Swal for application errors
+      Swal.fire({
+        title: "Error!",
+        text: result.message || "Failed to update offer.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  } catch (error) {
+    // Show error Swal for server/network issues
+    Swal.fire({
+      title: "Error!",
+      text: "Something went wrong while updating the offer.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+    console.error("Error updating offer:", error);
+  }
+});
+
+  </script>
 
 
   <script>

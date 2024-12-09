@@ -125,25 +125,70 @@ const editOffer = async (req, res) => {
       startDate,
       endDate,
       status,
+      description,
     } = req.body;
 
-    await Offer.findByIdAndUpdate(id, {
-      name,
-      type,
-      categoryOrProduct,
-      discountType,
-      discountValue,
-      startDate,
-      endDate,
-      status,
-    });
+    // Fetch the existing offer
+    const existingOffer = await Offer.findById(id);
+    if (!existingOffer) {
+      return res.status(404).json({ success: false, message: "Offer not found" });
+    }
 
-    res.redirect("/offers");
+    // Update the offer fields
+    existingOffer.name = name;
+    existingOffer.type = type;
+    existingOffer.categoryOrProduct = categoryOrProduct;
+    existingOffer.discountType = discountType;
+    existingOffer.discountValue = discountValue;
+    existingOffer.startDate = startDate;
+    existingOffer.endDate = endDate;
+    existingOffer.status = status;
+    existingOffer.description = description;
+
+    await existingOffer.save();
+
+    // Apply discount logic based on type
+    if (type === "Category") {
+      const products = await Product.find({ category: categoryOrProduct });
+      for (let product of products) {
+        const extraDiscount = (product.discount_price * discountValue) / 100;
+
+        // Restore original price if any previous discount exists
+        if (product.previous_discount_price) {
+          product.discount_price = product.previous_discount_price;
+        }
+
+        // Apply the new discount
+        product.previous_discount_price = product.discount_price;
+        product.discount_price = Math.round(product.discount_price - extraDiscount);
+        product.extra_offer_percentage = discountValue;
+        await product.save();
+      }
+    } else if (type === "Product") {
+      const product = await Product.findById(categoryOrProduct);
+      if (product) {
+        const extraDiscount = (product.discount_price * discountValue) / 100;
+
+        // Restore original price if any previous discount exists
+        if (product.previous_discount_price) {
+          product.discount_price = product.previous_discount_price;
+        }
+
+        // Apply the new discount
+        product.previous_discount_price = product.discount_price;
+        product.discount_price = Math.round(product.discount_price - extraDiscount);
+        product.extra_offer_percentage = discountValue;
+        await product.save();
+      }
+    }
+
+    return res.status(200).json({ success: true, message: "Offer updated and applied successfully" });
   } catch (error) {
     console.error("Error updating offer:", error);
-    res.status(500).send("Server error");
+    return res.status(500).json({ success: false, message: "Error updating offer" });
   }
 };
+
 
 const deleteOffer = async (req, res) => {
   try {
