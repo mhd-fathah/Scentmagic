@@ -118,6 +118,43 @@
 
                 </div>
 
+                 <!-- Coupon Section -->
+                 <div class="coupon-section">
+                    <h5 class="mb-2">Apply Coupon</h5>
+                    <div class="coupon-input">
+                      <input type="text" id="couponCode" placeholder="Enter coupon code">
+                      <button class="apply-btn" id="applyCoupon">APPLY</button>
+                      <button class="remove-btn" id="removeCoupon" style="display: none;">REMOVE</button> <!-- Initially hidden -->
+                    </div>
+                    <span class="coupon-message" style="display: none;"></span>
+                    
+                    <!-- Available Coupons Section -->
+                    <div class="available-coupons mt-3">
+                      <h6>Available Coupons</h6>
+                      <% if (coupons.length > 0) { %>
+                        <ul class="list-group">
+                          <% coupons.forEach((coupon) => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                              <span>
+                                <%= coupon.code %> - 
+                                <%= coupon.type === "percentage"
+                                  ? `${coupon.discount}% off`
+                                  : coupon.type === "fixed"
+                                  ? `₹${coupon.discount} off`
+                                  : "Free Shipping"
+                                %>
+                              </span>
+                              <small>Valid until: <%= coupon.validUntil.toLocaleDateString() %></small>
+                            </li>
+                          <% }); %>
+                        </ul>
+                      <% } else { %>
+                        <p>No coupons available for your order.</p>
+                      <% } %>
+                    </div>
+                  </div>
+                  
+
                 <!-- Order Summary -->
                 <div class="card">
                     <div class="card-title">
@@ -141,6 +178,7 @@
                     </div>
                 </div>
             </div>
+            
 
             <div class="price-summary">
                 <div class="card">
@@ -345,6 +383,67 @@
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Apply coupon button click
+        document.getElementById("applyCoupon").addEventListener("click", async () => {
+          const couponCode = document.getElementById("couponCode").value.trim();
+          const message = document.querySelector(".coupon-message");
+      
+          if (!couponCode) {
+            message.style.display = "block";
+            message.textContent = "Please enter a coupon code.";
+            message.style.color = "red";
+            return;
+          }
+      
+          try {
+            const response = await fetch(`/apply-coupon?code=${couponCode}`);
+            const result = await response.json();
+      
+            if (response.ok) {
+              message.style.display = "block";
+              message.textContent = `Coupon applied! ${result.message}`;
+              message.style.color = "green";
+      
+              // Hide apply button and show remove button
+              document.getElementById("applyCoupon").style.display = "none";
+              document.getElementById("removeCoupon").style.display = "inline-block";
+            } else {
+              message.style.display = "block";
+              message.textContent = result.message || "Invalid coupon.";
+              message.style.color = "red";
+            }
+          } catch (error) {
+            message.style.display = "block";
+            message.textContent = "An error occurred. Please try again.";
+            message.style.color = "red";
+          }
+        });
+      
+        // Remove coupon button click
+        document.getElementById("removeCoupon").addEventListener("click", () => {
+          const couponCode = document.getElementById("couponCode").value.trim();
+          const message = document.querySelector(".coupon-message");
+      
+          if (!couponCode) {
+            message.style.display = "block";
+            message.textContent = "Please enter a coupon code to remove.";
+            message.style.color = "red";
+            return;
+          }
+      
+          // Reset the coupon input box and buttons
+          document.getElementById("couponCode").value = "";
+          document.getElementById("applyCoupon").style.display = "inline-block";
+          document.getElementById("removeCoupon").style.display = "none";
+          message.style.display = "block";
+          message.textContent = "Coupon removed successfully!";
+          message.style.color = "red";
+        });
+      </script>
+      
+      
 
     <script>
 

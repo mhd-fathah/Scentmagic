@@ -79,6 +79,10 @@ router.post('/my-account/address/delete/:id',auth.checkSession ,userController.d
 
 router.get('/checkout',auth.checkBlocked, auth.checkSession , userController.loadCheckout)
 
+router.get('/apply-coupon',userController.applyCoupon)
+
+router.post('/remove-coupon',userController.removeCoupon)
+
 router.post("/notify", userController.notifyUser);
 
 module.exports = router;
