@@ -233,7 +233,7 @@
     <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content" style="background-color: #222736;">
-          <form action="/admin/offers/add" method="POST" id="offerForm">
+          <form action="/admin/offers/add" method="POST" id="offerForm" novalidate>
             <div class="modal-header">
               <h5 class="modal-title text-white" id="addOfferModalLabel">Add New Offer</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
@@ -243,72 +243,79 @@
               <!-- Offer Name -->
               <div class="mb-3">
                 <label for="offerName" class="form-label text-white">Offer Name</label>
-                <input type="text" class="form-control" id="offerName" name="name" placeholder="Enter the offer name"
-                  required />
+                <input type="text" class="form-control" id="offerName" name="name" placeholder="Enter the offer name" />
+                <span class="text-danger" id="offerNameError"></span>
               </div>
 
               <!-- Offer Type -->
               <div class="mb-3">
                 <label for="offerType" class="form-label text-white">Offer Type</label>
-                <select class="form-select" id="offerType" name="type" onchange="loadOptions()" required>
+                <select class="form-select" id="offerType" name="type" onchange="loadOptions()">
                   <option value="">Select Offer Type</option>
                   <option value="Category">Category</option>
                   <option value="Product">Product</option>
                 </select>
+                <span class="text-danger" id="offerTypeError"></span>
               </div>
 
               <!-- Dynamic Category or Product -->
               <div class="mb-3">
                 <label for="categoryOrProduct" class="form-label text-white">Category or Product</label>
-                <select class="form-select" id="categoryOrProduct" name="categoryOrProduct" required>
+                <select class="form-select" id="categoryOrProduct" name="categoryOrProduct">
                   <option value="">Select a value</option>
                 </select>
+                <span class="text-danger" id="categoryOrProductError"></span>
               </div>
 
               <!-- Discount Type -->
               <div class="mb-3">
                 <label for="discountType" class="form-label text-white">Discount Type</label>
-                <select class="form-select" id="discountType" name="discountType" required>
+                <select class="form-select" id="discountType" name="discountType">
                   <option value="">Select Discount Type</option>
                   <option value="Percentage">Percentage</option>
                   <option value="Fixed Amount">Fixed Amount</option>
                 </select>
+                <span class="text-danger" id="discountTypeError"></span>
               </div>
 
               <!-- Discount Value -->
               <div class="mb-3">
                 <label for="discountValue" class="form-label text-white">Discount Value</label>
                 <input type="number" class="form-control" id="discountValue" name="discountValue"
-                  placeholder="Enter discount value" min="0" step="0.01" required />
+                  placeholder="Enter discount value" min="0" step="0.01" />
                 <div class="form-text text-muted">
                   For percentage discounts, use values between 0 and 100.
                 </div>
+                <span class="text-danger" id="discountValueError"></span>
               </div>
 
               <!-- Start Date -->
               <div class="mb-3">
                 <label for="startDate" class="form-label text-white">Start Date</label>
-                <input type="date" class="form-control" id="startDate" name="startDate" required />
+                <input type="date" class="form-control" id="startDate" name="startDate" />
+                <span class="text-danger" id="startDateError"></span>
               </div>
 
               <!-- End Date -->
               <div class="mb-3">
                 <label for="endDate" class="form-label text-white">End Date</label>
-                <input type="date" class="form-control" id="endDate" name="endDate" required />
+                <input type="date" class="form-control" id="endDate" name="endDate" />
                 <div class="form-text text-muted">
                   Ensure the end date is after the start date.
                 </div>
+                <span class="text-danger" id="endDateError"></span>
               </div>
 
               <!-- Status -->
               <div class="mb-3">
                 <label for="status" class="form-label text-white">Status</label>
-                <select class="form-select" id="status" name="status" required>
+                <select class="form-select" id="status" name="status">
                   <option value="">Select Status</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                   <option value="Scheduled">Scheduled</option>
                 </select>
+                <span class="text-danger" id="statusError"></span>
               </div>
 
               <!-- Description -->
@@ -542,6 +549,85 @@
 
     document.getElementById("offerForm").addEventListener("submit", addOffer);
   </script>
+
+  <script>
+
+    function validateForm() {
+
+      document.querySelectorAll(".text-danger").forEach(span => span.textContent = "");
+
+      const offerName = document.getElementById("offerName").value.trim();
+      if (!offerName) {
+        document.getElementById("offerNameError").textContent = "Offer Name is required.";
+        return false;
+      }
+
+      const offerType = document.getElementById("offerType").value;
+      if (!offerType) {
+        document.getElementById("offerTypeError").textContent = "Offer Type is required.";
+        return false;
+      }
+
+      const categoryOrProduct = document.getElementById("categoryOrProduct").value;
+      if (!categoryOrProduct) {
+        document.getElementById("categoryOrProductError").textContent = "Please select a category or product.";
+        return false;
+      }
+
+      const discountType = document.getElementById("discountType").value;
+      if (!discountType) {
+        document.getElementById("discountTypeError").textContent = "Discount Type is required.";
+        return false;
+      }
+
+      const discountValue = document.getElementById("discountValue").value;
+      if (!discountValue || discountValue <= 0) {
+        document.getElementById("discountValueError").textContent = "Enter a valid discount value.";
+        return false;
+      }
+
+      const startDate = document.getElementById("startDate").value;
+      if (!startDate) {
+        document.getElementById("startDateError").textContent = "Start Date is required.";
+        return false;
+      }
+
+      const endDate = document.getElementById("endDate").value;
+      if (!endDate) {
+        document.getElementById("endDateError").textContent = "End Date is required.";
+        return false;
+      } else {
+
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
+
+        if (parsedEndDate <= parsedStartDate) {
+          document.getElementById("endDateError").textContent = "End Date must be after Start Date.";
+          return false;
+        }
+      }
+
+      const status = document.getElementById("status").value;
+      if (!status) {
+        document.getElementById("statusError").textContent = "Status is required.";
+        return false;
+      }
+
+      return true;
+    }
+
+    document.getElementById("offerForm").addEventListener("submit", function (event) {
+      if (!validateForm()) {
+        event.preventDefault();
+      } else {
+        addOffer(event);
+      }
+    });
+  </script>
+
+
+
+
   <!-- <script>
     document.getElementById('offerType').addEventListener('change', async function () {
         const offerType = this.value;
