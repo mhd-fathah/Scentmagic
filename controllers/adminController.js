@@ -526,7 +526,6 @@ const generateSalesReport = async (req, res) => {
   let matchCriteria = {};
   const today = new Date();
 
-  // Handle the filtering based on the selected report type
   switch (type) {
     case "daily":
       const startOfDay = new Date(today.setHours(0, 0, 0, 0));
@@ -565,7 +564,6 @@ const generateSalesReport = async (req, res) => {
   }
 
   try {
-    // Fetch sales data based on the match criteria
     const salesData = await Order.aggregate([
       { $match: { ...matchCriteria, status: { $ne: "Cancelled" } } }, 
       {
@@ -588,19 +586,16 @@ const generateSalesReport = async (req, res) => {
       }
     ]);
 
-    // Initialize totals
     let totalSales = 0;
     let totalDiscounts = 0;
     let totalCoupons = 0;
     let netSales = 0;
 
-    // Calculate totals
     totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
     totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
     totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
     netSales = totalSales - totalDiscounts - totalCoupons;
 
-    // If there is no data, return a default empty report
     if (salesData.length === 0) {
       return res.json({
         totalSales: 0,
@@ -611,7 +606,6 @@ const generateSalesReport = async (req, res) => {
       });
     }
 
-    // Send the report data as JSON response
     const reportData = {
       totalSales,
       totalDiscounts,
@@ -632,6 +626,59 @@ const generateSalesReport = async (req, res) => {
   }
 };
 
+const loadSalesData = async (req, res) => {
+  try {
+    const currentPage = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
+    const perPage = 10; // Number of items per page
+    const salesData = await Order.aggregate([
+      { $match: { status: { $ne: "Cancelled" } } },
+      {
+        $project: {
+          orderId: 1,
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalAmount: 1,
+          subtotal: 1,
+          discount: { $ifNull: ["$totalDiscounts", 0] },
+          coupon: { $ifNull: ["$totalCoupons", 0] },
+          total: {
+            $add: [
+              { $ifNull: ["$totalAmount", 0] },
+              { $ifNull: ["$totalDiscounts", 0] },
+              { $ifNull: ["$totalCoupons", 0] }
+            ]
+          },
+          paymentStatus: 1,
+        },
+      }
+    ]);
+
+    const totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
+    const totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
+    const totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
+    const netSales = totalSales - totalDiscounts - totalCoupons;
+
+    // Pagination logic
+    const totalPages = Math.ceil(salesData.length / perPage); // Calculate total pages based on sales data length
+    const startIndex = (currentPage - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    const paginatedSales = salesData.slice(startIndex, endIndex);
+
+    // Return only the updated sales data and pagination info
+    res.json({
+      totalSales,
+      totalDiscounts,
+      totalCoupons,
+      netSales,
+      sales: paginatedSales,
+      totalPages,
+      currentPage
+    });
+  } catch (error) {
+    console.error("Error loading sales data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 module.exports = {
   loadLoginPage,
@@ -648,5 +695,6 @@ module.exports = {
   approveReturn,
   rejectReturn,
   loadDashboard,
-  generateSalesReport
+  generateSalesReport,
+  loadSalesData
 };

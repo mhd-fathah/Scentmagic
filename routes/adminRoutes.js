@@ -33,6 +33,8 @@ router.get('/reject-return/:orderId',auth.isAdminAuthenticated , adminController
 
 router.get('/dashboard',adminController.loadDashboard)
 
+router.get('/dashboard/salesData',adminController.loadSalesData)
+
 // Route to generate the sales report
 router.get('/report', adminController.generateSalesReport);
 
