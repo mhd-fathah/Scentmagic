@@ -31,4 +31,6 @@ router.get('/approve-return/:orderId',auth.isAdminAuthenticated , adminControlle
 router.get('/reject-return/:orderId',auth.isAdminAuthenticated , adminController.rejectReturn)
 // router.get("/categories",categoriesController.loadCategories)
 
+router.get('/dashboard',adminController.loadDashboard)
+
 module.exports = router; 

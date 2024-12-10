@@ -3,6 +3,8 @@ const Admin = require("../models/adminModel");
 const User = require("../models/user");
 const Order = require("../models/order");
 const Wallet = require("../models/wallet");
+const Category = require('../models/categories')
+const Product = require('../models/product')
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -40,9 +42,9 @@ const handleLogin = async (req, res) => {
   }
 };
 
-const loadDashboard = (req, res) => {
-  res.render("admin/dashboard", { layout: false, admin: req.session.admin });
-};
+// const loadDashboard = (req, res) => {
+//   res.render("admin/dashboard", { layout: false, admin: req.session.admin });
+// };
 
 const logoutAdmin = (req, res) => {
   req.session.destroy((err) => {
@@ -324,6 +326,176 @@ const rejectReturn = async (req, res) => {
   }
 };
 
+const loadDashboard = async (req, res) => {
+  try {
+    
+    let totalRevenue = 0;
+
+    try {
+      const result = await Order.aggregate([
+        { $match: { status: { $ne: "Cancelled" } } }, 
+        { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+      ]);
+    
+      totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
+    
+      console.log(`Total Revenue: ${totalRevenue}`);
+    } catch (error) {
+      console.error("Error calculating total revenue:", error);
+    }
+    
+        const orderCount = await Order.countDocuments();
+        console.log(`Total orders: ${orderCount}`);
+
+        const productCount = await Product.countDocuments({ isDeleted: false }); 
+        console.log(`Total products: ${productCount}`);
+        const products = await Product.find({isDeleted:false})
+
+    const categories = await Category.find({ isDeleted: false }).select("name -_id");
+
+    let monthlyEarning = 0;
+
+try {
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+
+  const result = await Order.aggregate([
+    {
+      $match: {
+        status: { $ne: "Cancelled" }, // Exclude cancelled orders
+        createdAt: {
+          $gte: new Date(currentYear, currentMonth, 1), // First day of the current month
+          $lt: new Date(currentYear, currentMonth + 1, 1), // First day of the next month
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$totalAmount" }, // Sum up the totalAmount for the filtered orders
+      },
+    },
+  ]);
+
+  // Set monthlyEarning if result exists
+  monthlyEarning = result.length > 0 ? result[0].total : 0;
+
+  console.log(`Monthly Earning: ₹${monthlyEarning}`);
+} catch (error) {
+  console.error("Error calculating monthly earning:", error);
+} 
+
+    const chartLabels = ["January", "February", "March", "April"]; 
+    const chartData = [500, 700, 800, 600]; 
+
+    const categoryNames = categories.map((category) => category.name);
+    let newMembers = []; 
+
+    try {
+     
+      newMembers = await User.find({})
+        .sort({ createdAt: -1 }) 
+        .limit(6) 
+        .select("name createdAt email"); 
+    
+      console.log("Last Joined Users:", newMembers);
+    } catch (error) {
+      console.error("Error fetching last joined users:", error);
+    }
+
+    const activities = [];
+
+    const recentOrders = await Order.find({})
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .select('orderId createdAt');
+    recentOrders.forEach((order) => {
+      activities.push({
+        // date: order.createdAt.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+        description: `New order placed: Order ID ${order.orderId}`,
+        active: true, 
+      });
+    });
+
+    const recentProducts = await Product.find({})
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .select('product_name createdAt');
+    recentProducts.forEach((product) => {
+      activities.push({
+        // date: product.createdAt.toISOString().split('T')[0],
+        description: `Product added: ${product.product_name}`,
+        active: false, 
+      });
+    });
+
+    const recentUsers = await User.find({})
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .select('name createdAt');
+    recentUsers.forEach((user) => {
+      activities.push({
+        // date: user.createdAt.toISOString().split('T')[0],
+        description: `New user joined: ${user.name || 'Unknown'}`,
+        active: false, 
+      });
+    });
+
+    // Sample data for marketing channels
+    const marketingChannels = [
+      { name: "Facebook", percentage: 50 },
+      { name: "Google Ads", percentage: 30 },
+      { name: "Instagram", percentage: 20 },
+    ];
+
+    // Sample data for orders
+    const ordersData = [
+      {
+        id: "ORD001",
+        billingName: "Alice Johnson",
+        date: "2024-12-10",
+        total: "$150",
+        paymentStatus: "Paid",
+        paymentMethod: "Credit Card",
+      },
+      {
+        id: "ORD002",
+        billingName: "Bob Brown",
+        date: "2024-12-09",
+        total: "$200",
+        paymentStatus: "Refund",
+        paymentMethod: "PayPal",
+      },
+    ];
+
+    // Pagination variables
+    const totalPages = 5; // Example: Total pages
+    const currentPage = 1; // Example: Current page
+
+    // Pass all the required data to the EJS view
+    res.render("admin/dashboard", {
+      layout: false,
+      totalRevenue,
+      orderCount,
+      chartLabels,
+      chartData,
+      productCount,
+      products,
+      categories: categoryNames,
+      monthlyEarning,
+      newMembers,
+      activities,
+      marketingChannels,
+      orders: ordersData,
+      totalPages,
+      currentPage,
+      dateValue: new Date().toISOString().split("T")[0], // Example: Today's date
+    });
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    res.status(500).send("Server Error");
+  }
+};
 module.exports = {
   loadLoginPage,
   handleLogin,
@@ -338,4 +510,5 @@ module.exports = {
   updateOrderStatus,
   approveReturn,
   rejectReturn,
+  loadDashboard
 };
