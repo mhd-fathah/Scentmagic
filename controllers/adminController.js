@@ -5,6 +5,8 @@ const Order = require("../models/order");
 const Wallet = require("../models/wallet");
 const Category = require('../models/categories')
 const Product = require('../models/product')
+const Offer = require('../models/offerModel')
+const Coupon = require('../models/coupon')
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -344,60 +346,111 @@ const loadDashboard = async (req, res) => {
       console.error("Error calculating total revenue:", error);
     }
     
-        const orderCount = await Order.countDocuments();
-        console.log(`Total orders: ${orderCount}`);
+    const orderCount = await Order.countDocuments();
+    console.log(`Total orders: ${orderCount}`);
 
-        const productCount = await Product.countDocuments({ isDeleted: false }); 
-        console.log(`Total products: ${productCount}`);
-        const products = await Product.find({isDeleted:false})
+    const productCount = await Product.countDocuments({ isDeleted: false }); 
+    console.log(`Total products: ${productCount}`);
+    const products = await Product.find({ isDeleted: false });
 
     const categories = await Category.find({ isDeleted: false }).select("name -_id");
 
     let monthlyEarning = 0;
 
-try {
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
+    try {
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
 
-  const result = await Order.aggregate([
-    {
-      $match: {
-        status: { $ne: "Cancelled" }, // Exclude cancelled orders
-        createdAt: {
-          $gte: new Date(currentYear, currentMonth, 1), // First day of the current month
-          $lt: new Date(currentYear, currentMonth + 1, 1), // First day of the next month
+      const result = await Order.aggregate([
+        {
+          $match: {
+            status: { $ne: "Cancelled" },
+            createdAt: {
+              $gte: new Date(currentYear, currentMonth, 1),
+              $lt: new Date(currentYear, currentMonth + 1, 1),
+            },
+          },
         },
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        total: { $sum: "$totalAmount" }, // Sum up the totalAmount for the filtered orders
-      },
-    },
-  ]);
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$totalAmount" },
+          },
+        },
+      ]);
 
-  // Set monthlyEarning if result exists
-  monthlyEarning = result.length > 0 ? result[0].total : 0;
+      monthlyEarning = result.length > 0 ? result[0].total : 0;
 
-  console.log(`Monthly Earning: ₹${monthlyEarning}`);
-} catch (error) {
-  console.error("Error calculating monthly earning:", error);
-} 
+      console.log(`Monthly Earning: ₹${monthlyEarning}`);
+    } catch (error) {
+      console.error("Error calculating monthly earning:", error);
+    }
 
-    const chartLabels = ["January", "February", "March", "April"]; 
-    const chartData = [500, 700, 800, 600]; 
+    let totalSales = 0;
+    let totalDiscounts = 0;
+    let totalCoupons = 0;
+    let netSales = 0;
+
+    let sales = []; 
+
+    try {
+      const salesData = await Order.aggregate([
+        
+        { 
+          $match: { 
+            status: { $ne: "Cancelled" } 
+          } 
+        },
+        
+        {
+          $project: { 
+            orderId: 1, 
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+            totalAmount: 1,
+            subtotal: 1,
+            discount: { $ifNull: ["$totalDiscounts", 0] }, 
+            coupon: { $ifNull: ["$totalCoupons", 0] }, 
+            total: { 
+              $add: [
+                { $ifNull: ["$totalAmount", 0] },
+                { $ifNull: ["$totalDiscounts", 0] },
+                { $ifNull: ["$totalCoupons", 0] }
+              ]
+            }, 
+            paymentStatus: 1, 
+          }
+        }
+      ]);
+      
+      
+
+      totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
+      totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
+      totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
+      netSales = totalSales - totalDiscounts - totalCoupons;
+
+      sales = salesData;
+
+      console.log(`Total Sales: ₹${totalSales}`);
+      console.log(`Total Discounts: ₹${totalDiscounts}`);
+      console.log(`Total Coupons: ₹${totalCoupons}`);
+      console.log(`Net Sales: ₹${netSales}`);
+    } catch (error) {
+      console.error("Error calculating sales data:", error);
+    }
+
+    const chartLabels = ["January", "February", "March", "April"];
+    const chartData = [500, 700, 800, 600];
 
     const categoryNames = categories.map((category) => category.name);
     let newMembers = []; 
 
     try {
-     
       newMembers = await User.find({})
         .sort({ createdAt: -1 }) 
         .limit(6) 
         .select("name createdAt email"); 
-    
+
       console.log("Last Joined Users:", newMembers);
     } catch (error) {
       console.error("Error fetching last joined users:", error);
@@ -411,7 +464,6 @@ try {
       .select('orderId createdAt');
     recentOrders.forEach((order) => {
       activities.push({
-        // date: order.createdAt.toISOString().split('T')[0], // Format date as YYYY-MM-DD
         description: `New order placed: Order ID ${order.orderId}`,
         active: true, 
       });
@@ -423,7 +475,6 @@ try {
       .select('product_name createdAt');
     recentProducts.forEach((product) => {
       activities.push({
-        // date: product.createdAt.toISOString().split('T')[0],
         description: `Product added: ${product.product_name}`,
         active: false, 
       });
@@ -435,44 +486,14 @@ try {
       .select('name createdAt');
     recentUsers.forEach((user) => {
       activities.push({
-        // date: user.createdAt.toISOString().split('T')[0],
         description: `New user joined: ${user.name || 'Unknown'}`,
         active: false, 
       });
     });
 
-    // Sample data for marketing channels
-    const marketingChannels = [
-      { name: "Facebook", percentage: 50 },
-      { name: "Google Ads", percentage: 30 },
-      { name: "Instagram", percentage: 20 },
-    ];
+    const totalPages = 5; 
+    const currentPage = 1; 
 
-    // Sample data for orders
-    const ordersData = [
-      {
-        id: "ORD001",
-        billingName: "Alice Johnson",
-        date: "2024-12-10",
-        total: "$150",
-        paymentStatus: "Paid",
-        paymentMethod: "Credit Card",
-      },
-      {
-        id: "ORD002",
-        billingName: "Bob Brown",
-        date: "2024-12-09",
-        total: "$200",
-        paymentStatus: "Refund",
-        paymentMethod: "PayPal",
-      },
-    ];
-
-    // Pagination variables
-    const totalPages = 5; // Example: Total pages
-    const currentPage = 1; // Example: Current page
-
-    // Pass all the required data to the EJS view
     res.render("admin/dashboard", {
       layout: false,
       totalRevenue,
@@ -485,15 +506,90 @@ try {
       monthlyEarning,
       newMembers,
       activities,
-      marketingChannels,
-      orders: ordersData,
       totalPages,
       currentPage,
-      dateValue: new Date().toISOString().split("T")[0], // Example: Today's date
+      dateValue: new Date().toISOString().split("T")[0],
+      totalSales,
+      totalDiscounts,
+      totalCoupons,
+      netSales,
+      sales, 
     });
   } catch (error) {
     console.error("Error loading dashboard:", error);
-    res.status(500).send("Server Error");
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+const generateSalesReport = async (req, res) => {
+  const { reportType, startDate, endDate } = req.query;
+
+  // Date filters based on the selected report type
+  let dateFilter = {};
+  const today = new Date();
+  
+  // Determine date filter based on report type
+  if (reportType === 'daily') {
+    dateFilter = { createdAt: { $gte: new Date(today.setHours(0, 0, 0, 0)) } };
+  } else if (reportType === 'weekly') {
+    const lastWeek = new Date(today.setDate(today.getDate() - 7));
+    dateFilter = { createdAt: { $gte: lastWeek } };
+  } else if (reportType === 'monthly') {
+    const lastMonth = new Date(today.setMonth(today.getMonth() - 1));
+    dateFilter = { createdAt: { $gte: lastMonth } };
+  } else if (reportType === 'yearly') {
+    const lastYear = new Date(today.setFullYear(today.getFullYear() - 1));
+    dateFilter = { createdAt: { $gte: lastYear } };
+  } else if (reportType === 'custom' && startDate && endDate) {
+    dateFilter = { createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) } };
+  }
+
+  try {
+    // Aggregate data for total sales, discounts, coupon deductions, and net sales
+    const orders = await Order.aggregate([
+      { $match: dateFilter },
+      {
+        $lookup: {
+          from: "coupons",
+          localField: "couponId",
+          foreignField: "_id",
+          as: "couponDetails"
+        }
+      },
+      {
+        $lookup: {
+          from: "offers",
+          localField: "offerId",
+          foreignField: "_id",
+          as: "offerDetails"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalSales: { $sum: "$totalAmount" }, // Total sales amount
+          totalDiscounts: { $sum: "$discountAmount" }, // Total discount from the order
+          totalCoupons: { $sum: { $sum: "$couponDetails.discount" } }, // Total discount from coupons
+          totalOffers: { $sum: { $sum: "$offerDetails.discount" } }, // Total discount from offers
+          netSales: { $sum: { $subtract: ["$totalAmount", { $add: ["$discountAmount", { $sum: "$couponDetails.discount" }, { $sum: "$offerDetails.discount" }] }] } }
+        }
+      }
+    ]);
+
+    // Extract report data
+    const reportData = {
+      totalSales: orders[0]?.totalSales || 0,
+      totalDiscounts: orders[0]?.totalDiscounts || 0,
+      totalCoupons: orders[0]?.totalCoupons || 0,
+      totalOffers: orders[0]?.totalOffers || 0,
+      netSales: orders[0]?.netSales || 0,
+    };
+
+    res.json(reportData); // Send the report data as JSON response
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 module.exports = {
@@ -510,5 +606,6 @@ module.exports = {
   updateOrderStatus,
   approveReturn,
   rejectReturn,
-  loadDashboard
+  loadDashboard,
+  generateSalesReport
 };

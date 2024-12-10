@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema(
     regular_price: { type: Number, required: true },
     discount_price: { type: Number, required: true },
     previous_discount_price: { type: Number },
+    totalDiscounts: { type: Number },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -25,6 +26,10 @@ const productSchema = new mongoose.Schema(
     salesPackage: { type: String },
     leftStock: { type: Number, required: true },
     extra_offer_percentage: { type: Number, default: 0 },
+    coupon: {  // New coupon field
+      type: String, // You can make it String or Number based on your use case
+      default: "",  // Set a default value (empty string if no coupon)
+    },
   },
   { timestamps: true } // This will automatically create 'createdAt' and 'updatedAt' fields
 );
