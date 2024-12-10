@@ -521,77 +521,118 @@ const loadDashboard = async (req, res) => {
   }
 };
 
-
 const generateSalesReport = async (req, res) => {
-  const { reportType, startDate, endDate } = req.query;
-
-  // Date filters based on the selected report type
-  let dateFilter = {};
+  const { type, startDate, endDate } = req.query;
+  let matchCriteria = {};
   const today = new Date();
-  
-  // Determine date filter based on report type
-  if (reportType === 'daily') {
-    dateFilter = { createdAt: { $gte: new Date(today.setHours(0, 0, 0, 0)) } };
-  } else if (reportType === 'weekly') {
-    const lastWeek = new Date(today.setDate(today.getDate() - 7));
-    dateFilter = { createdAt: { $gte: lastWeek } };
-  } else if (reportType === 'monthly') {
-    const lastMonth = new Date(today.setMonth(today.getMonth() - 1));
-    dateFilter = { createdAt: { $gte: lastMonth } };
-  } else if (reportType === 'yearly') {
-    const lastYear = new Date(today.setFullYear(today.getFullYear() - 1));
-    dateFilter = { createdAt: { $gte: lastYear } };
-  } else if (reportType === 'custom' && startDate && endDate) {
-    dateFilter = { createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) } };
+
+  // Handle the filtering based on the selected report type
+  switch (type) {
+    case "daily":
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+      break;
+    case "weekly":
+      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+      startOfWeek.setHours(0, 0, 0, 0);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek } };
+      break;
+    case "monthly":
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+      break;
+    case "yearly":
+      const startOfYear = new Date(today.getFullYear(), 0, 1);
+      const endOfYear = new Date(today.getFullYear(), 11, 31);
+      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
+      break;
+    case "custom":
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        matchCriteria = { createdAt: { $gte: start, $lte: end } };
+      } else {
+        return res.status(400).json({ message: "Custom date range requires both startDate and endDate" });
+      }
+      break;
+    default:
+      return res.status(400).json({ message: "Invalid report type" });
   }
 
   try {
-    // Aggregate data for total sales, discounts, coupon deductions, and net sales
-    const orders = await Order.aggregate([
-      { $match: dateFilter },
+    // Fetch sales data based on the match criteria
+    const salesData = await Order.aggregate([
+      { $match: { ...matchCriteria, status: { $ne: "Cancelled" } } }, 
       {
-        $lookup: {
-          from: "coupons",
-          localField: "couponId",
-          foreignField: "_id",
-          as: "couponDetails"
-        }
-      },
-      {
-        $lookup: {
-          from: "offers",
-          localField: "offerId",
-          foreignField: "_id",
-          as: "offerDetails"
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalSales: { $sum: "$totalAmount" }, // Total sales amount
-          totalDiscounts: { $sum: "$discountAmount" }, // Total discount from the order
-          totalCoupons: { $sum: { $sum: "$couponDetails.discount" } }, // Total discount from coupons
-          totalOffers: { $sum: { $sum: "$offerDetails.discount" } }, // Total discount from offers
-          netSales: { $sum: { $subtract: ["$totalAmount", { $add: ["$discountAmount", { $sum: "$couponDetails.discount" }, { $sum: "$offerDetails.discount" }] }] } }
+        $project: {
+          orderId: 1,
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalAmount: 1,
+          subtotal: 1,
+          discount: { $ifNull: ["$totalDiscounts", 0] },
+          coupon: { $ifNull: ["$totalCoupons", 0] },
+          total: {
+            $add: [
+              { $ifNull: ["$totalAmount", 0] },
+              { $ifNull: ["$totalDiscounts", 0] },
+              { $ifNull: ["$totalCoupons", 0] }
+            ]
+          },
+          paymentStatus: 1,
         }
       }
     ]);
 
-    // Extract report data
+    // Initialize totals
+    let totalSales = 0;
+    let totalDiscounts = 0;
+    let totalCoupons = 0;
+    let netSales = 0;
+
+    // Calculate totals
+    totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
+    totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
+    totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
+    netSales = totalSales - totalDiscounts - totalCoupons;
+
+    // If there is no data, return a default empty report
+    if (salesData.length === 0) {
+      return res.json({
+        totalSales: 0,
+        totalDiscounts: 0,
+        totalCoupons: 0,
+        netSales: 0,
+        sales: []
+      });
+    }
+
+    // Send the report data as JSON response
     const reportData = {
-      totalSales: orders[0]?.totalSales || 0,
-      totalDiscounts: orders[0]?.totalDiscounts || 0,
-      totalCoupons: orders[0]?.totalCoupons || 0,
-      totalOffers: orders[0]?.totalOffers || 0,
-      netSales: orders[0]?.netSales || 0,
+      totalSales,
+      totalDiscounts,
+      totalCoupons,
+      netSales,
+      sales: salesData
     };
 
-    res.json(reportData); // Send the report data as JSON response
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.log(`Total Sales: ₹${totalSales}`);
+    console.log(`Total Discounts: ₹${totalDiscounts}`);
+    console.log(`Total Coupons: ₹${totalCoupons}`);
+    console.log(`Net Sales: ₹${netSales}`);
+
+    res.json(reportData);
+  } catch (error) {
+    console.error("Error generating sales report:", error);
+    res.status(500).json({ message: "Error fetching sales data", error });
   }
 };
+
+
 module.exports = {
   loadLoginPage,
   handleLogin,

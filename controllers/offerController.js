@@ -149,7 +149,6 @@ const editOffer = async (req, res) => {
       description,
     } = req.body;
 
-    // Fetch the existing offer
     const existingOffer = await Offer.findById(id);
     if (!existingOffer) {
       return res
@@ -157,32 +156,28 @@ const editOffer = async (req, res) => {
         .json({ success: false, message: "Offer not found" });
     }
 
-    // Update the offer fields
     existingOffer.name = name;
     existingOffer.type = type;
-    existingOffer.categoryOrProduct = categoryOrProduct;
-    existingOffer.discountType = discountType;
+    existingOffer.categoryOrProduct = categoryOrProduct
+    existingOffer.discountType = discountType
     existingOffer.discountValue = discountValue;
-    existingOffer.startDate = startDate;
+    existingOffer.startDate = startDate
     existingOffer.endDate = endDate;
-    existingOffer.status = status;
+    existingOffer.status = status
     existingOffer.description = description;
 
     await existingOffer.save();
 
-    // Apply discount logic based on type
     if (type === "Category") {
-      const products = await Product.find({ category: categoryOrProduct });
+      const products = await Product.find({ category: categoryOrProduct })
       for (let product of products) {
         const extraDiscount = (product.discount_price * discountValue) / 100;
 
-        // Restore original price if any previous discount exists
         if (product.previous_discount_price) {
-          product.discount_price = product.previous_discount_price;
+          product.discount_price = product.previous_discount_price
         }
 
-        // Apply the new discount
-        product.previous_discount_price = product.discount_price;
+        product.previous_discount_price = product.discount_price
         product.discount_price = Math.round(
           product.discount_price - extraDiscount
         );
@@ -194,13 +189,11 @@ const editOffer = async (req, res) => {
       if (product) {
         const extraDiscount = (product.discount_price * discountValue) / 100;
 
-        // Restore original price if any previous discount exists
         if (product.previous_discount_price) {
           product.discount_price = product.previous_discount_price;
         }
 
-        // Apply the new discount
-        product.previous_discount_price = product.discount_price;
+        product.previous_discount_price = product.discount_price
         product.discount_price = Math.round(
           product.discount_price - extraDiscount
         );

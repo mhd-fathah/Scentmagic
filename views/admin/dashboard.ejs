@@ -515,7 +515,6 @@
                                     </th>
                                     <th class="align-middle" scope="col">Order ID</th>
                                     <th class="align-middle" scope="col">Date</th>
-                                    <!-- <th class="align-middle" scope="col">Subtotal</th> -->
                                     <th class="align-middle" scope="col">Discount</th>
                                     <th class="align-middle" scope="col">Coupon</th>
                                     <th class="align-middle" scope="col">Total</th>
@@ -532,7 +531,6 @@
                                         </td>
                                         <td><%= sale.orderId %></td>
                                         <td><%= sale.date %></td>
-                                        <!-- <td>₹<%= (sale.subtotal || 0).toFixed(2) %></td> -->
                                         <td>₹<%= (sale.discount || 0).toFixed(2) %></td>
                                         <td>₹<%= (sale.coupon || 0).toFixed(2) %></td>
                                         <td>₹<%= (sale.total || 0).toFixed(2) %></td>
@@ -580,70 +578,63 @@
     </main>
 
     <script>
-        // Function to generate the report
-// Show or hide the custom date range inputs based on report type
-document.getElementById('reportType').addEventListener('change', function() {
-    const reportType = this.value;
-    const customDateRange = document.getElementById('customDateRange');
+        // Show or hide the custom date range inputs based on the selected report type
+        const reportType = document.getElementById("reportType");
+        const customDateRange = document.querySelector(".custom-date-range");
     
-    if (reportType === 'custom') {
-        customDateRange.style.display = 'block';
-    } else {
-        customDateRange.style.display = 'none';
-    }
-});
-
-// Generate the report
-function generateReport() {
-    const reportType = document.getElementById('reportType').value;
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-
-    // Simulating data fetch based on the selected report type and date range
-    let reportData = {};  // You would replace this with a real data fetch (e.g., via AJAX)
-
-    if (reportType === 'daily') {
-        // Fetch daily report data
-    } else if (reportType === 'weekly') {
-        // Fetch weekly report data
-    } else if (reportType === 'monthly') {
-        // Fetch monthly report data
-    } else if (reportType === 'yearly') {
-        // Fetch yearly report data
-    } else if (reportType === 'custom') {
-        // Fetch custom range report data
-        // Validate date range if needed
-    }
-
-    // Update the summary section with the fetched data
-    document.getElementById('totalSales').textContent = `₹${reportData.totalSales || 0}`;
-    document.getElementById('totalDiscounts').textContent = `₹${reportData.totalDiscounts || 0}`;
-    document.getElementById('totalCoupons').textContent = `₹${reportData.totalCoupons || 0}`;
-    document.getElementById('totalOffers').textContent = `₹${reportData.totalOffers || 0}`;
-    document.getElementById('netSales').textContent = `₹${reportData.netSales || 0}`;
+        reportType.addEventListener("change", function() {
+            if (reportType.value === "custom") {
+                customDateRange.style.display = "block";
+            } else {
+                customDateRange.style.display = "none";
+            }
+        });
     
-    // Optionally, populate the sales table dynamically
-    const salesTableBody = document.getElementById('salesTableBody');
-    salesTableBody.innerHTML = '';  // Clear any previous rows
-
-    // Assuming reportData.sales is an array of sales data
-    reportData.sales.forEach(sale => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="text-center"><input class="form-check-input" type="checkbox"></td>
-            <td>${sale.orderId}</td>
-            <td>${sale.date}</td>
-            <td>${sale.subtotal}</td>
-            <td>${sale.discount}</td>
-            <td>${sale.coupon}</td>
-            <td>${sale.total}</td>
-            <td>${sale.paymentStatus}</td>
-        `;
-        salesTableBody.appendChild(row);
-    });
-}
-
+        // Function to generate the report based on the selected filters
+        function generateReport() {
+            const reportTypeValue = reportType.value;
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+    
+            // Fetch report data from the backend based on the report type and date range
+            fetch(`/admin/report?type=${reportTypeValue}&startDate=${startDate}&endDate=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the summary with the fetched data
+                    document.getElementById('totalSales').textContent = `₹${(data.totalSales || 0).toFixed(2)}`;
+                    document.getElementById('totalDiscounts').textContent = `₹${(data.totalDiscounts || 0).toFixed(2)}`;
+                    document.getElementById('totalCoupons').textContent = `₹${(data.totalCoupons || 0).toFixed(2)}`;
+                    document.getElementById('totalOffers').textContent = `₹${(data.totalOffers || 0).toFixed(2)}`;
+                    document.getElementById('netSales').textContent = `₹${(data.netSales || 0).toFixed(2)}`;
+    
+                    // Populate the sales table dynamically
+                    const salesTableBody = document.getElementById("salesTableBody");
+                    salesTableBody.innerHTML = ''; // Clear previous rows
+    
+                    data.sales.forEach(sale => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td class="text-center">
+                                <div class="form-check align-middle">
+                                    <input class="form-check-input" type="checkbox">
+                                </div>
+                            </td>
+                            <td>${sale.orderId}</td>
+                            <td>${sale.date}</td>
+                            <td>₹${(sale.discount || 0).toFixed(2)}</td>
+                            <td>₹${(sale.coupon || 0).toFixed(2)}</td>
+                            <td>₹${(sale.total || 0).toFixed(2)}</td>
+                            <td>${sale.paymentStatus}</td>
+                        `;
+                        salesTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching report data:", error);
+                });
+        }
     </script>
+    
 
 
     <script src="https://cdn.jsdelivr.net/npm/verti-timeline/js/verti-timeline.min.js"></script>

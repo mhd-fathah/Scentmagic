@@ -77,12 +77,12 @@
             
 
             <div class="d-flex gap-2 mt-3">
-              <a href="/orders/track/<%= orderData.order.orderId %>" class="btn btn-outline-magenta btn-sm">
+              <!-- <a href="/orders/track/<%= orderData.order.orderId %>" class="btn btn-outline-magenta btn-sm">
                 Track Order
               </a>
               <a href="/orders/invoice/<%= orderData.order.orderId %>" class="btn btn-outline-magenta btn-sm">
                 Download Invoice
-              </a>
+              </a> -->
               <% if (orderData.order.canCancel) { %>
                 <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="confirmCancellation('<%= orderData.order.orderId %>');">
                   Cancel Order

@@ -34,6 +34,6 @@ router.get('/reject-return/:orderId',auth.isAdminAuthenticated , adminController
 router.get('/dashboard',adminController.loadDashboard)
 
 // Route to generate the sales report
-router.get('/generate-sales-report', adminController.generateSalesReport);
+router.get('/report', adminController.generateSalesReport);
 
 module.exports = router; 
