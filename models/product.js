@@ -26,12 +26,12 @@ const productSchema = new mongoose.Schema(
     salesPackage: { type: String },
     leftStock: { type: Number, required: true },
     extra_offer_percentage: { type: Number, default: 0 },
-    coupon: {  // New coupon field
-      type: String, // You can make it String or Number based on your use case
-      default: "",  // Set a default value (empty string if no coupon)
+    coupon: {  
+      type: String, 
+      default: "", 
     },
   },
-  { timestamps: true } // This will automatically create 'createdAt' and 'updatedAt' fields
+  { timestamps: true } 
 );
 
 productSchema.virtual("total_discount_price").get(function () {

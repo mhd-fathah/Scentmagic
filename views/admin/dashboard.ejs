@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>Scentmagic - Dashboard</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
@@ -14,272 +13,274 @@
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="/img/logo.png" />
     <!-- Include Material Icons (if required) -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
     <!-- Include any other required styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
 
     <style>
-        /* Container for the timeline */
-        .vertical-timeline {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            position: relative;
-        }
+      .vertical-timeline {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        position: relative;
+      }
 
-        .timeline-item {
-            position: relative;
-            padding-left: 40px;
-            margin-bottom: 20px;
-        }
+      .timeline-item {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 20px;
+      }
 
-        /* Timeline dot */
-        .timeline-dot {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 10px;
-            height: 10px;
-            background-color: #007bff;
-            /* Blue color for the dot */
-            border-radius: 50%;
-            box-shadow: 0 0 0 4px #fff;
-            /* Creates the white border around the dot */
-        }
+      .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #007bff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px #fff;
+      }
 
-        /* Timeline content box */
-        .timeline-content {
-            /* background-color: #f8f9fa; */
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+      .timeline-content {
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .timeline-content h6 {
+        font-size: 1.1em;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
 
-        /* Optional: Styling for the member's name and email */
-        .timeline-content h6 {
-            font-size: 1.1em;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+      .timeline-content p {
+        font-size: 0.9em;
+        color: #555;
+      }
 
-        .timeline-content p {
-            font-size: 0.9em;
-            color: #555;
-        }
+      .vertical-timeline .timeline-item:nth-child(odd) .timeline-dot {
+        background-color: #28a745;
+      }
 
-        /* Optional: Styling for the timeline items */
-        .vertical-timeline .timeline-item:nth-child(odd) .timeline-dot {
-            background-color: #28a745;
-            /* Green dot for odd items */
-        }
+      .timeline-item {
+        opacity: 0;
+        transform: translateX(-50px);
+        animation: fadeIn 0.5s forwards;
+        animation-delay: 0.2s;
+      }
 
-        .vertical-timeline .timeline-item:nth-child(odd) .timeline-content {
-            /* background-color: #e9f7ef; */
-            /* Light green background for odd items */
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateX(0);
         }
+      }
 
-        /* Animation for the timeline items */
-        .timeline-item {
-            opacity: 0;
-            transform: translateX(-50px);
-            animation: fadeIn 0.5s forwards;
-            animation-delay: 0.2s;
-            /* Adjust for different timing per item */
-        }
+      .activity-timeline-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+      .activity-timeline-line {
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #ddd;
+      }
 
-        /* Timeline container */
-        /* Container for the entire timeline */
-        .activity-timeline-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
+      .activity-timeline-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+      }
 
-        /* The main vertical line that connects all the dots */
-        .activity-timeline-line {
-            position: absolute;
-            left: 20px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #ddd;
-            /* Light gray color for the line */
-        }
+      .activity-timeline-dot {
+        position: absolute;
+        left: 20px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        background-color: #007bff;
 
-        /* Container for each activity item */
-        .activity-timeline-item {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin-bottom: 20px;
-            position: relative;
-        }
+        border-radius: 50%;
+        border: 4px solid white;
 
-        /* Dot representing the activity */
-        .activity-timeline-dot {
-            position: absolute;
-            left: 20px;
-            top: 0;
-            width: 16px;
-            height: 16px;
-            background-color: #007bff;
-            /* Blue color for the dot */
-            border-radius: 50%;
-            border: 4px solid white;
-            /* White border around the dot */
-            z-index: 10;
-        }
+        z-index: 10;
+      }
 
-        /* Content area for each activity */
-        .activity-timeline-content {
-            padding: 12px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-left: 40px;
-            width: calc(100% - 60px);
-            /* Make space for the dot and line */
-        }
+      .activity-timeline-content {
+        padding: 12px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-left: 40px;
+        width: calc(100% - 60px);
+      }
 
-        /* Header with the date and optional icon */
-        .activity-timeline-content h6 {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+      .activity-timeline-content h6 {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
 
-        /* Activity description */
-        .activity-timeline-content p {
-            font-size: 0.9em;
-            color: #555;
-        }
+      .activity-timeline-content p {
+        font-size: 0.9em;
+        color: #555;
+      }
 
-        /* Styling for active items */
-        .activity-timeline-item.active .activity-timeline-dot {
-            background-color: #28a745;
-            /* Green color for active dots */
-        }
+      .activity-timeline-item.active .activity-timeline-dot {
+        background-color: #28a745;
+      }
 
-        /* Hover effect for timeline content */
-        .activity-timeline-item:hover .activity-timeline-content {
-            background-color: #e9ecef;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+      .activity-timeline-item:hover .activity-timeline-content {
+        background-color: #e9ecef;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
     </style>
     <!-- Template CSS -->
     <script src="/js/admin/color-modes.js"></script>
     <link href="/css/admin/main.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css" rel="stylesheet" />
-</head>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/material-icons@1.13.12/iconfont/material-icons.min.css"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
-        <div class="aside-top">
-            <a href="index.html" class="brand-wrap">
-                <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard" />
-            </a>
-            <div>
-                <button class="btn btn-icon btn-aside-minimize text-muted">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
+      <div class="aside-top">
+        <a href="index.html" class="brand-wrap">
+          <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard" />
+        </a>
+        <div>
+          <button class="btn btn-icon btn-aside-minimize text-muted">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
-        <nav>
-            <ul class="menu-aside">
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/dashboard">
-                        <span class="text">Dashboard</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/products">
-                        <span class="text">Products</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/categories">
-                        <span class="text">Categories</span>
-                    </a>
-                </li>
+      </div>
+      <nav>
+        <ul class="menu-aside">
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/dashboard">
+              <span class="text">Dashboard</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/products">
+              <span class="text">Products</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/categories">
+              <span class="text">Categories</span>
+            </a>
+          </li>
 
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/orders">
-                        <span class="text">Orders</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/users">
-                        <span class="text">Users</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/products/add">
-                        <span class="text">Add Product</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/coupon">
-                        <span class="text">Coupons</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="/admin/offers">
-                        <span class="text">Offers</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a class="menu-link" href="#">
-                        <span class="text">Reviews</span>
-                    </a>
-                </li>
-            </ul>
-            <hr />
-            <ul class="menu-aside">
-                <li class="menu-item">
-                    <a class="menu-link" href="#">
-                        <span class="text">Account</span>
-                    </a>
-                </li>
-            </ul>
-            <br />
-            <br />
-        </nav>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/orders">
+              <span class="text">Orders</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/users">
+              <span class="text">Users</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/products/add">
+              <span class="text">Add Product</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/coupon">
+              <span class="text">Coupons</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="/admin/offers">
+              <span class="text">Offers</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a class="menu-link" href="#">
+              <span class="text">Reviews</span>
+            </a>
+          </li>
+        </ul>
+        <hr />
+        <ul class="menu-aside">
+          <li class="menu-item">
+            <a class="menu-link" href="#">
+              <span class="text">Account</span>
+            </a>
+          </li>
+        </ul>
+        <br />
+        <br />
+      </nav>
     </aside>
     <main class="main-wrap">
-        <header class="main-header navbar">
-            <div class="col-nav d-flex justify-content-end align-items-center w-100">
-                <!-- Mobile Menu Button -->
-                <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvas_aside">
-                    <i class="fas fa-bars"></i>
-                </button>
+      <header class="main-header navbar">
+        <div
+          class="col-nav d-flex justify-content-end align-items-center w-100"
+        >
+          <!-- Mobile Menu Button -->
+          <button
+            class="btn btn-icon btn-mobile me-auto d-lg-none"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvas_aside"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
 
-                <!-- Navbar -->
-                <ul class="nav ms-auto">
-                    <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
-                            aria-expanded="false">
-                            <img class="img-xs rounded-circle" src="/img/logo.png" alt="Admin" />
-                        </a>
+          <!-- Navbar -->
+          <ul class="nav ms-auto">
+            <li class="dropdown nav-item">
+              <a
+                class="dropdown-toggle"
+                data-bs-toggle="dropdown"
+                href="#"
+                id="dropdownAccount"
+                aria-expanded="false"
+              >
+                <img
+                  class="img-xs rounded-circle"
+                  src="/img/logo.png"
+                  alt="Admin"
+                />
+              </a>
 
-                        <!-- Dropdown Menu -->
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <!-- Uncomment or add any menu items you need -->
-                            <!-- <a class="dropdown-item" href="#">
+              <!-- Dropdown Menu -->
+              <div
+                class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="dropdownAccount"
+              >
+                <!-- Uncomment or add any menu items you need -->
+                <!-- <a class="dropdown-item" href="#">
                         <i class="material-icons md-perm_identity"></i>Edit Profile
                       </a>
                       <a class="dropdown-item" href="#">
@@ -294,275 +295,266 @@
                       <a class="dropdown-item" href="#">
                         <i class="material-icons md-help_outline"></i>Help Center
                       </a> -->
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="/admin/logout">
-                                <i class="material-icons md-exit_to_app"></i>Logout
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </header>
-        <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Dashboard</h2>
-                    <p>Whole data about your business here</p>
-                </div>
-                <div>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="/admin/logout">
+                  <i class="material-icons md-exit_to_app"></i>Logout
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </header>
+      <section class="content-main">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title card-title">Dashboard</h2>
+            <p>Whole data about your business here</p>
+          </div>
+          <!-- <div>
                     <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create
                         report</a>
+                </div> -->
+        </div>
+        <div class="row">
+          <div class="col-lg-3">
+            <div class="card card-body mb-4">
+              <article class="icontext">
+                <span class="icon icon-sm rounded-circle bg-primary-light"
+                  ><i class="text-primary material-icons md-monetization_on"></i
+                ></span>
+                <div class="text">
+                  <h6 class="mb-1 card-title">Revenue</h6>
+                  <span> <%= totalRevenue %> </span>
+                  <span class="text-sm"> Shipping fees are not included </span>
                 </div>
+              </article>
             </div>
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-primary-light"><i
-                                    class="text-primary material-icons md-monetization_on"></i></span>
-                            <div class="text">
-                                <h6 class="mb-1 card-title">Revenue</h6>
-                                <span>
-                                    <%= totalRevenue %>
-                                </span>
-                                <span class="text-sm"> Shipping fees are not included </span>
-                            </div>
-                        </article>
-                    </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="card card-body mb-4">
+              <article class="icontext">
+                <span class="icon icon-sm rounded-circle bg-success-light"
+                  ><i class="text-success material-icons md-local_shipping"></i
+                ></span>
+                <div class="text">
+                  <h6 class="mb-1 card-title">Orders</h6>
+                  <span> <%= orderCount %> </span>
+                  <span class="text-sm"> Excluding orders in transit </span>
                 </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-success-light"><i
-                                    class="text-success material-icons md-local_shipping"></i></span>
-                            <div class="text">
-                                <h6 class="mb-1 card-title">Orders</h6>
-                                <span>
-                                    <%= orderCount %>
-                                </span>
-                                <span class="text-sm"> Excluding orders in transit </span>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-warning-light"><i
-                                    class="text-warning material-icons md-qr_code"></i></span>
-                            <div class="text">
-                                <h6 class="mb-1 card-title">Products</h6>
-                                <span>
-                                    <%= productCount %>
-                                </span>
-                                <span class="text-sm"> In <%= categories %> Categories </span>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="card card-body mb-4">
-                        <article class="icontext">
-                            <span class="icon icon-sm rounded-circle bg-info-light"><i
-                                    class="text-info material-icons md-shopping_basket"></i></span>
-                            <div class="text">
-                                <h6 class="mb-1 card-title">Monthly Earning</h6>
-                                <span>
-                                    <%= monthlyEarning %>
-                                </span>
-                                <span class="text-sm"> Based in your local time. </span>
-                            </div>
-                        </article>
-                    </div>
-                </div>
+              </article>
             </div>
-            <div class="row">
-                <div class="col-xl-8 col-lg-12">
-                    <!-- <div class="card mb-4">
+          </div>
+          <div class="col-lg-3">
+            <div class="card card-body mb-4">
+              <article class="icontext">
+                <span class="icon icon-sm rounded-circle bg-warning-light"
+                  ><i class="text-warning material-icons md-qr_code"></i
+                ></span>
+                <div class="text">
+                  <h6 class="mb-1 card-title">Products</h6>
+                  <span> <%= productCount %> </span>
+                  <span class="text-sm"> In <%= categories %> Categories </span>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="card card-body mb-4">
+              <article class="icontext">
+                <span class="icon icon-sm rounded-circle bg-info-light"
+                  ><i class="text-info material-icons md-shopping_basket"></i
+                ></span>
+                <div class="text">
+                  <h6 class="mb-1 card-title">Monthly Earning</h6>
+                  <span> <%= monthlyEarning %> </span>
+                  <span class="text-sm"> Based in your local time. </span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-8 col-lg-12">
+            <!-- <div class="card mb-4">
                         <article class="card-body">
                             <h5 class="card-title">Sale statistics</h5>
                             <canvas id="myChart" height="120px"></canvas>
                         </article>
                     </div> -->
-                    <div class="row">
-                        <div class="col-lg-5">
-                            <div class="card mb-4">
-                                <article class="card-body">
-                                    <h5 class="card-title">New Members</h5>
-                                    <br />
-                                    <div class="new-member-list">
-                                        <% if (newMembers.length> 0) { %>
-                                            <ul class="vertical-timeline">
-                                                <% newMembers.forEach(member=> { %>
-                                                    <li class="timeline-item">
-                                                        <div class="timeline-dot"></div>
-                                                        <div class="timeline-content">
-                                                            <h6>
-                                                                <%= member.name %>
-                                                            </h6>
-                                                            <p class="text-muted font-xs">
-                                                                <%= member.email %>
-                                                            </p>
-                                                        </div>
-                                                    </li>
-                                                    <% }); %>
-                                            </ul>
-                                            <% } else { %>
-                                                <p>No recent members found.</p>
-                                                <% } %>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                        <div class="col-lg-7">
-                            <div class="card mb-4">
-                                <article class="card-body">
-                                    <h5 class="card-title">Recent Activities</h5>
-                                    <div class="activity-timeline-container">
-                                        <div class="activity-timeline-line"></div>
-
-                                        <% activities.forEach(activity=> { %>
-                                            <div class="activity-timeline-item <%= activity.active ? 'active' : '' %>">
-                                                <div class="activity-timeline-dot"></div>
-
-                                                <div class="activity-timeline-content">
-                                                    <h6>
-                                                        <%= activity.date %>
-                                                    </h6>
-                                                    <p>
-                                                        <%= activity.description %>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <% }); %>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
+            <div class="row">
+              <div class="col-lg-5">
+                <div class="card mb-4">
+                  <article class="card-body">
+                    <h5 class="card-title">New Members</h5>
+                    <br />
+                    <div class="new-member-list">
+                      <% if (newMembers.length> 0) { %>
+                      <ul class="vertical-timeline">
+                        <% newMembers.forEach(member=> { %>
+                        <li class="timeline-item">
+                          <div class="timeline-dot"></div>
+                          <div class="timeline-content">
+                            <h6><%= member.name %></h6>
+                            <p class="text-muted font-xs">
+                              <%= member.email %>
+                            </p>
+                          </div>
+                        </li>
+                        <% }); %>
+                      </ul>
+                      <% } else { %>
+                      <p>No recent members found.</p>
+                      <% } %>
                     </div>
+                  </article>
                 </div>
-                <div class="col-xl-4 col-lg-12">
-                    <div class="card mb-4">
-                        <article class="card-body">
-                            <h5 class="card-title">Revenue Base on Area</h5>
-                            <canvas id="myChart2" height="400"></canvas>
-                        </article>
+              </div>
+              <div class="col-lg-7">
+                <div class="card mb-4">
+                  <article class="card-body">
+                    <h5 class="card-title">Recent Activities</h5>
+                    <div class="activity-timeline-container">
+                      <div class="activity-timeline-line"></div>
+
+                      <% activities.forEach(activity=> { %>
+                      <div
+                        class="activity-timeline-item <%= activity.active ? 'active' : '' %>"
+                      >
+                        <div class="activity-timeline-dot"></div>
+
+                        <div class="activity-timeline-content">
+                          <h6><%= activity.date %></h6>
+                          <p><%= activity.description %></p>
+                        </div>
+                      </div>
+                      <% }); %>
                     </div>
+                  </article>
                 </div>
+              </div>
             </div>
+          </div>
+          <div class="col-xl-4 col-lg-12">
             <div class="card mb-4">
-                <header class="card-header">
-                    <h4 class="card-title">Sales Report</h4>
-                    <div class="row align-items-center">
-                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <div class="custom_select">
-                                <select class="form-select select-nice" id="reportType">
-                                    <option value="daily">Daily Report</option>
-                                    <option value="weekly">Weekly Report</option>
-                                    <option value="monthly">Monthly Report</option>
-                                    <option value="yearly">Yearly Report</option>
-                                    <option value="custom">Custom Date Range</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <input type="date" class="form-control" id="startDate" />
-                        </div>
-                        <div class="col-md-2 col-6 custom-date-range" style="display: none">
-                            <input type="date" class="form-control" id="endDate" />
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
-                        </div>
-                        <!-- New Buttons for Download PDF and Download Excel -->
-                        <div class="col-md-4 col-6">
-                            <button class="btn btn-success" onclick="downloadPDF()">Download PDF</button>
-                            <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
-                        </div>
-
-                    </div>
-                </header>
-
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card card-body mb-4">
-                                <h6>Total Sales</h6>
-                                <h4 id="totalSales">₹<%= totalSales.toFixed(2) %>
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card card-body mb-4">
-                                <h6>Discounts Applied</h6>
-                                <h4 id="totalDiscounts">₹<%= totalDiscounts.toFixed(2) %>
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card card-body mb-4">
-                                <h6>Coupon Deductions</h6>
-                                <h4 id="totalCoupons">₹<%= totalCoupons.toFixed(2) %>
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card card-body mb-4">
-                                <h6>Net Sales</h6>
-                                <h4 id="netSales">₹<%= netSales.toFixed(2) %>
-                                </h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table align-middle table-nowrap mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col" class="text-center">
-                                        <div class="form-check align-middle">
-                                            <input class="form-check-input" type="checkbox" id="selectAll" />
-                                            <label class="form-check-label" for="selectAll"></label>
-                                        </div>
-                                    </th>
-                                    <th class="align-middle" scope="col">Order ID</th>
-                                    <th class="align-middle" scope="col">Date</th>
-                                    <th class="align-middle" scope="col">Discount</th>
-                                    <th class="align-middle" scope="col">Coupon</th>
-                                    <th class="align-middle" scope="col">Total</th>
-                                    <th class="align-middle" scope="col">Payment Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="salesTableBody">
-                                <% sales.forEach(function(sale) { %>
-                                    <tr>
-                                        <td class="text-center">
-                                            <div class="form-check align-middle">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <%= sale.orderId %>
-                                        </td>
-                                        <td>
-                                            <%= sale.date %>
-                                        </td>
-                                        <td>₹<%= (sale.discount || 0).toFixed(2) %>
-                                        </td>
-                                        <td>₹<%= (sale.coupon || 0).toFixed(2) %>
-                                        </td>
-                                        <td>₹<%= (sale.total || 0).toFixed(2) %>
-                                        </td>
-                                        <td>
-                                            <%= sale.paymentStatus %>
-                                        </td>
-                                    </tr>
-                                    <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+              <article class="card-body">
+                <h5 class="card-title">Revenue Base on Area</h5>
+                <canvas id="myChart2" height="400"></canvas>
+              </article>
             </div>
-            <!-- <div class="pagination-area mt-30 mb-50">
+          </div>
+        </div>
+        <div class="card mb-4">
+          <header class="card-header">
+            <h4 class="card-title">Sales Report</h4>
+            <div class="row align-items-center">
+              <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                <div class="custom_select">
+                  <select class="form-select select-nice" id="reportType">
+                    <option value="daily">Daily Report</option>
+                    <option value="weekly">Weekly Report</option>
+                    <option value="monthly">Monthly Report</option>
+                    <option value="yearly">Yearly Report</option>
+                    <option value="custom">Custom Date Range</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2 col-6">
+                <input type="date" class="form-control" id="startDate" />
+              </div>
+              <div
+                class="col-md-2 col-6 custom-date-range"
+                style="display: none"
+              >
+                <input type="date" class="form-control" id="endDate" />
+              </div>
+              <div class="col-md-2 col-6">
+                <button class="btn btn-primary" onclick="generateReport()">
+                  Generate Report
+                </button>
+              </div>
+
+              <div class="col-md-4 col-6">
+                <button class="btn btn-success" onclick="downloadPDF()">
+                  Download PDF
+                </button>
+                <button class="btn btn-success" onclick="downloadExcel()">
+                  Download Excel
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-lg-3 col-md-6">
+                <div class="card card-body mb-4">
+                  <h6>Total Sales</h6>
+                  <h4 id="totalSales">₹<%= totalSales.toFixed(2) %></h4>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card card-body mb-4">
+                  <h6>Discounts Applied</h6>
+                  <h4 id="totalDiscounts">₹<%= totalDiscounts.toFixed(2) %></h4>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card card-body mb-4">
+                  <h6>Coupon Deductions</h6>
+                  <h4 id="totalCoupons">₹<%= totalCoupons.toFixed(2) %></h4>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="card card-body mb-4">
+                  <h6>Net Sales</h6>
+                  <h4 id="netSales">₹<%= netSales.toFixed(2) %></h4>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle table-nowrap mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" class="text-center">
+                      <div class="form-check align-middle">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="selectAll"
+                        />
+                        <label class="form-check-label" for="selectAll"></label>
+                      </div>
+                    </th>
+                    <th class="align-middle" scope="col">Order ID</th>
+                    <th class="align-middle" scope="col">Date</th>
+                    <th class="align-middle" scope="col">Discount</th>
+                    <th class="align-middle" scope="col">Coupon</th>
+                    <th class="align-middle" scope="col">Total</th>
+                    <th class="align-middle" scope="col">Payment Status</th>
+                  </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                  <% sales.forEach(function(sale) { %>
+                  <tr>
+                    <td class="text-center">
+                      <div class="form-check align-middle">
+                        <input class="form-check-input" type="checkbox" />
+                      </div>
+                    </td>
+                    <td><%= sale.orderId %></td>
+                    <td><%= sale.date %></td>
+                    <td>₹<%= (sale.discount || 0).toFixed(2) %></td>
+                    <td>₹<%= (sale.coupon || 0).toFixed(2) %></td>
+                    <td>₹<%= (sale.total || 0).toFixed(2) %></td>
+                    <td><%= sale.paymentStatus %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="pagination-area mt-30 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start" id="paginationControls">
                         <% if (currentPage> 1) { %>
@@ -601,21 +593,21 @@
                     </ul>
                 </nav>
             </div> -->
-        </section>
-        <!-- content-main end// -->
-        <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
-                <div class="col-sm-6">
-                    <script>
-                        document.write(new Date().getFullYear());
-                    </script>
-                    2024 © Nest - HTML Ecommerce Template .
-                </div>
-                <div class="col-sm-6">
-                    <div class="text-sm-end">All rights reserved</div>
-                </div>
-            </div>
-        </footer>
+      </section>
+      <!-- content-main end// -->
+      <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+          <div class="col-sm-6">
+            <script>
+              document.write(new Date().getFullYear());
+            </script>
+            2024 © Nest - HTML Ecommerce Template .
+          </div>
+          <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+          </div>
+        </div>
+      </footer>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -623,88 +615,91 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
     <script>
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', [400, 500]);
+      function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF("p", "mm", [400, 500]);
 
-            const table = document.querySelector("table");
-            const rows = table.rows;
+        const table = document.querySelector("table");
+        const rows = table.rows;
 
-            let tableData = [];
-            let headers = [];
+        let tableData = [];
+        let headers = [];
 
-            const headerRow = rows[0];
+        const headerRow = rows[0];
 
-            for (let j = 1; j <= 6; j++) {
-                headers.push(headerRow.cells[j].textContent.trim());
-            }
-
-            for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i].cells;
-                let rowData = [];
-                for (let j = 1; j <= 6; j++) {
-                    rowData.push(cols[j].textContent.trim());
-                }
-                tableData.push(rowData);
-            }
-
-            doc.setFontSize(22);
-            doc.setTextColor(224, 120, 51);
-            doc.text('Sales Report', 14, 15);
-
-            doc.autoTable({
-                head: [headers],
-                body: tableData,
-                startY: 30,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [36, 65, 50],
-                    textColor: [255, 255, 255],
-                    fontSize: 14,
-                    fontStyle: 'bold',
-                    halign: 'center',
-                    cellPadding: 8,
-                },
-                bodyStyles: {
-                    fontSize: 12,
-                    textColor: [60, 60, 60],
-                    halign: 'center',
-                    cellPadding: 6,
-                },
-                alternateRowStyles: {
-                    fillColor: [245, 245, 245],
-                },
-                margin: { top: 40, left: 20, right: 20 },
-                styles: {
-                    lineWidth: 0.3,
-                    lineColor: [0, 0, 0],
-                },
-                columnStyles: {
-                    0: { cellWidth: 60 },
-                    1: { cellWidth: 60 },
-                    2: { cellWidth: 60 },
-                    3: { cellWidth: 60 },
-                    4: { cellWidth: 60 },
-                    5: { cellWidth: 60 },
-                },
-            });
-
-            doc.setFontSize(10);
-            doc.setTextColor(128, 128, 128);
-            doc.text('Sales Report by Scentmagic | All Rights Reserved', 14, doc.internal.pageSize.height - 15);
-
-            doc.save('scentmagic_sales_report.pdf');
+        for (let j = 1; j <= 6; j++) {
+          headers.push(headerRow.cells[j].textContent.trim());
         }
 
-
-
-        function downloadExcel() {
-            const table = document.querySelector("table");
-            const workbook = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
-
-            XLSX.writeFile(workbook, 'sales_report.xlsx');
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i].cells;
+          let rowData = [];
+          for (let j = 1; j <= 6; j++) {
+            rowData.push(cols[j].textContent.trim());
+          }
+          tableData.push(rowData);
         }
 
+        doc.setFontSize(22);
+        doc.setTextColor(224, 120, 51);
+        doc.text("Sales Report", 14, 15);
+
+        doc.autoTable({
+          head: [headers],
+          body: tableData,
+          startY: 30,
+          theme: "grid",
+          headStyles: {
+            fillColor: [36, 65, 50],
+            textColor: [255, 255, 255],
+            fontSize: 14,
+            fontStyle: "bold",
+            halign: "center",
+            cellPadding: 8,
+          },
+          bodyStyles: {
+            fontSize: 12,
+            textColor: [60, 60, 60],
+            halign: "center",
+            cellPadding: 6,
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          margin: { top: 40, left: 20, right: 20 },
+          styles: {
+            lineWidth: 0.3,
+            lineColor: [0, 0, 0],
+          },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            1: { cellWidth: 60 },
+            2: { cellWidth: 60 },
+            3: { cellWidth: 60 },
+            4: { cellWidth: 60 },
+            5: { cellWidth: 60 },
+          },
+        });
+
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          "Sales Report by Scentmagic | All Rights Reserved",
+          14,
+          doc.internal.pageSize.height - 15
+        );
+
+        doc.save("scentmagic_sales_report.pdf");
+      }
+
+      function downloadExcel() {
+        const table = document.querySelector("table");
+        const workbook = XLSX.utils.table_to_book(table, {
+          sheet: "Sales Report",
+        });
+
+        XLSX.writeFile(workbook, "sales_report.xlsx");
+      }
     </script>
 
     <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -804,49 +799,49 @@
     </script> -->
 
     <script>
-        const reportType = document.getElementById("reportType");
-        const customDateRange = document.querySelector(".custom-date-range");
+      const reportType = document.getElementById("reportType");
+      const customDateRange = document.querySelector(".custom-date-range");
 
-        reportType.addEventListener("change", function () {
-            if (reportType.value === "custom") {
-                customDateRange.style.display = "block";
-            } else {
-                customDateRange.style.display = "none";
-            }
-        });
+      reportType.addEventListener("change", function () {
+        if (reportType.value === "custom") {
+          customDateRange.style.display = "block";
+        } else {
+          customDateRange.style.display = "none";
+        }
+      });
 
-        function generateReport() {
-            const reportTypeValue = reportType.value;
-            const startDate = document.getElementById("startDate").value;
-            const endDate = document.getElementById("endDate").value;
+      function generateReport() {
+        const reportTypeValue = reportType.value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
 
-            fetch(
-                `/admin/report?type=${reportTypeValue}&startDate=${startDate}&endDate=${endDate}`
-            )
-                .then((response) => response.json())
-                .then((data) => {
-                    document.getElementById("totalSales").textContent = `₹${(
-                        data.totalSales || 0
-                    ).toFixed(2)}`;
-                    document.getElementById("totalDiscounts").textContent = `₹${(
-                        data.totalDiscounts || 0
-                    ).toFixed(2)}`;
-                    document.getElementById("totalCoupons").textContent = `₹${(
-                        data.totalCoupons || 0
-                    ).toFixed(2)}`;
-                    document.getElementById("totalOffers").textContent = `₹${(
-                        data.totalOffers || 0
-                    ).toFixed(2)}`;
-                    document.getElementById("netSales").textContent = `₹${(
-                        data.netSales || 0
-                    ).toFixed(2)}`;
+        fetch(
+          `/admin/report?type=${reportTypeValue}&startDate=${startDate}&endDate=${endDate}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("totalSales").textContent = `₹${(
+              data.totalSales || 0
+            ).toFixed(2)}`;
+            document.getElementById("totalDiscounts").textContent = `₹${(
+              data.totalDiscounts || 0
+            ).toFixed(2)}`;
+            document.getElementById("totalCoupons").textContent = `₹${(
+              data.totalCoupons || 0
+            ).toFixed(2)}`;
+            document.getElementById("totalOffers").textContent = `₹${(
+              data.totalOffers || 0
+            ).toFixed(2)}`;
+            document.getElementById("netSales").textContent = `₹${(
+              data.netSales || 0
+            ).toFixed(2)}`;
 
-                    const salesTableBody = document.getElementById("salesTableBody");
-                    salesTableBody.innerHTML = "";
+            const salesTableBody = document.getElementById("salesTableBody");
+            salesTableBody.innerHTML = "";
 
-                    data.sales.forEach((sale) => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
+            data.sales.forEach((sale) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
                             <td class="text-center">
                                 <div class="form-check align-middle">
                                     <input class="form-check-input" type="checkbox">
@@ -859,13 +854,13 @@
                             <td>₹${(sale.total || 0).toFixed(2)}</td>
                             <td>${sale.paymentStatus}</td>
                         `;
-                        salesTableBody.appendChild(row);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error fetching report data:", error);
-                });
-        }
+              salesTableBody.appendChild(row);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching report data:", error);
+          });
+      }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/verti-timeline/js/verti-timeline.min.js"></script>
@@ -895,6 +890,5 @@
     <!-- Main Script -->
     <script src="/js/admin/main.js" type="text/javascript"></script>
     <script src="/js/admin/custom-chart.js" type="text/javascript"></script>
-</body>
-
+  </body>
 </html>

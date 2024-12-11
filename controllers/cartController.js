@@ -2,7 +2,6 @@ const Cart = require("../models/cart");
 const Product = require("../models/product");
 const Coupon = require("../models/coupon");
 
-// Get Cart
 const getCart = async (req, res) => {
   if (!req.session.user || !req.session.user._id) {
     return res.status(401).json({ message: "User not authenticated" });
@@ -64,14 +63,13 @@ const getCart = async (req, res) => {
 
     await cart.save();
 
-    // Pass userId, cartItems, priceDetails, and couponCode (from session) to the EJS view
     res.render("my account/cart", {
       layout: false,
       userId: userId,
       cartItems: cart.items,
       priceDetails,
       isEmpty: cart.items.length === 0,
-      couponCode: req.session.couponCode || null,  // Get coupon code from session
+      couponCode: req.session.couponCode || null,  
     });
   } catch (err) {
     console.error("Error fetching cart:", err);
@@ -418,7 +416,6 @@ const applyCoupon = async (req, res) => {
       return res.json({ success: false, message: "Cart not found" });
     }
 
-    // Store coupon in session
     req.session.couponCode = couponCode;
 
     let totalPrice = 0;
@@ -485,10 +482,8 @@ const applyCoupon = async (req, res) => {
 };
 
 
-// Remove Coupon
 const removeCoupon = async (req, res) => {
   try {
-    // Remove coupon from session
     delete req.session.couponCode;
 
     const cart = await Cart.findOne({ user: req.session.user._id }).populate("items.productId");

@@ -3,10 +3,10 @@ const Admin = require("../models/adminModel");
 const User = require("../models/user");
 const Order = require("../models/order");
 const Wallet = require("../models/wallet");
-const Category = require('../models/categories')
-const Product = require('../models/product')
-const Offer = require('../models/offerModel')
-const Coupon = require('../models/coupon')
+const Category = require("../models/categories");
+const Product = require("../models/product");
+const Offer = require("../models/offerModel");
+const Coupon = require("../models/coupon");
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -330,30 +330,31 @@ const rejectReturn = async (req, res) => {
 
 const loadDashboard = async (req, res) => {
   try {
-    
     let totalRevenue = 0;
 
     try {
       const result = await Order.aggregate([
-        { $match: { status: { $ne: "Cancelled" } } }, 
+        { $match: { status: { $ne: "Cancelled" } } },
         { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
       ]);
-    
+
       totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
-    
+
       console.log(`Total Revenue: ${totalRevenue}`);
     } catch (error) {
       console.error("Error calculating total revenue:", error);
     }
-    
+
     const orderCount = await Order.countDocuments();
     console.log(`Total orders: ${orderCount}`);
 
-    const productCount = await Product.countDocuments({ isDeleted: false }); 
+    const productCount = await Product.countDocuments({ isDeleted: false });
     console.log(`Total products: ${productCount}`);
     const products = await Product.find({ isDeleted: false });
 
-    const categories = await Category.find({ isDeleted: false }).select("name -_id");
+    const categories = await Category.find({ isDeleted: false }).select(
+      "name -_id"
+    );
 
     let monthlyEarning = 0;
 
@@ -391,38 +392,35 @@ const loadDashboard = async (req, res) => {
     let totalCoupons = 0;
     let netSales = 0;
 
-    let sales = []; 
+    let sales = [];
 
     try {
       const salesData = await Order.aggregate([
-        
-        { 
-          $match: { 
-            status: { $ne: "Cancelled" } 
-          } 
-        },
-        
         {
-          $project: { 
-            orderId: 1, 
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+          $match: {
+            status: { $ne: "Cancelled" },
+          },
+        },
+
+        {
+          $project: {
+            orderId: 1,
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
             totalAmount: 1,
             subtotal: 1,
-            discount: { $ifNull: ["$totalDiscounts", 0] }, 
-            coupon: { $ifNull: ["$totalCoupons", 0] }, 
-            total: { 
+            discount: { $ifNull: ["$totalDiscounts", 0] },
+            coupon: { $ifNull: ["$totalCoupons", 0] },
+            total: {
               $add: [
                 { $ifNull: ["$totalAmount", 0] },
                 { $ifNull: ["$totalDiscounts", 0] },
-                { $ifNull: ["$totalCoupons", 0] }
-              ]
-            }, 
-            paymentStatus: 1, 
-          }
-        }
+                { $ifNull: ["$totalCoupons", 0] },
+              ],
+            },
+            paymentStatus: 1,
+          },
+        },
       ]);
-      
-      
 
       totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
       totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
@@ -443,13 +441,13 @@ const loadDashboard = async (req, res) => {
     const chartData = [500, 700, 800, 600];
 
     const categoryNames = categories.map((category) => category.name);
-    let newMembers = []; 
+    let newMembers = [];
 
     try {
       newMembers = await User.find({})
-        .sort({ createdAt: -1 }) 
-        .limit(6) 
-        .select("name createdAt email"); 
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .select("name createdAt email");
 
       console.log("Last Joined Users:", newMembers);
     } catch (error) {
@@ -461,38 +459,38 @@ const loadDashboard = async (req, res) => {
     const recentOrders = await Order.find({})
       .sort({ createdAt: -1 })
       .limit(2)
-      .select('orderId createdAt');
+      .select("orderId createdAt");
     recentOrders.forEach((order) => {
       activities.push({
         description: `New order placed: Order ID ${order.orderId}`,
-        active: true, 
+        active: true,
       });
     });
 
     const recentProducts = await Product.find({})
       .sort({ createdAt: -1 })
       .limit(2)
-      .select('product_name createdAt');
+      .select("product_name createdAt");
     recentProducts.forEach((product) => {
       activities.push({
         description: `Product added: ${product.product_name}`,
-        active: false, 
+        active: false,
       });
     });
 
     const recentUsers = await User.find({})
       .sort({ createdAt: -1 })
       .limit(2)
-      .select('name createdAt');
+      .select("name createdAt");
     recentUsers.forEach((user) => {
       activities.push({
-        description: `New user joined: ${user.name || 'Unknown'}`,
-        active: false, 
+        description: `New user joined: ${user.name || "Unknown"}`,
+        active: false,
       });
     });
 
-    const totalPages = 5; 
-    const currentPage = 1; 
+    const totalPages = 5;
+    const currentPage = 1;
 
     res.render("admin/dashboard", {
       layout: false,
@@ -513,7 +511,7 @@ const loadDashboard = async (req, res) => {
       totalDiscounts,
       totalCoupons,
       netSales,
-      sales, 
+      sales,
     });
   } catch (error) {
     console.error("Error loading dashboard:", error);
@@ -533,7 +531,9 @@ const generateSalesReport = async (req, res) => {
       matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
       break;
     case "weekly":
-      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+      const startOfWeek = new Date(
+        today.setDate(today.getDate() - today.getDay())
+      );
       startOfWeek.setHours(0, 0, 0, 0);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
@@ -556,7 +556,11 @@ const generateSalesReport = async (req, res) => {
         const end = new Date(endDate);
         matchCriteria = { createdAt: { $gte: start, $lte: end } };
       } else {
-        return res.status(400).json({ message: "Custom date range requires both startDate and endDate" });
+        return res
+          .status(400)
+          .json({
+            message: "Custom date range requires both startDate and endDate",
+          });
       }
       break;
     default:
@@ -565,7 +569,7 @@ const generateSalesReport = async (req, res) => {
 
   try {
     const salesData = await Order.aggregate([
-      { $match: { ...matchCriteria, status: { $ne: "Cancelled" } } }, 
+      { $match: { ...matchCriteria, status: { $ne: "Cancelled" } } },
       {
         $project: {
           orderId: 1,
@@ -578,12 +582,12 @@ const generateSalesReport = async (req, res) => {
             $add: [
               { $ifNull: ["$totalAmount", 0] },
               { $ifNull: ["$totalDiscounts", 0] },
-              { $ifNull: ["$totalCoupons", 0] }
-            ]
+              { $ifNull: ["$totalCoupons", 0] },
+            ],
           },
           paymentStatus: 1,
-        }
-      }
+        },
+      },
     ]);
 
     let totalSales = 0;
@@ -602,7 +606,7 @@ const generateSalesReport = async (req, res) => {
         totalDiscounts: 0,
         totalCoupons: 0,
         netSales: 0,
-        sales: []
+        sales: [],
       });
     }
 
@@ -611,7 +615,7 @@ const generateSalesReport = async (req, res) => {
       totalDiscounts,
       totalCoupons,
       netSales,
-      sales: salesData
+      sales: salesData,
     };
 
     console.log(`Total Sales: ₹${totalSales}`);
@@ -628,8 +632,8 @@ const generateSalesReport = async (req, res) => {
 
 const loadSalesData = async (req, res) => {
   try {
-    const currentPage = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
-    const perPage = 10; // Number of items per page
+    const currentPage = parseInt(req.query.page) || 1;
+    const perPage = 10;
     const salesData = await Order.aggregate([
       { $match: { status: { $ne: "Cancelled" } } },
       {
@@ -644,26 +648,30 @@ const loadSalesData = async (req, res) => {
             $add: [
               { $ifNull: ["$totalAmount", 0] },
               { $ifNull: ["$totalDiscounts", 0] },
-              { $ifNull: ["$totalCoupons", 0] }
-            ]
+              { $ifNull: ["$totalCoupons", 0] },
+            ],
           },
           paymentStatus: 1,
         },
-      }
+      },
     ]);
 
-    const totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
-    const totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
+    const totalSales = salesData.reduce(
+      (acc, sale) => acc + sale.totalAmount,
+      0
+    );
+    const totalDiscounts = salesData.reduce(
+      (acc, sale) => acc + sale.discount,
+      0
+    );
     const totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
     const netSales = totalSales - totalDiscounts - totalCoupons;
 
-    // Pagination logic
-    const totalPages = Math.ceil(salesData.length / perPage); // Calculate total pages based on sales data length
+    const totalPages = Math.ceil(salesData.length / perPage);
     const startIndex = (currentPage - 1) * perPage;
     const endIndex = startIndex + perPage;
     const paginatedSales = salesData.slice(startIndex, endIndex);
 
-    // Return only the updated sales data and pagination info
     res.json({
       totalSales,
       totalDiscounts,
@@ -671,14 +679,13 @@ const loadSalesData = async (req, res) => {
       netSales,
       sales: paginatedSales,
       totalPages,
-      currentPage
+      currentPage,
     });
   } catch (error) {
     console.error("Error loading sales data:", error);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 module.exports = {
   loadLoginPage,
@@ -696,5 +703,5 @@ module.exports = {
   rejectReturn,
   loadDashboard,
   generateSalesReport,
-  loadSalesData
+  loadSalesData,
 };

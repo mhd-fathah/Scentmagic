@@ -22,29 +22,31 @@ const User = require('../models/user')
 // };
 
 const getWalletPage = async (req, res) => {
-    try {
-      const userId = req.session.user._id; // Get the userId from the session
-  
-      // Find the wallet by userId
-      const wallet = await Wallet.findOne({ userId });
-  
-      if (!wallet) {
-        return res.status(404).send("Wallet not found");
-      }
-  
-      // Pass the wallet and transactions to the view
-      res.render('my account/wallet', {
-        layout: false,
-        wallet: wallet, // Pass the full wallet object
-        transactions: wallet.transactions || [], // Pass transaction history
-        user: req.session.user,  // Pass other user details to display
-      });
-    } catch (error) {
-      console.error("Error rendering wallet page:", error);
-      res.status(500).send("Server Error");
+  try {
+    const userId = req.session.user._id;
+
+    const wallet = await Wallet.findOne({ userId });
+
+    if (!wallet) {
+      return res.status(404).send("Wallet not found");
     }
-  };
-  
+
+    const sortedTransactions = (wallet.transactions || []).sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    res.render("my account/wallet", {
+      layout: false,
+      wallet: wallet,
+      transactions: sortedTransactions, 
+      user: req.session.user,
+    });
+  } catch (error) {
+    console.error("Error rendering wallet page:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
   
 
 
