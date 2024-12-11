@@ -208,6 +208,7 @@
         function placeOrder() {
             const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
             const selectedPayment = document.querySelector('input[name="payment"]:checked');
+           
 
             if (!selectedAddress || !selectedPayment) {
                 Swal.fire({
@@ -236,6 +237,7 @@
                 const productId = item.getAttribute('data-product-id');
                 const quantity = parseInt(item.querySelector('.item-quantity').textContent.split(":")[1].trim());
                 const discountPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', '').trim());
+                
 
                 if (!productId || isNaN(quantity) || isNaN(discountPrice)) {
                     Swal.fire({
@@ -276,9 +278,11 @@
             };
 
             console.log(orderData);
+            const couponCode = document.getElementById("couponCode").value.trim();
+            console.log(couponCode)
 
             if (selectedPayment.value === 'razorpay') {
-                fetch('/order-initiate', {
+                fetch(`/order-initiate?couponCode=${couponCode}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -337,7 +341,7 @@
                 currency: "INR",
                 name: "Scentmagic",
                 description: "Payment for order " + orderId,
-                image: "path/to/logo.png",
+                image: "/img/logo.png",
                 order_id: razorpayOrderId,
                 handler: function (response) {
                     const paymentData = {

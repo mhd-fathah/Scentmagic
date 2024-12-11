@@ -4,6 +4,7 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 const Wallet = require('../models/wallet')
 const Razorpay = require("razorpay");
+const Coupon = require('../models/coupon')
 const crypto = require("crypto");
 require("dotenv").config();
 
@@ -15,6 +16,7 @@ const razorpay = new Razorpay({
 const initiateOrder = async (req, res) => {
   try {
     const { paymentMethod, products, addressId, totalAmount } = req.body;
+    const { couponCode } = req.query;
     const userId = req.session.user?._id;
 
     if (!userId) {
@@ -42,22 +44,51 @@ const initiateOrder = async (req, res) => {
       return res.status(400).json({ message: "Some products not found" });
     }
 
+    const totalPrice = products.reduce((total, product) => {
+      const productDetail = productDetails.find(
+        (p) => p._id.toString() === product.productId.toString()
+      );
+      return total + (productDetail.discount_price || 0) * product.quantity;
+    }, 0);
+
+    let discount = 0;
+    if (couponCode) {
+      const today = new Date();
+      const coupon = await Coupon.findOne({
+        code: couponCode,
+        status: "active",
+        validFrom: { $lte: today },
+        validUntil: { $gte: today },
+      });
+
+      if (!coupon) {
+        return res.status(400).json({ message: "Invalid or expired coupon." });
+      }
+
+      if (coupon.type === "percentage") {
+        discount = (coupon.discount / 100) * totalPrice;
+      } else if (coupon.type === "fixed") {
+        discount = coupon.discount;
+      }
+    }
+
+    const finalTotalAmount = totalPrice - discount;
+    console.log(finalTotalAmount)
+
     const orderId = `ORD-${Date.now()}`;
     let razorpayOrder = null;
 
     if (paymentMethod === "razorpay") {
       razorpayOrder = await razorpay.orders.create({
-        amount: totalAmount * 100,
+        amount: finalTotalAmount * 100, 
         currency: "INR",
         receipt: orderId,
       });
 
       if (!razorpayOrder) {
-        return res
-          .status(500)
-          .json({
-            message: "Error creating Razorpay order. Please try again.",
-          });
+        return res.status(500).json({
+          message: "Error creating Razorpay order. Please try again.",
+        });
       }
     }
 
@@ -84,22 +115,23 @@ const initiateOrder = async (req, res) => {
         city: selectedAddress.city,
       },
       paymentMethod: paymentMethod,
-      totalAmount: totalAmount,
+      totalAmount: finalTotalAmount,
       paymentStatus: paymentMethod === "razorpay" ? "Pending" : "Paid",
       orderStatus: "Pending",
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
+      discount: discount,
+      couponCode: couponCode || null,
     });
 
     const savedOrder = await newOrder.save();
-
-    
 
     res.status(200).json({
       message: "Order created successfully",
       orderId: savedOrder._id,
       razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
-      amount: totalAmount,
+      amount: finalTotalAmount,
       currency: "INR",
+      discount: discount,
       paymentMethod: paymentMethod,
     });
   } catch (error) {
@@ -109,6 +141,7 @@ const initiateOrder = async (req, res) => {
       .json({ message: "Failed to initiate order.", error: error.message });
   }
 };
+
 
 const confirmPayment = async (req, res) => {
   try {
