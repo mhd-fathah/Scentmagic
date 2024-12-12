@@ -61,14 +61,14 @@ const moveToCart = async (req, res) => {
       return res.status(400).send("User not authenticated.");
     }
 
-    const wishlistItem = await Wishlist.findById(productId);
+    const wishlistItem = await Wishlist.findOne({productId});
     console.log("Wishlist Item:", wishlistItem);
 
     if (!wishlistItem) {
       return res.status(404).send("Item not found in wishlist");
     }
 
-    const product = await Product.findById(wishlistItem.productId);
+    const product = await Product.findById(productId);
     console.log("Product:", product);
 
     if (!product) {
@@ -119,7 +119,7 @@ const moveToCart = async (req, res) => {
 
     await cart.save();
 
-    await Wishlist.findByIdAndDelete(productId);
+    await Wishlist.findOneAndDelete({productId});
 
     return res.status(200).json(cart);
   } catch (err) {
