@@ -777,7 +777,7 @@ const generatePdfReport = async (req, res) => {
   try {
     const { salesData, summary } = await fetchSalesReportData(reportType, startDate, endDate);
 
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    const doc = new PDFDocument({ margin: 50, size: [1190, 842] }); 
     res.setHeader('Content-Type', 'application/pdf');
 
     const fileName = reportType
@@ -792,7 +792,14 @@ const generatePdfReport = async (req, res) => {
 
     const tableTop = 150;
     const rowHeight = 20;
-    const colWidths = { orderId: 150, date: 150, amount: 150 };
+    const colWidths = {
+      orderId: 150,
+      date: 150,
+      amount: 200, 
+      discount: 100,
+      coupon: 100,
+      paymentStatus: 150, 
+    };
     const pageHeight = 750;
     let yPosition = tableTop;
 
@@ -803,27 +810,31 @@ const generatePdfReport = async (req, res) => {
         .fillColor('#333333')
         .text('Scentmagic Sales Report', { align: 'center' })
         .moveDown(0.5);
-
+    
       doc
         .fontSize(12)
         .fillColor('#000000')
         .text(reportType ? `Report Type: ${reportType}` : `From: ${startDate} To: ${endDate}`)
         .text(`Net Sales: ₹${summary.netSales}`)
+        .text(`Total Discounts: ₹${summary.totalDiscounts}`)  
         .moveDown(1);
     };
-
+    
     const drawTableHeaders = () => {
       doc
         .fontSize(10)
         .fillColor('#FFFFFF')
-        .rect(50, yPosition, 500, rowHeight)
+        .rect(50, yPosition, 950, rowHeight) 
         .fill('#007BFF');
 
       doc
         .fillColor('#FFFFFF')
         .text('Order ID', 50, yPosition + 5, { width: colWidths.orderId, align: 'left' })
         .text('Date', 50 + colWidths.orderId, yPosition + 5, { width: colWidths.date, align: 'left' })
-        .text('Amount', 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' });
+        .text('Amount', 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' })
+        .text('Discount', 50 + colWidths.orderId + colWidths.date + colWidths.amount, yPosition + 5, { width: colWidths.discount, align: 'right' })
+        .text('Coupon', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount, yPosition + 5, { width: colWidths.coupon, align: 'right' })
+        .text('Payment Status', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' });
 
       yPosition += rowHeight;
     };
@@ -834,10 +845,10 @@ const generatePdfReport = async (req, res) => {
         .fillColor('#000000')
         .text(sale.orderId, 50, yPosition + 5, { width: colWidths.orderId, align: 'left' })
         .text(sale.date, 50 + colWidths.orderId, yPosition + 5, { width: colWidths.date, align: 'left' })
-        .text(`₹${sale.totalAmount}`, 50 + colWidths.orderId + colWidths.date, yPosition + 5, {
-          width: colWidths.amount,
-          align: 'right',
-        });
+        .text(`₹${sale.totalAmount}`, 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' })
+        .text(`₹${sale.discount}`, 50 + colWidths.orderId + colWidths.date + colWidths.amount, yPosition + 5, { width: colWidths.discount, align: 'right' })
+        .text(sale.coupon || '-', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount, yPosition + 5, { width: colWidths.coupon, align: 'right' })
+        .text(sale.paymentStatus, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' });
 
       yPosition += rowHeight;
     };
@@ -845,12 +856,12 @@ const generatePdfReport = async (req, res) => {
     const checkAndAddPage = () => {
       if (yPosition + rowHeight > pageHeight) {
         doc.addPage();
-        yPosition = 50; 
+        yPosition = 50;
       }
     };
 
     addHeader();
-    drawTableHeaders(); 
+    drawTableHeaders();
 
     salesData.forEach((sale) => {
       checkAndAddPage();
@@ -866,22 +877,15 @@ const generatePdfReport = async (req, res) => {
 
 
 
-
-
-
-// Main function to generate the Excel report and send it as a response
 const generateExcelReport = async (req, res) => {
   const { reportType, startDate, endDate } = req.body;
 
   try {
-    // Fetch sales data and summary from the helper function
     const { salesData, summary } = await fetchSalesReportData(reportType, startDate, endDate);
 
-    // Initialize Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
-    // Set title and header for the report
     worksheet.mergeCells('A1:F1');
     worksheet.getCell('A1').value = 'Scentmagic Sales Report';
     worksheet.getCell('A1').alignment = { horizontal: 'center' };
@@ -892,17 +896,14 @@ const generateExcelReport = async (req, res) => {
     worksheet.addRow([`Net Sales: ₹${summary.netSales}`]);
     worksheet.addRow([]);
 
-    // Add summary data
     worksheet.addRow(['Total Sales', summary.totalSales]);
     worksheet.addRow(['Total Discounts', summary.totalDiscounts]);
     worksheet.addRow(['Total Coupons', summary.totalCoupons]);
     worksheet.addRow(['Net Sales', summary.netSales]);
     worksheet.addRow([]);
 
-    // Add table headers for sales data
     worksheet.addRow(['Order ID', 'Date', 'Total Amount', 'Discount', 'Coupon', 'Payment Status']);
 
-    // Add sales data to the sheet
     salesData.forEach((sale) => {
       worksheet.addRow([
         sale.orderId,
@@ -914,7 +915,6 @@ const generateExcelReport = async (req, res) => {
       ]);
     });
 
-    // Set response headers for Excel download
     const fileName = reportType
       ? `scentmagic-sales-report-${reportType}.xlsx`
       : `scentmagic-sales-report-${startDate}-to-${endDate}.xlsx`;
@@ -922,9 +922,8 @@ const generateExcelReport = async (req, res) => {
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
-    // Write the Excel file to the response
     await workbook.xlsx.write(res);
-    res.end();  // End the response after the file is sent
+    res.end(); 
   } catch (error) {
     console.error('Error generating Excel:', error);
     res.status(500).json({ message: 'Failed to generate Excel file', error });
