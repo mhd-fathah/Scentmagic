@@ -337,7 +337,7 @@ const loadDashboard = async (req, res) => {
 
     try {
       const result = await Order.aggregate([
-        { $match: { status: { $ne: "Cancelled" } } },
+        { $match: { status: { $ne: "Cancelled" } , paymentStatus:{$eq:"Paid"},} },
         { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
       ]);
 
@@ -369,6 +369,7 @@ const loadDashboard = async (req, res) => {
         {
           $match: {
             status: { $ne: "Cancelled" },
+            paymentStatus:{$eq:"Paid"},
             createdAt: {
               $gte: new Date(currentYear, currentMonth, 1),
               $lt: new Date(currentYear, currentMonth + 1, 1),
@@ -402,6 +403,7 @@ const loadDashboard = async (req, res) => {
         {
           $match: {
             status: { $ne: "Cancelled" },
+            paymentStatus:{$eq:"Paid"},
           },
         },
 
