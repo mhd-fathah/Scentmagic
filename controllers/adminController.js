@@ -522,7 +522,7 @@ const loadDashboard = async (req, res) => {
   }
 };
 
-const loadSalesReport = async (req,res) => {
+const loadSalesReport = async (req, res) => {
   let totalSales = 0;
   let totalDiscounts = 0;
   let totalCoupons = 0;
@@ -535,6 +535,7 @@ const loadSalesReport = async (req,res) => {
       {
         $match: {
           status: { $ne: "Cancelled" },
+          paymentStatus: "Paid"  
         },
       },
 
@@ -570,11 +571,12 @@ const loadSalesReport = async (req,res) => {
     console.log(`Total Coupons: ₹${totalCoupons}`);
     console.log(`Net Sales: ₹${netSales}`);
 
-    res.render('admin/sales-report',{sales , layout:false})
+    res.render('admin/sales-report', { sales, layout: false });
   } catch (error) {
     console.error("Error calculating sales data:", error);
   }
-}
+};
+
 
 const generateSalesReport = async (req, res) => {
   const { reportType, startDate, endDate } = req.body;
@@ -586,39 +588,35 @@ const generateSalesReport = async (req, res) => {
     case "daily":
       const startOfDay = new Date(today.setHours(0, 0, 0, 0));
       const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay }, paymentStatus: "Paid" }; 
       break;
     case "weekly":
-      const startOfWeek = new Date(
-        today.setDate(today.getDate() - today.getDay())
-      );
+      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
       startOfWeek.setHours(0, 0, 0, 0);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek } };
+      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek }, paymentStatus: "Paid" }; 
       break;
     case "monthly":
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth }, paymentStatus: "Paid" }; 
       break;
     case "yearly":
       const startOfYear = new Date(today.getFullYear(), 0, 1);
       const endOfYear = new Date(today.getFullYear(), 11, 31);
-      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
+      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear }, paymentStatus: "Paid" }; 
       break;
     case "custom":
       if (startDate && endDate) {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        matchCriteria = { createdAt: { $gte: start, $lte: end } };
+        matchCriteria = { createdAt: { $gte: start, $lte: end }, paymentStatus: "Paid" }; 
       } else {
-        return res
-          .status(400)
-          .json({
-            message: "Custom date range requires both startDate and endDate",
-          });
+        return res.status(400).json({
+          message: "Custom date range requires both startDate and endDate",
+        });
       }
       break;
     default:
@@ -688,88 +686,89 @@ const generateSalesReport = async (req, res) => {
   }
 };
 
-const fetchSalesReportData = async (reportType, startDate, endDate) => {
+
+const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
   let matchCriteria = {
-    createdAt: {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate),
-    },
     status: { $ne: 'Cancelled' },
+    paymentStatus: "Paid",  
   };
+
   const today = new Date();
 
   switch (reportType) {
     case "daily":
       const startOfDay = new Date(today.setHours(0, 0, 0, 0));
       const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay }, paymentStatus: "Paid" };
       break;
     case "weekly":
-      const startOfWeek = new Date(
-        today.setDate(today.getDate() - today.getDay())
-      );
+      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
       startOfWeek.setHours(0, 0, 0, 0);
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek } };
+      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek }, paymentStatus: "Paid" };
       break;
     case "monthly":
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth }, paymentStatus: "Paid" };
       break;
     case "yearly":
       const startOfYear = new Date(today.getFullYear(), 0, 1);
       const endOfYear = new Date(today.getFullYear(), 11, 31);
-      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
+      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear }, paymentStatus: "Paid" };
       break;
     case "custom":
       if (startDate && endDate) {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        matchCriteria = { createdAt: { $gte: start, $lte: end } };
+        matchCriteria = { createdAt: { $gte: start, $lte: end }, paymentStatus: "Paid" };
       } else {
-        return res
-          .status(400)
-          .json({
-            message: "Custom date range requires both startDate and endDate",
-          });
+        return res.status(400).json({
+          message: "Custom date range requires both startDate and endDate",
+        });
       }
       break;
     default:
       return res.status(400).json({ message: "Invalid report type" });
   }
 
-  const salesData = await Order.aggregate([
-    { $match: matchCriteria },
-    {
-      $project: {
-        orderId: 1,
-        date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-        totalAmount: 1,
-        discount: { $ifNull: ['$totalDiscounts', 0] },
-        coupon: { $ifNull: ['$totalCoupons', 0] },
-        paymentStatus: 1,
+  try {
+    const salesData = await Order.aggregate([
+      { $match: matchCriteria },
+      {
+        $project: {
+          orderId: 1,
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalAmount: 1,
+          discount: { $ifNull: ["$totalDiscounts", 0] },
+          coupon: { $ifNull: ["$totalCoupons", 0] },
+          paymentStatus: 1,
+        },
       },
-    },
-  ]);
+    ]);
 
-  const totalSales = salesData.reduce((sum, sale) => sum + sale.totalAmount, 0);
-  const totalDiscounts = salesData.reduce((sum, sale) => sum + sale.discount, 0);
-  const totalCoupons = salesData.reduce((sum, sale) => sum + sale.coupon, 0);
-  const netSales = totalSales - totalDiscounts - totalCoupons;
+    const totalSales = salesData.reduce((sum, sale) => sum + sale.totalAmount, 0);
+    const totalDiscounts = salesData.reduce((sum, sale) => sum + sale.discount, 0);
+    const totalCoupons = salesData.reduce((sum, sale) => sum + sale.coupon, 0);
+    const netSales = totalSales - totalDiscounts - totalCoupons;
 
-  return {
-    salesData,
-    summary: {
-      totalSales,
-      totalDiscounts,
-      totalCoupons,
-      netSales,
-    },
-  };
+    return {
+      salesData,
+      summary: {
+        totalSales,
+        totalDiscounts,
+        totalCoupons,
+        netSales,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching sales report data:", error);
+    return res.status(500).json({ message: "Error fetching sales data", error });
+  }
 };
+
 
 const generatePdfReport = async (req, res) => {
   const { reportType, startDate, endDate } = req.body;
