@@ -535,10 +535,25 @@ const loadSalesReport = async (req, res) => {
       {
         $match: {
           status: { $ne: "Cancelled" },
-          paymentStatus: "Paid"  
+          paymentStatus: "Paid",
         },
       },
-
+      {
+        $lookup: {
+          from: "users", 
+          localField: "userId", 
+          foreignField: "_id", 
+          as: "userDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "products", 
+          localField: "productId", 
+          foreignField: "_id", 
+          as: "productDetails",
+        },
+      },
       {
         $project: {
           orderId: 1,
@@ -555,6 +570,9 @@ const loadSalesReport = async (req, res) => {
             ],
           },
           paymentStatus: 1,
+          paymentMethod: 1,
+          userName: { $arrayElemAt: ["$userDetails.name", 0] }, 
+          productName: { $arrayElemAt: ["$productDetails.product_name", 0] },
         },
       },
     ]);
@@ -576,6 +594,7 @@ const loadSalesReport = async (req, res) => {
     console.error("Error calculating sales data:", error);
   }
 };
+
 
 
 const generateSalesReport = async (req, res) => {
@@ -627,6 +646,25 @@ const generateSalesReport = async (req, res) => {
     const salesData = await Order.aggregate([
       { $match: { ...matchCriteria, status: { $ne: "Cancelled" } } },
       {
+        $lookup: {
+          from: "users", 
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      {
+        $unwind: "$userDetails"
+      },
+      {
+        $lookup: {
+          from: "products", 
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      {
         $project: {
           orderId: 1,
           date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -642,6 +680,9 @@ const generateSalesReport = async (req, res) => {
             ],
           },
           paymentStatus: 1,
+          paymentMethod: 1, 
+          userName: { $concat: ["$userDetails.name"] }, 
+          productNames: { $map: { input: "$productDetails", as: "product", in: "$$product.product_name" } } 
         },
       },
     ]);
@@ -685,6 +726,7 @@ const generateSalesReport = async (req, res) => {
     res.status(500).json({ message: "Error fetching sales data", error });
   }
 };
+
 
 
 const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
@@ -738,6 +780,22 @@ const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
     const salesData = await Order.aggregate([
       { $match: matchCriteria },
       {
+        $lookup: {
+          from: "users", 
+          localField: "userId", 
+          foreignField: "_id", 
+          as: "userDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "products", 
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      {
         $project: {
           orderId: 1,
           date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -745,9 +803,14 @@ const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
           discount: { $ifNull: ["$totalDiscounts", 0] },
           coupon: { $ifNull: ["$totalCoupons", 0] },
           paymentStatus: 1,
+          paymentMethod: 1, 
+          userName: { $arrayElemAt: ["$userDetails.name", 0] },
+          productNames: { $map: { input: "$productDetails", as: "product", in: "$$product.product_name" } } 
         },
       },
     ]);
+
+    
 
     const totalSales = salesData.reduce((sum, sale) => sum + sale.totalAmount, 0);
     const totalDiscounts = salesData.reduce((sum, sale) => sum + sale.discount, 0);
@@ -770,13 +833,14 @@ const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
 };
 
 
+
 const generatePdfReport = async (req, res) => {
   const { reportType, startDate, endDate } = req.body;
 
   try {
     const { salesData, summary } = await fetchSalesReportData(reportType, startDate, endDate);
 
-    const doc = new PDFDocument({ margin: 50, size: [1190, 842] }); 
+    const doc = new PDFDocument({ margin: 50, size: [1850, 842] });
     res.setHeader('Content-Type', 'application/pdf');
 
     const fileName = reportType
@@ -790,14 +854,17 @@ const generatePdfReport = async (req, res) => {
     doc.registerFont('NotoSans', rupeeFontPath);
 
     const tableTop = 150;
-    const rowHeight = 20;
+    const rowHeight = 25; 
     const colWidths = {
       orderId: 150,
       date: 150,
-      amount: 200, 
-      discount: 100,
-      coupon: 100,
-      paymentStatus: 150, 
+      amount: 250,
+      discount: 150, 
+      coupon: 150,
+      paymentStatus: 200, 
+      paymentMethod: 200,
+      userName: 200, 
+      productName: 300, 
     };
     const pageHeight = 750;
     let yPosition = tableTop;
@@ -815,15 +882,15 @@ const generatePdfReport = async (req, res) => {
         .fillColor('#000000')
         .text(reportType ? `Report Type: ${reportType}` : `From: ${startDate} To: ${endDate}`)
         .text(`Net Sales: ₹${summary.netSales}`)
-        .text(`Total Discounts: ₹${summary.totalDiscounts}`)  
+        .text(`Total Discounts: ₹${summary.totalDiscounts}`)
         .moveDown(1);
     };
-    
+
     const drawTableHeaders = () => {
       doc
         .fontSize(10)
         .fillColor('#FFFFFF')
-        .rect(50, yPosition, 950, rowHeight) 
+        .rect(50, yPosition, 1790, rowHeight) 
         .fill('#007BFF');
 
       doc
@@ -833,7 +900,10 @@ const generatePdfReport = async (req, res) => {
         .text('Amount', 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' })
         .text('Discount', 50 + colWidths.orderId + colWidths.date + colWidths.amount, yPosition + 5, { width: colWidths.discount, align: 'right' })
         .text('Coupon', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount, yPosition + 5, { width: colWidths.coupon, align: 'right' })
-        .text('Payment Status', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' });
+        .text('Payment Status', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' })
+        .text('Payment Method', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus, yPosition + 5, { width: colWidths.paymentMethod, align: 'right' })
+        .text('User Name', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus + colWidths.paymentMethod, yPosition + 5, { width: colWidths.userName, align: 'right' })
+        .text('Product Name', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus + colWidths.paymentMethod + colWidths.userName, yPosition + 5, { width: colWidths.productName, align: 'right' });
 
       yPosition += rowHeight;
     };
@@ -847,7 +917,10 @@ const generatePdfReport = async (req, res) => {
         .text(`₹${sale.totalAmount}`, 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' })
         .text(`₹${sale.discount}`, 50 + colWidths.orderId + colWidths.date + colWidths.amount, yPosition + 5, { width: colWidths.discount, align: 'right' })
         .text(sale.coupon || '-', 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount, yPosition + 5, { width: colWidths.coupon, align: 'right' })
-        .text(sale.paymentStatus, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' });
+        .text(sale.paymentStatus, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon, yPosition + 5, { width: colWidths.paymentStatus, align: 'right' })
+        .text(sale.paymentMethod, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus, yPosition + 5, { width: colWidths.paymentMethod, align: 'right' })
+        .text(sale.userName, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus + colWidths.paymentMethod, yPosition + 5, { width: colWidths.userName, align: 'right' })
+        .text(sale.productNames, 50 + colWidths.orderId + colWidths.date + colWidths.amount + colWidths.discount + colWidths.coupon + colWidths.paymentStatus + colWidths.paymentMethod + colWidths.userName, yPosition + 5, { width: colWidths.productName, align: 'right' });
 
       yPosition += rowHeight;
     };
@@ -876,6 +949,8 @@ const generatePdfReport = async (req, res) => {
 
 
 
+
+
 const generateExcelReport = async (req, res) => {
   const { reportType, startDate, endDate } = req.body;
 
@@ -885,33 +960,63 @@ const generateExcelReport = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
-    worksheet.mergeCells('A1:F1');
+    worksheet.mergeCells('A1:I1');
     worksheet.getCell('A1').value = 'Scentmagic Sales Report';
     worksheet.getCell('A1').alignment = { horizontal: 'center' };
     worksheet.getCell('A1').font = { size: 20, bold: true };
-    
+
     worksheet.addRow([]);
     worksheet.addRow([reportType ? `Report Type: ${reportType}` : `From: ${startDate} To: ${endDate}`]);
     worksheet.addRow([`Net Sales: ₹${summary.netSales}`]);
+    worksheet.addRow([`Total Discounts: ₹${summary.totalDiscounts}`]);
     worksheet.addRow([]);
 
-    worksheet.addRow(['Total Sales', summary.totalSales]);
-    worksheet.addRow(['Total Discounts', summary.totalDiscounts]);
-    worksheet.addRow(['Total Coupons', summary.totalCoupons]);
-    worksheet.addRow(['Net Sales', summary.netSales]);
-    worksheet.addRow([]);
+    worksheet.addRow([
+      'Order ID',
+      'Date',
+      'Total Amount',
+      'Discount',
+      'Coupon',
+      'Payment Status',
+      'Payment Method',
+      'User Name',
+      'Product Names',
+    ]);
 
-    worksheet.addRow(['Order ID', 'Date', 'Total Amount', 'Discount', 'Coupon', 'Payment Status']);
+    const headerRow = worksheet.getRow(worksheet.lastRow.number);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF007BFF' },
+        bgColor: { argb: 'FFFFFFFF' },
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
 
     salesData.forEach((sale) => {
       worksheet.addRow([
         sale.orderId,
         sale.date,
-        sale.totalAmount,
-        sale.discount,
-        sale.coupon,
+        `₹${sale.totalAmount}`,
+        `₹${sale.discount}`,
+        sale.coupon || '-',
         sale.paymentStatus,
+        sale.paymentMethod,
+        sale.userName,
+        sale.productNames,
       ]);
+    });
+
+    worksheet.columns.forEach((column) => {
+      column.width = column.header ? column.header.length + 5 : 15;
     });
 
     const fileName = reportType
@@ -922,12 +1027,13 @@ const generateExcelReport = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
     await workbook.xlsx.write(res);
-    res.end(); 
+    res.end();
   } catch (error) {
     console.error('Error generating Excel:', error);
     res.status(500).json({ message: 'Failed to generate Excel file', error });
   }
 };
+
 
 
 const loadSalesData = async (req, res) => {

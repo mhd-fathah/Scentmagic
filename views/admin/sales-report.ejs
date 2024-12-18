@@ -150,7 +150,11 @@
           <h2 class="content-title card-title">Sales Report</h2>
           <p>Complete sales report and analytics</p>
         </div>
+        <button class="btn btn-primary" onclick="history.back()" style="margin-bottom: 10px;">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
       </div>
+      
 
       <div class="card mb-4">
         <header class="card-header">
@@ -238,6 +242,9 @@
                   <th class="align-middle" scope="col">Coupon</th>
                   <th class="align-middle" scope="col">Total</th>
                   <th class="align-middle" scope="col">Payment Status</th>
+                  <th class="align-middle" scope="col">Payment Method</th>
+                  <th class="align-middle" scope="col">UserName</th>
+                  <th class="align-middle" scope="col">Product Name</th>
                 </tr>
               </thead>
               <tbody id="salesTableBody">
@@ -372,29 +379,33 @@
       // Update table
       const tableBody = document.getElementById('salesTableBody');
       if (data.sales && data.sales.length > 0) {
-        const tableContent = data.sales.map(sale => `
-                    <tr>
-                        <td class="text-center">
-                            <div class="form-check align-middle">
-                                <input class="form-check-input" type="checkbox" />
-                            </div>
-                        </td>
-                        <td>${sale.orderId}</td>
-                        <td>${new Date(sale.date).toLocaleDateString()}</td>
-                        <td>₹${(sale.discount || 0).toFixed(2)}</td>
-                        <td>₹${(sale.coupon || 0).toFixed(2)}</td>
-                        <td>₹${(sale.total || 0).toFixed(2)}</td>
-                        <td>
-                            <span class="badge badge-pill badge-soft-${sale.paymentStatus.toLowerCase() === 'paid' ? 'success' : 'warning'}">
-                                ${sale.paymentStatus}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
-        tableBody.innerHTML = tableContent;
-      } else {
-        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No sales data available</td></tr>';
-      }
+  const tableContent = data.sales.map(sale => `
+    <tr>
+      <td class="text-center">
+        <div class="form-check align-middle">
+          <input class="form-check-input" type="checkbox" />
+        </div>
+      </td>
+      <td>${sale.orderId}</td>
+      <td>${new Date(sale.date).toLocaleDateString()}</td>
+      <td>₹${(sale.discount || 0).toFixed(2)}</td>
+      <td>₹${(sale.coupon || 0).toFixed(2)}</td>
+      <td>₹${(sale.total || 0).toFixed(2)}</td>
+      <td>
+        <span class="badge badge-pill badge-soft-${sale.paymentStatus.toLowerCase() === 'paid' ? 'success' : 'warning'}">
+          ${sale.paymentStatus}
+        </span>
+      </td>
+      <td>${sale.paymentMethod || 'N/A'}</td> <!-- Display Payment Method -->
+      <td>${sale.userName}</td> <!-- Display User Name -->
+      <td>${sale.productNames.join(', ')}</td> <!-- Display Product Names -->
+    </tr>
+  `).join('');
+  tableBody.innerHTML = tableContent;
+} else {
+  tableBody.innerHTML = '<tr><td colspan="9" class="text-center">No sales data available</td></tr>';
+}
+
     }
 
     async function downloadPDF() {
