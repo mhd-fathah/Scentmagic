@@ -7,6 +7,9 @@ const Category = require("../models/categories");
 const Product = require("../models/product");
 const Offer = require("../models/offerModel");
 const Coupon = require("../models/coupon");
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
+const path = require('path');
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -519,12 +522,67 @@ const loadDashboard = async (req, res) => {
   }
 };
 
+const loadSalesReport = async (req,res) => {
+  let totalSales = 0;
+  let totalDiscounts = 0;
+  let totalCoupons = 0;
+  let netSales = 0;
+
+  let sales = [];
+
+  try {
+    const salesData = await Order.aggregate([
+      {
+        $match: {
+          status: { $ne: "Cancelled" },
+        },
+      },
+
+      {
+        $project: {
+          orderId: 1,
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalAmount: 1,
+          subtotal: 1,
+          discount: { $ifNull: ["$totalDiscounts", 0] },
+          coupon: { $ifNull: ["$totalCoupons", 0] },
+          total: {
+            $add: [
+              { $ifNull: ["$totalAmount", 0] },
+              { $ifNull: ["$totalDiscounts", 0] },
+              { $ifNull: ["$totalCoupons", 0] },
+            ],
+          },
+          paymentStatus: 1,
+        },
+      },
+    ]);
+
+    totalSales = salesData.reduce((acc, sale) => acc + sale.totalAmount, 0);
+    totalDiscounts = salesData.reduce((acc, sale) => acc + sale.discount, 0);
+    totalCoupons = salesData.reduce((acc, sale) => acc + sale.coupon, 0);
+    netSales = totalSales - totalDiscounts - totalCoupons;
+
+    sales = salesData;
+
+    console.log(`Total Sales: ₹${totalSales}`);
+    console.log(`Total Discounts: ₹${totalDiscounts}`);
+    console.log(`Total Coupons: ₹${totalCoupons}`);
+    console.log(`Net Sales: ₹${netSales}`);
+
+    res.render('admin/sales-report',{sales , layout:false})
+  } catch (error) {
+    console.error("Error calculating sales data:", error);
+  }
+}
+
 const generateSalesReport = async (req, res) => {
-  const { type, startDate, endDate } = req.query;
+  const { reportType, startDate, endDate } = req.body;
+  console.log(`report type ${reportType} , start date : ${startDate} , end date : ${endDate}`);
   let matchCriteria = {};
   const today = new Date();
 
-  switch (type) {
+  switch (reportType) {
     case "daily":
       const startOfDay = new Date(today.setHours(0, 0, 0, 0));
       const endOfDay = new Date(today.setHours(23, 59, 59, 999));
@@ -630,6 +688,242 @@ const generateSalesReport = async (req, res) => {
   }
 };
 
+const fetchSalesReportData = async (reportType, startDate, endDate) => {
+  let matchCriteria = {
+    createdAt: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    },
+    status: { $ne: 'Cancelled' },
+  };
+  const today = new Date();
+
+  switch (reportType) {
+    case "daily":
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      matchCriteria = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+      break;
+    case "weekly":
+      const startOfWeek = new Date(
+        today.setDate(today.getDate() - today.getDay())
+      );
+      startOfWeek.setHours(0, 0, 0, 0);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+      matchCriteria = { createdAt: { $gte: startOfWeek, $lte: endOfWeek } };
+      break;
+    case "monthly":
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      matchCriteria = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+      break;
+    case "yearly":
+      const startOfYear = new Date(today.getFullYear(), 0, 1);
+      const endOfYear = new Date(today.getFullYear(), 11, 31);
+      matchCriteria = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
+      break;
+    case "custom":
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        matchCriteria = { createdAt: { $gte: start, $lte: end } };
+      } else {
+        return res
+          .status(400)
+          .json({
+            message: "Custom date range requires both startDate and endDate",
+          });
+      }
+      break;
+    default:
+      return res.status(400).json({ message: "Invalid report type" });
+  }
+
+  const salesData = await Order.aggregate([
+    { $match: matchCriteria },
+    {
+      $project: {
+        orderId: 1,
+        date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        totalAmount: 1,
+        discount: { $ifNull: ['$totalDiscounts', 0] },
+        coupon: { $ifNull: ['$totalCoupons', 0] },
+        paymentStatus: 1,
+      },
+    },
+  ]);
+
+  const totalSales = salesData.reduce((sum, sale) => sum + sale.totalAmount, 0);
+  const totalDiscounts = salesData.reduce((sum, sale) => sum + sale.discount, 0);
+  const totalCoupons = salesData.reduce((sum, sale) => sum + sale.coupon, 0);
+  const netSales = totalSales - totalDiscounts - totalCoupons;
+
+  return {
+    salesData,
+    summary: {
+      totalSales,
+      totalDiscounts,
+      totalCoupons,
+      netSales,
+    },
+  };
+};
+
+const generatePdfReport = async (req, res) => {
+  const { reportType, startDate, endDate } = req.body;
+
+  try {
+    const { salesData, summary } = await fetchSalesReportData(reportType, startDate, endDate);
+
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    res.setHeader('Content-Type', 'application/pdf');
+
+    const fileName = reportType
+      ? `scentmagic-sales-report-${reportType}.pdf`
+      : `scentmagic-sales-report-${startDate}-to-${endDate}.pdf`;
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    doc.pipe(res);
+
+    const rupeeFontPath = path.join(__dirname, '..', 'public', 'fonts', 'NotoSans-Regular.ttf');
+    doc.registerFont('NotoSans', rupeeFontPath);
+
+    const tableTop = 150;
+    const rowHeight = 20;
+    const colWidths = { orderId: 150, date: 150, amount: 150 };
+    const pageHeight = 750;
+    let yPosition = tableTop;
+
+    const addHeader = () => {
+      doc
+        .font('NotoSans')
+        .fontSize(20)
+        .fillColor('#333333')
+        .text('Scentmagic Sales Report', { align: 'center' })
+        .moveDown(0.5);
+
+      doc
+        .fontSize(12)
+        .fillColor('#000000')
+        .text(reportType ? `Report Type: ${reportType}` : `From: ${startDate} To: ${endDate}`)
+        .text(`Net Sales: ₹${summary.netSales}`)
+        .moveDown(1);
+    };
+
+    const drawTableHeaders = () => {
+      doc
+        .fontSize(10)
+        .fillColor('#FFFFFF')
+        .rect(50, yPosition, 500, rowHeight)
+        .fill('#007BFF');
+
+      doc
+        .fillColor('#FFFFFF')
+        .text('Order ID', 50, yPosition + 5, { width: colWidths.orderId, align: 'left' })
+        .text('Date', 50 + colWidths.orderId, yPosition + 5, { width: colWidths.date, align: 'left' })
+        .text('Amount', 50 + colWidths.orderId + colWidths.date, yPosition + 5, { width: colWidths.amount, align: 'right' });
+
+      yPosition += rowHeight;
+    };
+
+    const drawTableRow = (sale) => {
+      doc
+        .fontSize(10)
+        .fillColor('#000000')
+        .text(sale.orderId, 50, yPosition + 5, { width: colWidths.orderId, align: 'left' })
+        .text(sale.date, 50 + colWidths.orderId, yPosition + 5, { width: colWidths.date, align: 'left' })
+        .text(`₹${sale.totalAmount}`, 50 + colWidths.orderId + colWidths.date, yPosition + 5, {
+          width: colWidths.amount,
+          align: 'right',
+        });
+
+      yPosition += rowHeight;
+    };
+
+    const checkAndAddPage = () => {
+      if (yPosition + rowHeight > pageHeight) {
+        doc.addPage();
+        yPosition = 50; 
+      }
+    };
+
+    addHeader();
+    drawTableHeaders(); 
+
+    salesData.forEach((sale) => {
+      checkAndAddPage();
+      drawTableRow(sale);
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ message: 'Failed to generate PDF', error });
+  }
+};
+
+
+
+
+
+
+const generateExcelReport = async (req, res) => {
+  const { startDate, endDate } = req.body;
+
+  try {
+    const { salesData, summary } = await fetchSalesReportData(startDate, endDate);
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    // Add Title
+    worksheet.addRow(['Sales Report']);
+    worksheet.addRow([`From: ${startDate} To: ${endDate}`]);
+    worksheet.addRow([]);
+
+    // Add Summary
+    worksheet.addRow(['Total Sales', summary.totalSales]);
+    worksheet.addRow(['Total Discounts', summary.totalDiscounts]);
+    worksheet.addRow(['Total Coupons', summary.totalCoupons]);
+    worksheet.addRow(['Net Sales', summary.netSales]);
+    worksheet.addRow([]);
+
+    // Add Table Headers
+    worksheet.addRow(['Order ID', 'Date', 'Total Amount', 'Discount', 'Coupon', 'Payment Status']);
+
+    // Add Sales Data
+    salesData.forEach((sale) => {
+      worksheet.addRow([
+        sale.orderId,
+        sale.date,
+        sale.totalAmount,
+        sale.discount,
+        sale.coupon,
+        sale.paymentStatus,
+      ]);
+    });
+
+    // Set Response Headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="sales-report-${startDate}-to-${endDate}.xlsx"`
+    );
+
+    // Write Excel File
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error generating Excel:', error);
+    res.status(500).json({ message: 'Failed to generate Excel file', error });
+  }
+};
+
 const loadSalesData = async (req, res) => {
   try {
     const currentPage = parseInt(req.query.page) || 1;
@@ -704,4 +998,7 @@ module.exports = {
   loadDashboard,
   generateSalesReport,
   loadSalesData,
+  loadSalesReport,
+  generatePdfReport,
+  generateExcelReport
 };

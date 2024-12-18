@@ -213,7 +213,7 @@ const confirmPayment = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    const { paymentMethod, products, addressId, totalAmount } = req.body;
+    const { paymentMethod, products, addressId, totalAmount  } = req.body;
     const userId = req.session.user?._id;
 
     if (!userId) {

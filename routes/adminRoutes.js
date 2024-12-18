@@ -36,6 +36,12 @@ router.get('/dashboard',adminController.loadDashboard)
 router.get('/dashboard/salesData',adminController.loadSalesData)
 
 // Route to generate the sales report
-router.get('/report', adminController.generateSalesReport);
+router.get('/report', adminController.loadSalesReport);
+
+router.post('/report',adminController.generateSalesReport)
+
+router.post('/report/pdf', adminController.generatePdfReport);
+router.post('/report/excel',adminController.generateExcelReport)
+
 
 module.exports = router; 
