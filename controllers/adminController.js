@@ -869,31 +869,40 @@ const generatePdfReport = async (req, res) => {
 
 
 
+// Main function to generate the Excel report and send it as a response
 const generateExcelReport = async (req, res) => {
-  const { startDate, endDate } = req.body;
+  const { reportType, startDate, endDate } = req.body;
 
   try {
-    const { salesData, summary } = await fetchSalesReportData(startDate, endDate);
+    // Fetch sales data and summary from the helper function
+    const { salesData, summary } = await fetchSalesReportData(reportType, startDate, endDate);
 
+    // Initialize Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
-    // Add Title
-    worksheet.addRow(['Sales Report']);
-    worksheet.addRow([`From: ${startDate} To: ${endDate}`]);
+    // Set title and header for the report
+    worksheet.mergeCells('A1:F1');
+    worksheet.getCell('A1').value = 'Scentmagic Sales Report';
+    worksheet.getCell('A1').alignment = { horizontal: 'center' };
+    worksheet.getCell('A1').font = { size: 20, bold: true };
+    
+    worksheet.addRow([]);
+    worksheet.addRow([reportType ? `Report Type: ${reportType}` : `From: ${startDate} To: ${endDate}`]);
+    worksheet.addRow([`Net Sales: ₹${summary.netSales}`]);
     worksheet.addRow([]);
 
-    // Add Summary
+    // Add summary data
     worksheet.addRow(['Total Sales', summary.totalSales]);
     worksheet.addRow(['Total Discounts', summary.totalDiscounts]);
     worksheet.addRow(['Total Coupons', summary.totalCoupons]);
     worksheet.addRow(['Net Sales', summary.netSales]);
     worksheet.addRow([]);
 
-    // Add Table Headers
+    // Add table headers for sales data
     worksheet.addRow(['Order ID', 'Date', 'Total Amount', 'Discount', 'Coupon', 'Payment Status']);
 
-    // Add Sales Data
+    // Add sales data to the sheet
     salesData.forEach((sale) => {
       worksheet.addRow([
         sale.orderId,
@@ -905,24 +914,23 @@ const generateExcelReport = async (req, res) => {
       ]);
     });
 
-    // Set Response Headers
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="sales-report-${startDate}-to-${endDate}.xlsx"`
-    );
+    // Set response headers for Excel download
+    const fileName = reportType
+      ? `scentmagic-sales-report-${reportType}.xlsx`
+      : `scentmagic-sales-report-${startDate}-to-${endDate}.xlsx`;
 
-    // Write Excel File
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    // Write the Excel file to the response
     await workbook.xlsx.write(res);
-    res.end();
+    res.end();  // End the response after the file is sent
   } catch (error) {
     console.error('Error generating Excel:', error);
     res.status(500).json({ message: 'Failed to generate Excel file', error });
   }
 };
+
 
 const loadSalesData = async (req, res) => {
   try {
