@@ -43,5 +43,8 @@ router.post('/report',adminController.generateSalesReport)
 router.post('/report/pdf', adminController.generatePdfReport);
 router.post('/report/excel',adminController.generateExcelReport)
 
+router.get('/top-selling-products',adminController.getTopSellingProducts)
+router.get('/top-selling-categories',adminController.getTopSellingCategories)
+
 
 module.exports = router; 

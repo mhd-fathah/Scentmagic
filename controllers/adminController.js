@@ -1095,6 +1095,93 @@ const loadSalesData = async (req, res) => {
   }
 };
 
+
+const getTopSellingProducts = async (req, res) => {
+  try {
+    const topProducts = await Order.aggregate([
+      { $unwind: "$products" }, // Deconstruct products array
+      {
+        $group: {
+          _id: "$products.productId", // Group by productId
+          totalQuantity: { $sum: "$products.quantity" }, // Sum the quantities
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, // Calculate total sales
+        },
+      },
+      { $sort: { totalQuantity: -1 } }, // Sort by total quantity sold
+      { $limit: 10 }, // Limit to top 10 products
+    ]);
+
+    // Populate product details (e.g., name)
+    const populatedProducts = await Product.populate(topProducts, {
+      path: "_id", // Populate productId
+      select: "product_name", // Select only product_name
+    });
+
+    res.status(200).json({
+      success: true,
+      data: populatedProducts.map((product) => ({
+        productId: product._id._id, // Product ID
+        name: product._id.product_name, // Product name
+        quantity: product.totalQuantity, // Total quantity sold
+        sales: product.totalSales, // Total sales
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching top-selling products:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+
+const getTopSellingCategories = async (req, res) => {
+  try {
+    const topCategories = await Order.aggregate([
+      { $unwind: "$products" }, // Deconstruct products array
+      {
+        $lookup: {
+          from: "products", // Reference the Product collection
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" }, // Deconstruct productDetails array
+      {
+        $group: {
+          _id: "$productDetails.category", // Group by category (category ID)
+          totalQuantity: { $sum: "$products.quantity" }, // Sum the quantities
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, // Calculate total sales
+        },
+      },
+      {
+        $lookup: {
+          from: "categories", // Reference the Category collection
+          localField: "_id", // Match with the _id field in Category
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" }, // Deconstruct categoryDetails array
+      { $sort: { totalQuantity: -1 } }, // Sort by total quantity sold
+      { $limit: 10 }, // Limit to top 10 categories
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: topCategories.map((category) => ({
+        categoryId: category._id,
+        categoryName: category.categoryDetails.name, // Include category name
+        quantity: category.totalQuantity,
+        sales: category.totalSales,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching top-selling categories:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+
 module.exports = {
   loadLoginPage,
   handleLogin,
@@ -1114,5 +1201,7 @@ module.exports = {
   loadSalesData,
   loadSalesReport,
   generatePdfReport,
-  generateExcelReport
+  generateExcelReport,
+  getTopSellingProducts,
+  getTopSellingCategories
 };
