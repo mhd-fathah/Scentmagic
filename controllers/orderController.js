@@ -504,17 +504,17 @@ const viewOrderDetails = async (req, res) => {
 };
 
 const cancelOrder = async (req, res) => {
-  const { orderId } = req.params;
+  const { orderId, reason, comment } = req.body;
 
   try {
     const order = await Order.findById(orderId).populate("products.productId");
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "Cancelled") {
-      return res.status(400).send("This order is already cancelled");
+      return res.status(400).json({ success: false, message: "This order is already cancelled" });
     }
 
     for (let product of order.products) {
@@ -526,32 +526,23 @@ const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
+    order.cancellationReason = reason; // Store the cancellation reason
+    order.cancellationComment = comment; // Store the cancellation comment
 
     if (order.paymentMethod === "razorpay") {
       if (order.paymentStatus === "Paid") {
-        const user = await User.findById(order.userId);
-
-        if (!user) {
-          return res.status(404).send("User not found");
-        }
-
         let wallet = await Wallet.findOne({ userId: order.userId });
 
         if (!wallet) {
-          wallet = new Wallet({
-            userId: order.userId,
-            balance: 0,
-          });
-  
+          wallet = new Wallet({ userId: order.userId, balance: 0 });
           await wallet.save();
         }
 
-        wallet.balance += order.totalAmount; 
-
+        wallet.balance += order.totalAmount;
         wallet.transactions.push({
           id: `txn_${Date.now()}`,
-          type: "Refund", 
-          amount: order.totalAmount, 
+          type: "Refund",
+          amount: order.totalAmount,
           date: new Date(),
         });
 
@@ -559,51 +550,49 @@ const cancelOrder = async (req, res) => {
 
         order.paymentStatus = "Refunded";
       } else {
-        order.paymentStatus = "Unpaid"; 
+        order.paymentStatus = "Unpaid";
       }
     } else if (order.paymentMethod === "cod") {
-      order.paymentStatus = "Unpaid"; 
+      order.paymentStatus = "Unpaid";
     }
 
-    await order.save(); 
+    await order.save();
 
-    res.redirect("/my-orders?message=Order%20Cancelled%20Successfully");
+    res.status(200).json({ success: true, message: "Order cancelled successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-
-
 const returnOrder = async (req, res) => {
-  const { orderId } = req.params;
+  const { orderId, reason, comment } = req.body;
 
   try {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "Delivered") {
       if (order.returnRequested) {
-        return res.status(400).send("Return request already submitted for this order");
+        return res.status(400).json({ success: false, message: "Return request already submitted for this order" });
       }
 
       order.returnRequested = true;
       order.status = "Return Requested";
+      order.returnReason = reason;
+      order.returnComment = comment; 
       await order.save();
 
-      console.log(`Return request submitted for order ID: ${orderId}`);
-
-      res.redirect("/my-orders?message=Return%20Request%20Submitted%20Successfully");
+      res.status(200).json({ success: true, message: "Return request submitted successfully" });
     } else {
-      res.status(400).send("This order cannot be returned as it is not delivered");
+      res.status(400).json({ success: false, message: "This order cannot be returned as it is not delivered" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

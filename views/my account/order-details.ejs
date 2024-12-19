@@ -74,6 +74,60 @@
                 <%= orderData.order.shipping.pincode || "N/A" %></p>
               <p>Phone: <%= orderData.order.shipping.mobile || "N/A" %></p>
             </div>
+
+          <!-- cancel modal   -->
+
+            <div class="modal fade" id="cancellationReasonModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Select Cancellation Reason</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <select class="form-select" id="cancellationReason">
+                      <option value="">Select a reason...</option>
+                      <option value="changed_mind">Changed my mind</option>
+                      <option value="wrong_item">Ordered wrong item</option>
+                      <option value="shipping_delay">Shipping delay</option>
+                      <option value="found_better_price">Found better price elsewhere</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <textarea id="cancellationComment" class="form-control mt-3" placeholder="Additional comments (optional)"></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancellationBtn">Confirm Cancellation</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal fade" id="returnReasonModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Select Return Reason</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <select class="form-select" id="returnReason">
+                      <option value="">Select a reason...</option>
+                      <option value="defective">Item is defective</option>
+                      <option value="wrong_item">Received wrong item</option>
+                      <option value="not_as_described">Item not as described</option>
+                      <option value="did_not_fit">Did not fit</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <textarea id="returnComment" class="form-control mt-3" placeholder="Additional comments (optional)"></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="confirmReturnBtn">Confirm Return</button>
+                  </div>
+                </div>
+              </div>
+            </div>
             
 
             <div class="d-flex gap-2 mt-3">
@@ -84,13 +138,13 @@
                 Download Invoice
               </a> -->
               <% if (orderData.order.canCancel) { %>
-                <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="confirmCancellation('<%= orderData.order.orderId %>');">
+                <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="showCancellationModal('<%= orderData.order.orderId %>');">
                   Cancel Order
                 </a>
               <% } %>
               
               <% if (orderData.order.canReturn) { %>
-                <a href="javascript:void(0)" class="btn btn-warning btn-sm" onclick="confirmReturn('<%= orderData.order.orderId %>');">
+                <a href="javascript:void(0)" class="btn btn-warning btn-sm" onclick="showReturnModal('<%= orderData.order.orderId %>');">
                   Return Order
                 </a>
               <% } %>
@@ -110,7 +164,140 @@
   <!-- Add SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
+  <script>
+    let currentOrderId = null;
+    
+    function showCancellationModal(orderId) {
+      currentOrderId = orderId;
+      const modal = new bootstrap.Modal(document.getElementById('cancellationReasonModal'));
+      modal.show();
+    }
+    
+    function showReturnModal(orderId) {
+      currentOrderId = orderId;
+      const modal = new bootstrap.Modal(document.getElementById('returnReasonModal'));
+      modal.show();
+    }
+    
+    document.getElementById('confirmCancellationBtn').addEventListener('click', function() {
+      const reason = document.getElementById('cancellationReason').value;
+      const comment = document.getElementById('cancellationComment').value;
+      
+      if (!reason) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please select a reason for cancellation',
+        });
+        return;
+      }
+      
+      processCancellation(currentOrderId, reason, comment);
+    });
+    
+    document.getElementById('confirmReturnBtn').addEventListener('click', function() {
+      const reason = document.getElementById('returnReason').value;
+      const comment = document.getElementById('returnComment').value;
+      
+      if (!reason) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please select a reason for return',
+        });
+        return;
+      }
+      
+      processReturn(currentOrderId, reason, comment);
+    });
+    
+    function processCancellation(orderId, reason, comment) {
+      fetch('/orders/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: orderId,
+          reason: reason,
+          comment: comment
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('cancellationReasonModal'));
+          modal.hide();
+          Swal.fire({
+            icon: 'success',
+            title: 'Order Cancelled',
+            text: 'Your order was successfully cancelled',
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Cancellation Failed',
+            text: 'Failed to cancel order: ' + data.message,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Server Error',
+          text: 'An error occurred while cancelling the order',
+        });
+      });
+    }
+    
+    function processReturn(orderId, reason, comment) {
+      fetch('/orders/return', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: orderId,
+          reason: reason,
+          comment: comment
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('returnReasonModal'));
+          modal.hide();
+          Swal.fire({
+            icon: 'success',
+            title: 'Return Requested',
+            text: 'Your return request was submitted successfully',
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Return Failed',
+            text: 'Failed to return order: ' + data.message,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Server Error',
+          text: 'An error occurred while processing the return',
+        });
+      });
+    }
+</script>
+
+
+<!-- <script>
   // Function to confirm order cancellation
   function confirmCancellation(orderId) {
     Swal.fire({
@@ -144,7 +331,7 @@
       }
     });
   }
-</script>
+</script> -->
 
   
 

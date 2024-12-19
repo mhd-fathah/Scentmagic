@@ -31,12 +31,12 @@ router.get('/approve-return/:orderId',auth.isAdminAuthenticated , adminControlle
 router.get('/reject-return/:orderId',auth.isAdminAuthenticated , adminController.rejectReturn)
 // router.get("/categories",categoriesController.loadCategories)
 
-router.get('/dashboard',adminController.loadDashboard)
+// router.get('/dashboard',adminController.loadDashboard)
 
-router.get('/dashboard/salesData',adminController.loadSalesData)
+router.get('/dashboard/salesData',auth.isAdminAuthenticated,adminController.loadSalesData)
 
 // Route to generate the sales report
-router.get('/report', adminController.loadSalesReport);
+router.get('/report',auth.isAdminAuthenticated, adminController.loadSalesReport);
 
 router.post('/report',adminController.generateSalesReport)
 

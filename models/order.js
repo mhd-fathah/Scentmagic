@@ -13,6 +13,19 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    cancellationReason: {
+      type: String,
+    },
+    cancellationComment: {
+      type: String,
+    },
+    returnReason: {
+      type: String,
+    },
+    returnComment: {
+      type: String,
+    },
+    returnRequested: { type: Boolean, default: false },
     products: [
       {
         productId: {

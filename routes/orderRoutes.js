@@ -42,18 +42,19 @@ router.get(
   orderController.viewOrderDetails
 );
 
-router.get(
-  "/orders/cancel/:orderId",
+router.post(
+  "/orders/cancel",
   auth.checkBlocked,
   auth.checkSession,
   orderController.cancelOrder
 );
 
-router.get(
-  "/orders/return/:orderId",
+router.post(
+  "/orders/return",
   auth.checkBlocked,
   auth.checkSession,
   orderController.returnOrder
 );
+
 
 module.exports = router;
