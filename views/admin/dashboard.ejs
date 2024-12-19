@@ -588,11 +588,9 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
   <script>
-  // Initialize chart reference
   var ctx = document.getElementById("myChart2");
   var myChart = null;
   
-  // Function to fetch data from the backend API
   async function fetchChartData(type) {
       try {
           const response = await fetch(`/admin/${type === "products" ? "top-selling-products" : "top-selling-categories"}`);
@@ -610,10 +608,9 @@
       }
   }
   
-  // Function to initialize chart
   function initializeChart(data, labels, typeLabel) {
       if (myChart) {
-          myChart.destroy(); // Destroy existing chart to reinitialize
+          myChart.destroy(); 
       }
       myChart = new Chart(ctx, {
           type: 'bar',
@@ -645,15 +642,13 @@
       });
   }
   
-  // Function to update the chart dynamically
   function updateChart() {
-      const chartType = $("#chartType").val(); // Get selected value
-      fetchChartData(chartType); // Fetch data dynamically
+      const chartType = $("#chartType").val();
+      fetchChartData(chartType); 
   }
   
-  // Initialize the chart with default "Top Selling Products"
   $(document).ready(function () {
-      fetchChartData("products"); // Default to "Top Selling Products"
+      fetchChartData("products"); 
   });
   </script>
   

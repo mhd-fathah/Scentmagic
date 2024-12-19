@@ -1099,31 +1099,30 @@ const loadSalesData = async (req, res) => {
 const getTopSellingProducts = async (req, res) => {
   try {
     const topProducts = await Order.aggregate([
-      { $unwind: "$products" }, // Deconstruct products array
+      { $unwind: "$products" }, 
       {
         $group: {
-          _id: "$products.productId", // Group by productId
-          totalQuantity: { $sum: "$products.quantity" }, // Sum the quantities
-          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, // Calculate total sales
+          _id: "$products.productId", 
+          totalQuantity: { $sum: "$products.quantity" }, 
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, 
         },
       },
-      { $sort: { totalQuantity: -1 } }, // Sort by total quantity sold
-      { $limit: 10 }, // Limit to top 10 products
+      { $sort: { totalQuantity: -1 } }, 
+      { $limit: 10 }, 
     ]);
 
-    // Populate product details (e.g., name)
     const populatedProducts = await Product.populate(topProducts, {
-      path: "_id", // Populate productId
-      select: "product_name", // Select only product_name
+      path: "_id",
+      select: "product_name",
     });
 
     res.status(200).json({
       success: true,
       data: populatedProducts.map((product) => ({
-        productId: product._id._id, // Product ID
-        name: product._id.product_name, // Product name
-        quantity: product.totalQuantity, // Total quantity sold
-        sales: product.totalSales, // Total sales
+        productId: product._id._id, 
+        name: product._id.product_name, 
+        quantity: product.totalQuantity, 
+        sales: product.totalSales,
       })),
     });
   } catch (error) {
@@ -1136,41 +1135,41 @@ const getTopSellingProducts = async (req, res) => {
 const getTopSellingCategories = async (req, res) => {
   try {
     const topCategories = await Order.aggregate([
-      { $unwind: "$products" }, // Deconstruct products array
+      { $unwind: "$products" }, 
       {
         $lookup: {
-          from: "products", // Reference the Product collection
+          from: "products", 
           localField: "products.productId",
           foreignField: "_id",
           as: "productDetails",
         },
       },
-      { $unwind: "$productDetails" }, // Deconstruct productDetails array
+      { $unwind: "$productDetails" }, 
       {
         $group: {
-          _id: "$productDetails.category", // Group by category (category ID)
-          totalQuantity: { $sum: "$products.quantity" }, // Sum the quantities
-          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, // Calculate total sales
+          _id: "$productDetails.category", 
+          totalQuantity: { $sum: "$products.quantity" },
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, 
         },
       },
       {
         $lookup: {
-          from: "categories", // Reference the Category collection
-          localField: "_id", // Match with the _id field in Category
+          from: "categories", 
+          localField: "_id", 
           foreignField: "_id",
           as: "categoryDetails",
         },
       },
-      { $unwind: "$categoryDetails" }, // Deconstruct categoryDetails array
-      { $sort: { totalQuantity: -1 } }, // Sort by total quantity sold
-      { $limit: 10 }, // Limit to top 10 categories
+      { $unwind: "$categoryDetails" }, 
+      { $sort: { totalQuantity: -1 } }, 
+      { $limit: 10 }, 
     ]);
 
     res.status(200).json({
       success: true,
       data: topCategories.map((category) => ({
         categoryId: category._id,
-        categoryName: category.categoryDetails.name, // Include category name
+        categoryName: category.categoryDetails.name, 
         quantity: category.totalQuantity,
         sales: category.totalSales,
       })),
