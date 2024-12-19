@@ -193,6 +193,8 @@ const getOrderDetails = async (req, res) => {
         address: order.deliveryAddress.address,
         city: order.deliveryAddress.city,
       },
+      cancellationReason: order.cancellationReason || null, 
+      returnReason: order.returnReason || null, 
       paymentMethod: order.paymentMethod || "Not Specified",
       totalAmount: formattedTotalAmount,
       status: order.status,

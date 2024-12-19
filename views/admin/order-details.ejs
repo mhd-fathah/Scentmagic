@@ -145,6 +145,10 @@
                     <p>Details for Order ID: <%= order.orderId %>
                     </p>
                 </div>
+                <div class="order-footer d-flex justify-content-between align-items-center">
+                    <button class="btn btn-secondary" onclick="history.back()">Go Back</button>
+                </div>
+                
             </div>
             <div class="card">
                 <header class="card-header">
@@ -207,9 +211,17 @@
                                     <h6 class="mb-1">Order Info</h6>
                                     <p class="mb-1">
                                         Payment method: <%= order.paymentMethod %><br>
-                                            Total amount: ₹<%= order.totalAmount %><br>
-                                                Status: <%= order.status %>
+                                        Total amount: ₹<%= order.totalAmount %><br>
+                                        Status: <%= order.status %><br>
+                                        <% if (order.cancellationReason) { %>
+                                            <strong>Cancellation Reason:</strong> <%= order.cancellationReason %><br>
+                                        <% } else if (order.returnReason) { %>
+                                            <strong>Return Reason:</strong> <%= order.returnReason %><br>
+                                        <% } else { %>
+                                            <em>No Issues</em><br>
+                                        <% } %>
                                     </p>
+                                    
                                 </div>
                             </article>
                         </div>

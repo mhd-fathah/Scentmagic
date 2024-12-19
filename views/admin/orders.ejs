@@ -163,7 +163,7 @@
                                         <tr>
                                             <td><%= order.orderId %></td>
                                             <td><b><%= order.deliveryAddress.fullName %></b></td>
-                                            <td>$<%= order.totalAmount.toFixed(2) %></td>
+                                            <td>₹<%= order.totalAmount.toFixed(2) %></td>
                                             <td>
                                                 <% if (order.status === 'Delivered') { %>
                                                     <span class="badge rounded-pill alert-success"><%= order.status %></span>
