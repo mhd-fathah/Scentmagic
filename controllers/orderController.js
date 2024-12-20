@@ -1,4 +1,7 @@
 const Order = require("../models/order");
+const fs = require("fs");
+const path = require("path");
+const PDFDocument = require("pdfkit");
 const User = require("../models/user");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
@@ -596,6 +599,79 @@ const returnOrder = async (req, res) => {
   }
 };
 
+const downloadInvoice = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId).populate("userId").lean();
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    const pdfDoc = new PDFDocument({ margin: 50 });
+
+    const rupeeFontPath = path.join(__dirname, '..', 'public', 'fonts', 'NotoSans-Regular.ttf');
+    pdfDoc.registerFont('NotoSans', rupeeFontPath);
+
+    const fileName = `invoice-${orderId}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${fileName}`
+    );
+
+    pdfDoc.pipe(res);
+
+    pdfDoc.font('NotoSans').fontSize(20).text("INVOICE", { align: "center" });
+    pdfDoc.moveDown();
+
+    pdfDoc.font('NotoSans').fontSize(12).text(`Order ID: ${order._id}`);
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
+    pdfDoc.font('NotoSans').text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+    pdfDoc.moveDown();
+    pdfDoc.font('NotoSans').text(`Customer Name: ${order.userId.name}`);
+    pdfDoc.font('NotoSans').text(`Customer Email: ${order.userId.email}`);
+    pdfDoc.moveDown();
+    if (order.deliveryAddress) {
+      const address = order.deliveryAddress;
+      pdfDoc.font('NotoSans').text("Delivery Address:");
+      pdfDoc.font('NotoSans').text(`  Full Name: ${address.fullName}`);
+      pdfDoc.font('NotoSans').text(`  Mobile: ${address.mobile}`);
+      pdfDoc.font('NotoSans').text(`  Pincode: ${address.pincode}`);
+      pdfDoc.font('NotoSans').text(`  State: ${address.state}`);
+      pdfDoc.font('NotoSans').text(`  Address: ${address.address}`);
+      pdfDoc.font('NotoSans').text(`  City: ${address.city}`);
+      pdfDoc.moveDown(); 
+    } else {
+      pdfDoc.font('NotoSans').text("Delivery Address: Not available");
+    }
+    
+    pdfDoc.moveDown();
+
+    pdfDoc.font('NotoSans').text("Products:", { underline: true });
+    order.products.forEach((item, index) => {
+      pdfDoc.font('NotoSans').text(
+        `${index + 1}. ${item.name} (x${item.quantity}) - ₹${item.price}`
+      );
+    });
+
+    pdfDoc.moveDown();
+    pdfDoc.font('NotoSans').text(`Subtotal: ₹${order.totalAmount}`);
+    pdfDoc.font('NotoSans').text(`Delivery Charges: ₹${order && order.deliveryCharges ? order.deliveryCharges : 'Free'}`);
+    pdfDoc.font('NotoSans').text(`Total Amount: ₹${order.totalAmount}`, { bold: true });
+    pdfDoc.moveDown();
+
+    pdfDoc.font('NotoSans').text("Payment Method: " + order.paymentMethod.toUpperCase());
+    pdfDoc.font('NotoSans').text("Thank you for your order!", { align: "center" });
+
+    pdfDoc.end();
+  } catch (error) {
+    console.error("Error generating invoice:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 
 module.exports = {
@@ -607,4 +683,5 @@ module.exports = {
   returnOrder,
   initiateOrder,
   confirmPayment,
+  downloadInvoice
 };

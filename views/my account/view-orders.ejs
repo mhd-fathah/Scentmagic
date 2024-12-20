@@ -79,7 +79,10 @@
             </div>
             <div class="d-flex gap-2 mt-3">
               <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
-              <a href="<%= order.invoiceLink %>" class="btn btn-outline-magenta btn-sm">Download Invoice</a>
+              <a href="/orders/invoice/<%= order.id %>" class="btn btn-outline-magenta btn-sm">
+                Download Invoice
+              </a>
+              
             </div>
           </div>
           <div class="order-footer">

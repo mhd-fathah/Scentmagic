@@ -56,5 +56,6 @@ router.post(
   orderController.returnOrder
 );
 
+router.get('/orders/invoice/:orderId',orderController.downloadInvoice)
 
 module.exports = router;
