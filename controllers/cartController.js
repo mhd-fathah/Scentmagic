@@ -27,6 +27,9 @@ const getCart = async (req, res) => {
     let deliveryCharges = 0;
     let finalAmount = 0;
 
+    const cartError = req.session.cartError || null;
+    req.session.cartError = null; 
+
     cart.items = await Promise.all(
       cart.items.map(async (item) => {
         const product = await Product.findById(item.productId._id);
@@ -36,6 +39,14 @@ const getCart = async (req, res) => {
           );
           return null;
         }
+
+        if (item.quantity > product.leftStock) {
+          console.log(
+            `Adjusting quantity of product ID ${item.productId._id} in the cart to available stock: ${product.leftStock}`
+          );
+          item.quantity = product.leftStock;
+        }
+
         return item;
       })
     );
@@ -69,13 +80,15 @@ const getCart = async (req, res) => {
       cartItems: cart.items,
       priceDetails,
       isEmpty: cart.items.length === 0,
-      couponCode: req.session.couponCode || null,  
+      couponCode: req.session.couponCode || null,
+      cartError
     });
   } catch (err) {
     console.error("Error fetching cart:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 const addToCart = async (req, res) => {

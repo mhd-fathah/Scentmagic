@@ -998,7 +998,7 @@ const loadCheckout = async (req, res) => {
       user.addresses && user.addresses.length > 0 ? user.addresses : null;
 
     const cart = await Cart.findOne({ user: userId })
-      .populate("items.productId", "product_name discount_price")
+      .populate("items.productId", "product_name discount_price stock")
       .lean();
     if (!cart || cart.items.length === 0) {
       return res.render("my account/checkout", {
@@ -1014,6 +1014,21 @@ const loadCheckout = async (req, res) => {
         coupons: [],
       });
     }
+
+      const hasExceedingQuantity = await Promise.any(
+        cart.items.map(async (item) => {
+          const product = await Product.findById(item.productId._id).select(
+            "leftStock"
+          );
+          return item.quantity > (product ? product.leftStock : 0);
+        })
+      );
+  
+      if (hasExceedingQuantity) {
+        req.session.cartError =
+          "Cart contains items with quantity exceeding available stock. We are adjusted your cart. Now you can proceed to checkout.";
+        return res.redirect("/cart");
+      }
 
     const products = cart.items.map((item) => ({
       ...item.productId,
@@ -1053,6 +1068,7 @@ const loadCheckout = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 const applyCoupon = async (req, res) => {
   try {
