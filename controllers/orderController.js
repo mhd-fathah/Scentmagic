@@ -216,7 +216,7 @@ const confirmPayment = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    const { paymentMethod, products, addressId, totalAmount  } = req.body;
+    const { paymentMethod, products, addressId, totalAmount } = req.body;
     const userId = req.session.user?._id;
 
     if (!userId) {
@@ -242,6 +242,13 @@ const placeOrder = async (req, res) => {
 
     if (!productDetails.length) {
       return res.status(400).json({ message: "Some products not found" });
+    }
+
+    // Check if total amount exceeds 1000
+    if (totalAmount > 1000) {
+      return res
+        .status(400)
+        .json({ message: "Order total exceeds 1000. Cannot place the order." });
     }
 
     const orderId = `ORD-${Date.now()}`;
@@ -321,6 +328,7 @@ const placeOrder = async (req, res) => {
     res.status(500).json({ message: "Error placing order. Please try again." });
   }
 };
+
 
 const viewOrderConfirmation = async (req, res) => {
   try {
@@ -663,6 +671,15 @@ const downloadInvoice = async (req, res) => {
     pdfDoc.moveDown();
 
     pdfDoc.font('NotoSans').text("Payment Method: " + order.paymentMethod.toUpperCase());
+    pdfDoc.font('NotoSans').text("Payment Status: " + order.paymentStatus.toUpperCase());
+    pdfDoc.font('NotoSans').text("Order Status: " + order.status.toUpperCase());
+    pdfDoc.moveDown(); 
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
+    pdfDoc.moveDown();
     pdfDoc.font('NotoSans').text("Thank you for your order!", { align: "center" });
 
     pdfDoc.end();

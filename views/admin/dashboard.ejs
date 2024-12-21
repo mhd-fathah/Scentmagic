@@ -414,19 +414,19 @@
         <div class="col-xl-4 col-lg-12">
           <div class="card mb-4">
             <article class="card-body">
-              <h5 class="card-title">Revenue Based on Area</h5>
-              
+              <h5 class="card-title">Sales Analytics</h5>
+
               <!-- Dropdown to select chart type -->
               <select id="chartType" onchange="updateChart()">
                 <option value="products">Top Selling Products</option>
                 <option value="categories">Top Selling Categories</option>
               </select>
-          
+
               <!-- Chart Container -->
               <canvas id="myChart2" height="350"></canvas>
             </article>
           </div>
-          
+
         </div>
       </div>
       <div class="card mb-4">
@@ -586,72 +586,72 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
+
   <script>
-  var ctx = document.getElementById("myChart2");
-  var myChart = null;
-  
-  async function fetchChartData(type) {
+    var ctx = document.getElementById("myChart2");
+    var myChart = null;
+
+    async function fetchChartData(type) {
       try {
-          const response = await fetch(`/admin/${type === "products" ? "top-selling-products" : "top-selling-categories"}`);
-          const result = await response.json();
-          if (result.success) {
-              const labels = result.data.map((item) => (type === "products" ? item.name : item.categoryName));
-              const data = result.data.map((item) => item.quantity);
-  
-              initializeChart(data, labels, type === "products" ? "Top Selling Products" : "Top Selling Categories");
-          } else {
-              console.error("Error fetching data:", result.error);
-          }
+        const response = await fetch(`/admin/${type === "products" ? "top-selling-products" : "top-selling-categories"}`);
+        const result = await response.json();
+        if (result.success) {
+          const labels = result.data.map((item) => (type === "products" ? item.name : item.categoryName));
+          const data = result.data.map((item) => item.quantity);
+
+          initializeChart(data, labels, type === "products" ? "Top Selling Products" : "Top Selling Categories");
+        } else {
+          console.error("Error fetching data:", result.error);
+        }
       } catch (error) {
-          console.error("Error fetching chart data:", error);
+        console.error("Error fetching chart data:", error);
       }
-  }
-  
-  function initializeChart(data, labels, typeLabel) {
+    }
+
+    function initializeChart(data, labels, typeLabel) {
       if (myChart) {
-          myChart.destroy(); 
+        myChart.destroy();
       }
       myChart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-              labels: labels,
-              datasets: [
-                  {
-                      label: typeLabel,
-                      backgroundColor: ["#5897fb", "#7bcf86", "#ff9076", "#d595e5"],
-                      barThickness: 10,
-                      data: data,
-                  }
-              ]
-          },
-          options: {
-              plugins: {
-                  legend: {
-                      labels: {
-                          usePointStyle: true,
-                      },
-                  }
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: typeLabel,
+              backgroundColor: ["#5897fb", "#7bcf86", "#ff9076", "#d595e5"],
+              barThickness: 10,
+              data: data,
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true,
               },
-              scales: {
-                  y: {
-                      beginAtZero: true
-                  }
-              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
           }
+        }
       });
-  }
-  
-  function updateChart() {
+    }
+
+    function updateChart() {
       const chartType = $("#chartType").val();
-      fetchChartData(chartType); 
-  }
-  
-  $(document).ready(function () {
-      fetchChartData("products"); 
-  });
+      fetchChartData(chartType);
+    }
+
+    $(document).ready(function () {
+      fetchChartData("products");
+    });
   </script>
-  
+
 
   <script>
     function downloadPDF() {
