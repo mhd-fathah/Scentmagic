@@ -1100,17 +1100,38 @@ const loadSalesData = async (req, res) => {
 
 const getTopSellingProducts = async (req, res) => {
   try {
+    const filter = req.query.filter || "all";
+    const matchStage = {};
+
+    if (filter === "yearly") {
+      matchStage.createdAt = {
+        $gte: new Date(new Date().getFullYear(), 0, 1),
+        $lt: new Date(new Date().getFullYear() + 1, 0, 1),
+      };
+    } else if (filter === "monthly") {
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+      matchStage.createdAt = { $gte: startOfMonth, $lt: endOfMonth };
+    } else if (filter === "weekly") {
+      const currentDate = new Date();
+      const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 7);
+      matchStage.createdAt = { $gte: startOfWeek, $lt: endOfWeek };
+    }
+
     const topProducts = await Order.aggregate([
-      { $unwind: "$products" }, 
+      { $match: matchStage },
+      { $unwind: "$products" },
       {
         $group: {
-          _id: "$products.productId", 
-          totalQuantity: { $sum: "$products.quantity" }, 
-          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, 
+          _id: "$products.productId",
+          totalQuantity: { $sum: "$products.quantity" },
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } },
         },
       },
-      { $sort: { totalQuantity: -1 } }, 
-      { $limit: 10 }, 
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 10 },
     ]);
 
     const populatedProducts = await Product.populate(topProducts, {
@@ -1121,9 +1142,9 @@ const getTopSellingProducts = async (req, res) => {
     res.status(200).json({
       success: true,
       data: populatedProducts.map((product) => ({
-        productId: product._id._id, 
-        name: product._id.product_name, 
-        quantity: product.totalQuantity, 
+        productId: product._id._id,
+        name: product._id.product_name,
+        quantity: product.totalQuantity,
         sales: product.totalSales,
       })),
     });
@@ -1133,45 +1154,65 @@ const getTopSellingProducts = async (req, res) => {
   }
 };
 
-
 const getTopSellingCategories = async (req, res) => {
   try {
+    const filter = req.query.filter || "all";
+    const matchStage = {};
+
+    if (filter === "yearly") {
+      matchStage.createdAt = {
+        $gte: new Date(new Date().getFullYear(), 0, 1),
+        $lt: new Date(new Date().getFullYear() + 1, 0, 1),
+      };
+    } else if (filter === "monthly") {
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+      matchStage.createdAt = { $gte: startOfMonth, $lt: endOfMonth };
+    } else if (filter === "weekly") {
+      const currentDate = new Date();
+      const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 7);
+      matchStage.createdAt = { $gte: startOfWeek, $lt: endOfWeek };
+    }
+
     const topCategories = await Order.aggregate([
-      { $unwind: "$products" }, 
+      { $match: matchStage },
+      { $unwind: "$products" },
       {
         $lookup: {
-          from: "products", 
+          from: "products",
           localField: "products.productId",
           foreignField: "_id",
           as: "productDetails",
         },
       },
-      { $unwind: "$productDetails" }, 
+      { $unwind: "$productDetails" },
       {
         $group: {
-          _id: "$productDetails.category", 
+          _id: "$productDetails.category",
           totalQuantity: { $sum: "$products.quantity" },
-          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } }, 
+          totalSales: { $sum: { $multiply: ["$products.quantity", "$products.price"] } },
         },
       },
       {
         $lookup: {
-          from: "categories", 
-          localField: "_id", 
+          from: "categories",
+          localField: "_id",
           foreignField: "_id",
           as: "categoryDetails",
         },
       },
-      { $unwind: "$categoryDetails" }, 
-      { $sort: { totalQuantity: -1 } }, 
-      { $limit: 10 }, 
+      { $unwind: "$categoryDetails" },
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 10 },
     ]);
 
     res.status(200).json({
       success: true,
       data: topCategories.map((category) => ({
         categoryId: category._id,
-        categoryName: category.categoryDetails.name, 
+        categoryName: category.categoryDetails.name,
         quantity: category.totalQuantity,
         sales: category.totalSales,
       })),
@@ -1180,7 +1221,7 @@ const getTopSellingCategories = async (req, res) => {
     console.error("Error fetching top-selling categories:", error);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
-};
+}
 
 
 module.exports = {

@@ -415,13 +415,21 @@
           <div class="card mb-4">
             <article class="card-body">
               <h5 class="card-title">Sales Analytics</h5>
-
+          
               <!-- Dropdown to select chart type -->
               <select id="chartType" onchange="updateChart()">
                 <option value="products">Top Selling Products</option>
                 <option value="categories">Top Selling Categories</option>
               </select>
-
+          
+              <!-- Dropdown to select filter type -->
+              <select id="filterType" onchange="updateChart()">
+                <option value="all">All Time</option>
+                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+              </select>
+          
               <!-- Chart Container -->
               <canvas id="myChart2" height="350"></canvas>
             </article>
@@ -590,16 +598,26 @@
   <script>
     var ctx = document.getElementById("myChart2");
     var myChart = null;
-
-    async function fetchChartData(type) {
+  
+    async function fetchChartData(type, filter) {
       try {
-        const response = await fetch(`/admin/${type === "products" ? "top-selling-products" : "top-selling-categories"}`);
+        const response = await fetch(
+          `/admin/${
+            type === "products" ? "top-selling-products" : "top-selling-categories"
+          }?filter=${filter}`
+        );
         const result = await response.json();
         if (result.success) {
-          const labels = result.data.map((item) => (type === "products" ? item.name : item.categoryName));
+          const labels = result.data.map((item) =>
+            type === "products" ? item.name : item.categoryName
+          );
           const data = result.data.map((item) => item.quantity);
-
-          initializeChart(data, labels, type === "products" ? "Top Selling Products" : "Top Selling Categories");
+  
+          initializeChart(
+            data,
+            labels,
+            type === "products" ? "Top Selling Products" : "Top Selling Categories"
+          );
         } else {
           console.error("Error fetching data:", result.error);
         }
@@ -607,7 +625,7 @@
         console.error("Error fetching chart data:", error);
       }
     }
-
+  
     function initializeChart(data, labels, typeLabel) {
       if (myChart) {
         myChart.destroy();
@@ -641,14 +659,15 @@
         }
       });
     }
-
+  
     function updateChart() {
-      const chartType = $("#chartType").val();
-      fetchChartData(chartType);
+      const chartType = document.getElementById("chartType").value;
+      const filterType = document.getElementById("filterType").value;
+      fetchChartData(chartType, filterType);
     }
-
-    $(document).ready(function () {
-      fetchChartData("products");
+  
+    document.addEventListener("DOMContentLoaded", function () {
+      fetchChartData("products", "all");
     });
   </script>
 
