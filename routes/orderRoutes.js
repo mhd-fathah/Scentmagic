@@ -58,4 +58,6 @@ router.post(
 
 router.get('/orders/invoice/:orderId',orderController.downloadInvoice)
 
+router.post("/orders/retry-payment", orderController.retryPayment);
+
 module.exports = router;

@@ -244,7 +244,6 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Some products not found" });
     }
 
-    // Check if total amount exceeds 1000
     if (totalAmount > 1000) {
       return res
         .status(400)
@@ -414,6 +413,9 @@ const getUserOrders = async (req, res) => {
       totalPrice: order.totalAmount || 0,
       status: order.status || "Unknown",
       statusClass: order.status ? order.status.toLowerCase() : "unknown",
+      razorpayPaymentStatus:order.razorpayPaymentStatus || "Unknown",
+      razorpayOrderId:order.razorpayOrderId || "Unknown",
+      paymentMethod:order.paymentMethod || "Unknown",
       shippingAddress: order.deliveryAddress
         ? `${order.deliveryAddress.address}, ${order.deliveryAddress.city}, ${order.deliveryAddress.state}, ${order.deliveryAddress.pincode}`
         : "Address not available",
@@ -690,6 +692,40 @@ const downloadInvoice = async (req, res) => {
 };
 
 
+const retryPayment = async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    const existingOrder = await Order.findOne({ razorpayOrderId: orderId });
+
+    if (!existingOrder) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    const newOrder = await razorpay.orders.create({
+      amount: existingOrder.totalAmount * 100, 
+      currency: "INR",
+      receipt: `retry_${orderId}`, 
+    });
+
+    existingOrder.razorpayOrderId = newOrder.id;
+    existingOrder.razorpayPaymentStatus = "pending";
+    await existingOrder.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Retry initiated successfully.",
+      newOrder,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create Razorpay order for retry.",
+    });
+  }
+};
+
 
 module.exports = {
   placeOrder,
@@ -700,5 +736,6 @@ module.exports = {
   returnOrder,
   initiateOrder,
   confirmPayment,
-  downloadInvoice
+  downloadInvoice,
+  retryPayment
 };
