@@ -21,6 +21,7 @@ const wishlistRoutes = require('./routes/wishlistRoutes')
 const walletRoutes = require('./routes/walletRoutes')
 const couponRoutes = require('./routes/couponRoutes')
 const offerRoutes = require('./routes/offerRoutes')
+const refferralRoutes = require('./routes/refferralRoutes')
 
 app.use(ejsLayouts);
 app.use(cookieParser())
@@ -48,6 +49,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
 app.use(auth.setCurrentRoute)
+app.use('/refferral',refferralRoutes)
 app.use('/wallet',walletRoutes)
 app.use('/wishlist',wishlistRoutes)
 app.use(orderRoutes)

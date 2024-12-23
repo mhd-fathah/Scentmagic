@@ -1,0 +1,131 @@
+.breadcrumb-section {
+    background-color: #f8f9fa;
+}
+
+.breadcrumb {
+    background-color: #f8f9fa;
+    border-left: 4px solid #ffc107;
+}
+
+.product__details__price {
+    color: #f714f0;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 20px 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.primary-btn {
+    display: inline-block;
+    font-size: 14px;
+    padding: 12px 30px;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: #f714f0;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.primary-btn:hover {
+    background: #d610cc;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(247,20,240,0.2);
+}
+
+.spad {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.reward-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.reward-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.referral-code-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #f714f0;
+    margin: 20px 0;
+}
+
+.progress-step {
+    padding: 20px;
+    border-radius: 10px;
+    background: white;
+    margin: 10px 0;
+    border-left: 4px solid #f714f0;
+    transition: all 0.3s ease;
+}
+
+.progress-step:hover {
+    background: #f8f9fa;
+}
+
+.share-btn {
+    padding: 15px 25px;
+    border-radius: 50px;
+    margin: 5px;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-btn {
+    background: #25D366;
+}
+
+.whatsapp-btn:hover {
+    background: #128C7E;
+}
+
+.email-btn {
+    background: #EA4335;
+}
+
+.email-btn:hover {
+    background: #B23121;
+}
+
+.reward-icon {
+    font-size: 2.5rem;
+    color: #f714f0;
+    margin-bottom: 1rem;
+}
+
+.floating-badge {
+    position: absolute;
+    top: -15px;
+    right: 20px;
+    background: #ffc107;
+    color: black;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+.text-primary {
+    color: #f714f0 !important;
+}
