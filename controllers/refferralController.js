@@ -3,7 +3,7 @@ const User = require('../models/user')
 
 const renderReferralPage = async (req, res) => {
     try {
-        const userId = req.session.user._id; 
+        const userId = req.session.user?._id; 
         const user = await User.findById(userId);
         const referralData = await Referral.findOne({ user: userId }); 
 
