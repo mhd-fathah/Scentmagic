@@ -41,30 +41,38 @@
         <span class="error-message" id="email-error" style="color: red;"></span>
 
         <label for="password">PASSWORD</label>
-        <input type="password" id="password" name="password" placeholder="***************">
+        <div class="password-wrapper">
+          <input type="password" id="password" name="password" placeholder="***************">
+          <span id="toggle-password" onclick="togglePassword('password', 'toggle-password')">👁️</span>
+        </div>
         <span class="error-message" id="password-error" style="color: red;"></span>
+
 
         <label for="confirm-password">CONFIRM PASSWORD</label>
         <div class="password-wrapper">
           <input type="password" id="confirm-password" name="confirm-password" placeholder="***************">
-          <span id="toggle-password" onclick="togglePassword()">👁️</span>
-          <span class="error-message" id="confirm-password-error" style="color: red;"></span>
+          <span id="toggle-password" onclick="togglePassword('confirm-password', 'toggle-confirm-password')">👁️</span>
         </div>
+        <span class="error-message" id="confirm-password-error" style="color: red;"></span>
+
+        <label for="referral-code">REFERRAL CODE (Optional)</label>
+        <input type="text" id="referral-code" name="referral-code" placeholder="Enter Referral Code">
+        <span class="error-message" id="referral-code-error" style="color: red;"></span>
 
         <% if (message) { %>
-          <div style="color: red;">
-            <%= message %>
-          </div>
-          <% } %>
+        <div style="color: red;">
+          <%= message %>
+        </div>
+        <% } %>
 
-            <button type="submit" class="submit-btn">
-              <span class="button-text">SIGNUP</span>
-              <span class="loading-icon" style="display: none;">
-                <i class="fas fa-spinner fa-spin"></i>
-              </span>
-            </button>
+        <button type="submit" class="submit-btn">
+          <span class="button-text">SIGNUP</span>
+          <span class="loading-icon" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i>
+          </span>
+        </button>
 
-            <button onclick="window.location.href='/login'" class="back-btn" style="
+        <button type="button" onclick="window.location.href='/login'" class="back-btn" style="
         margin-top: 20px;
         background-color: #f1f1f1;
         border: none;
@@ -86,140 +94,203 @@
   </div>
 
   <script>
+    document.querySelector(".submit-btn").addEventListener("click", function(event) {
+      event.preventDefault();
 
-    document.querySelector(".submit-btn").addEventListener("click", function (event) {
+      const signupForm = document.getElementById("signup-form");
+      const fullnameInput = document.getElementById("fullname");
+      const phoneInput = document.getElementById("phone");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirm-password");
+      const referralCodeInput = document.getElementById("referral-code");
       const button = event.currentTarget;
       const buttonText = button.querySelector(".button-text");
       const loadingIcon = button.querySelector(".loading-icon");
 
-      button.disabled = true;
+      function validateFullname() {
+        const fullname = fullnameInput.value.trim();
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!fullname || !nameRegex.test(fullname)) {
+          return "Full name is required and can only contain letters and spaces.";
+        }
+        return "";
+      }
 
+      function validatePhone() {
+        const phone = phoneInput.value.trim();
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phone || !phoneRegex.test(phone)) {
+          return "Please enter a valid 10-digit phone number.";
+        }
+        return "";
+      }
+
+      function validateEmail() {
+        const email = emailInput.value.trim();
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email || !emailRegex.test(email)) {
+          return "Please enter a valid email address.";
+        }
+        return "";
+      }
+
+      function validatePassword() {
+        const password = passwordInput.value.trim();
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!password || !passwordRegex.test(password)) {
+          return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).";
+        }
+        return "";
+      }
+
+      function validateConfirmPassword() {
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+        if (confirmPassword !== password) {
+          return "Password and Confirm Password must match.";
+        }
+        return "";
+      }
+
+      function validateReferralCode() {
+        const referralCode = referralCodeInput.value.trim();
+        const referralCodeRegex = /^[a-zA-Z0-9]*$/;
+        if (referralCode && !referralCodeRegex.test(referralCode)) {
+          return "Referral Code can only contain letters and numbers.";
+        }
+        return "";
+      }
+
+      function showError(input, errorMessage) {
+        const errorElement = document.getElementById(`${input.id}-error`);
+        errorElement.textContent = errorMessage;
+      }
+
+      function clearError(input) {
+        const errorElement = document.getElementById(`${input.id}-error`);
+        errorElement.textContent = "";
+      }
+
+      fullnameInput.addEventListener("blur", function() {
+        const errorMessage = validateFullname();
+        showError(fullnameInput, errorMessage);
+      });
+
+      phoneInput.addEventListener("blur", function() {
+        const errorMessage = validatePhone();
+        showError(phoneInput, errorMessage);
+      });
+
+      emailInput.addEventListener("blur", function() {
+        const errorMessage = validateEmail();
+        showError(emailInput, errorMessage);
+      });
+
+      passwordInput.addEventListener("blur", function() {
+        const errorMessage = validatePassword();
+        showError(passwordInput, errorMessage);
+      });
+
+      confirmPasswordInput.addEventListener("blur", function() {
+        const errorMessage = validateConfirmPassword();
+        showError(confirmPasswordInput, errorMessage);
+      });
+
+      referralCodeInput.addEventListener("blur", function() {
+        const errorMessage = validateReferralCode();
+        showError(referralCodeInput, errorMessage);
+      });
+
+      fullnameInput.addEventListener("input", function() {
+        if (!validateFullname()) clearError(fullnameInput);
+      });
+
+      phoneInput.addEventListener("input", function() {
+        if (!validatePhone()) clearError(phoneInput);
+      });
+
+      emailInput.addEventListener("input", function() {
+        if (!validateEmail()) clearError(emailInput);
+      });
+
+      passwordInput.addEventListener("input", function() {
+        if (!validatePassword()) clearError(passwordInput);
+      });
+
+      confirmPasswordInput.addEventListener("input", function() {
+        if (!validateConfirmPassword()) clearError(confirmPasswordInput);
+      });
+
+      referralCodeInput.addEventListener("input", function() {
+        if (!validateReferralCode()) clearError(referralCodeInput);
+      });
+
+      function updateErrorMessages() {
+        let isValid = true;
+
+        const fullnameError = validateFullname();
+        const phoneError = validatePhone();
+        const emailError = validateEmail();
+        const passwordError = validatePassword();
+        const confirmPasswordError = validateConfirmPassword();
+        const referralCodeError = validateReferralCode();
+
+        if (fullnameError) {
+          showError(fullnameInput, fullnameError);
+          isValid = false;
+        }
+        if (phoneError) {
+          showError(phoneInput, phoneError);
+          isValid = false;
+        }
+        if (emailError) {
+          showError(emailInput, emailError);
+          isValid = false;
+        }
+        if (passwordError) {
+          showError(passwordInput, passwordError);
+          isValid = false;
+        }
+        if (confirmPasswordError) {
+          showError(confirmPasswordInput, confirmPasswordError);
+          isValid = false;
+        }
+        if (referralCodeError) {
+          showError(referralCodeInput, referralCodeError);
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      const isValid = updateErrorMessages();
+      if (!isValid) {
+        return;
+      }
+
+      button.disabled = true;
       buttonText.style.display = "none";
       loadingIcon.style.display = "inline-block";
 
-      const form = button.closest("form");
-      form.submit();
+      signupForm.submit();
     });
 
-    function togglePassword() {
-      const password = document.getElementById('confirm-password');
-      const toggle = document.getElementById('toggle-password');
-      if (password.type === "password") {
-        password.type = "text";
-        toggle.textContent = "🙈";
+    function togglePassword(fieldId, toggleButtonId) {
+      const passwordField = document.getElementById(fieldId);
+      const toggleButton = document.getElementById(toggleButtonId);
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleButton.textContent = "🙈";
       } else {
-        password.type = "password";
-        toggle.textContent = "👁️";
+        passwordField.type = "password";
+        toggleButton.textContent = "👁️";
       }
     }
-
-    const signupForm = document.getElementById('signup-form');
-    const fullnameInput = document.getElementById('fullname');
-    const phoneInput = document.getElementById('phone');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirm-password');
-
-    function togglePassword() {
-      const passwordFields = [passwordInput, confirmPasswordInput];
-      passwordFields.forEach(field => {
-        field.type = (field.type === "password") ? "text" : "password";
-      });
-    }
-
-    function validateFullname() {
-      const fullname = fullnameInput.value;
-      const nameRegex = /^[a-zA-Z\s]+$/;
-      if (!fullname || !nameRegex.test(fullname)) {
-        return 'Full name is required and can only contain letters and spaces.';
-      }
-      return '';
-    }
-
-    function validatePhone() {
-      const phone = phoneInput.value;
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phone || !phoneRegex.test(phone)) {
-        return 'Please enter a valid 10-digit phone number.';
-      }
-      return '';
-    }
-
-    function validateEmail() {
-      const email = emailInput.value;
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!email || !emailRegex.test(email)) {
-        return 'Please enter a valid email address.';
-      }
-      return '';
-    }
-
-    function validatePassword() {
-      const password = passwordInput.value;
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (!password || !passwordRegex.test(password)) {
-        return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).";
-      }
-      return '';
-    }
-
-    function validateConfirmPassword() {
-      const password = passwordInput.value;
-      const confirmPassword = confirmPasswordInput.value;
-      if (confirmPassword !== password) {
-        return 'Password and Confirm Password must match.';
-      }
-      return '';
-    }
-
-    function updateErrorMessages() {
-      let errors = [];
-
-      const fullnameError = validateFullname();
-      if (fullnameError) errors.push({ field: 'fullname', message: fullnameError });
-
-      const phoneError = validatePhone();
-      if (phoneError) errors.push({ field: 'phone', message: phoneError });
-
-      const emailError = validateEmail();
-      if (emailError) errors.push({ field: 'email', message: emailError });
-
-      const passwordError = validatePassword();
-      if (passwordError) errors.push({ field: 'password', message: passwordError });
-
-      const confirmPasswordError = validateConfirmPassword();
-      if (confirmPasswordError) errors.push({ field: 'confirm-password', message: confirmPasswordError });
-
-      document.querySelectorAll('.error-message').forEach(element => element.textContent = '');
-
-      errors.forEach(error => {
-        const errorElement = document.getElementById(`${error.field}-error`);
-        if (errorElement) {
-          errorElement.textContent = error.message;
-        }
-      });
-    }
-
-    signupForm.addEventListener('submit', (e) => {
-      const fullnameError = validateFullname();
-      const phoneError = validatePhone();
-      const emailError = validateEmail();
-      const passwordError = validatePassword();
-      const confirmPasswordError = validateConfirmPassword();
-
-      if (fullnameError || phoneError || emailError || passwordError || confirmPasswordError) {
-        e.preventDefault();
-        updateErrorMessages();
-      }
-    });
-
-    fullnameInput.addEventListener('input', updateErrorMessages);
-    phoneInput.addEventListener('input', updateErrorMessages);
-    emailInput.addEventListener('input', updateErrorMessages);
-    passwordInput.addEventListener('input', updateErrorMessages);
-    confirmPasswordInput.addEventListener('input', updateErrorMessages);
-
   </script>
+
+
 </body>
 
 </html>
