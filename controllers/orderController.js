@@ -5,9 +5,9 @@ const PDFDocument = require("pdfkit");
 const User = require("../models/user");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
-const Wallet = require('../models/wallet')
+const Wallet = require("../models/wallet");
 const Razorpay = require("razorpay");
-const Coupon = require('../models/coupon')
+const Coupon = require("../models/coupon");
 const crypto = require("crypto");
 require("dotenv").config();
 
@@ -76,14 +76,14 @@ const initiateOrder = async (req, res) => {
     }
 
     const finalTotalAmount = totalPrice - discount;
-    console.log(finalTotalAmount)
+    console.log(finalTotalAmount);
 
     const orderId = `ORD-${Date.now()}`;
     let razorpayOrder = null;
 
     if (paymentMethod === "razorpay") {
       razorpayOrder = await razorpay.orders.create({
-        amount: finalTotalAmount * 100, 
+        amount: finalTotalAmount * 100,
         currency: "INR",
         receipt: orderId,
       });
@@ -144,7 +144,6 @@ const initiateOrder = async (req, res) => {
       .json({ message: "Failed to initiate order.", error: error.message });
   }
 };
-
 
 const confirmPayment = async (req, res) => {
   try {
@@ -328,7 +327,6 @@ const placeOrder = async (req, res) => {
   }
 };
 
-
 const viewOrderConfirmation = async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -413,9 +411,9 @@ const getUserOrders = async (req, res) => {
       totalPrice: order.totalAmount || 0,
       status: order.status || "Unknown",
       statusClass: order.status ? order.status.toLowerCase() : "unknown",
-      razorpayPaymentStatus:order.razorpayPaymentStatus || "Unknown",
-      razorpayOrderId:order.razorpayOrderId || "Unknown",
-      paymentMethod:order.paymentMethod || "Unknown",
+      razorpayPaymentStatus: order.razorpayPaymentStatus || "Unknown",
+      razorpayOrderId: order.razorpayOrderId || "Unknown",
+      paymentMethod: order.paymentMethod || "Unknown",
       shippingAddress: order.deliveryAddress
         ? `${order.deliveryAddress.address}, ${order.deliveryAddress.city}, ${order.deliveryAddress.state}, ${order.deliveryAddress.pincode}`
         : "Address not available",
@@ -456,10 +454,14 @@ const viewOrderDetails = async (req, res) => {
     if (!order) {
       return res.status(404).send("Order not found");
     }
-    const canCancel = 
-    (order.paymentMethod === "razorpay" && order.razorpayPaymentStatus === "success" || order.razorpayPaymentStatus === "pending" && (order.status === "Pending" || order.status === "Shipped")) ||
-    (order.paymentMethod === "cod" && (order.status === "Pending" || order.status === "Shipped"));
-  
+    const canCancel =
+      (order.paymentMethod === "razorpay" &&
+        order.razorpayPaymentStatus === "success") ||
+      (order.razorpayPaymentStatus === "pending" &&
+        (order.status === "Pending" || order.status === "Shipped")) ||
+      (order.paymentMethod === "cod" &&
+        (order.status === "Pending" || order.status === "Shipped"));
+
     const canReturn = order.status === "Delivered";
 
     const orderData = {
@@ -479,6 +481,7 @@ const viewOrderDetails = async (req, res) => {
         statusClass: order.status ? order.status.toLowerCase() : "unknown",
         paymentStatus: order.paymentStatus || "Unknown",
         razorpayPaymentStatus: order.razorpayPaymentStatus || "Unknown",
+        razorpayOrderId: order.razorpayOrderId || "Unknown",
         paymentMethod: order.paymentMethod || "Unknown",
         paymentStatusClass: order.paymentStatus
           ? order.paymentStatus.toLowerCase()
@@ -525,11 +528,15 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findById(orderId).populate("products.productId");
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "Cancelled") {
-      return res.status(400).json({ success: false, message: "This order is already cancelled" });
+      return res
+        .status(400)
+        .json({ success: false, message: "This order is already cancelled" });
     }
 
     for (let product of order.products) {
@@ -541,8 +548,8 @@ const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
-    order.cancellationReason = reason; 
-    order.cancellationComment = comment; 
+    order.cancellationReason = reason;
+    order.cancellationComment = comment;
 
     if (order.paymentMethod === "razorpay") {
       if (order.paymentStatus === "Paid") {
@@ -573,7 +580,9 @@ const cancelOrder = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ success: true, message: "Order cancelled successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Order cancelled successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -587,23 +596,40 @@ const returnOrder = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "Delivered") {
       if (order.returnRequested) {
-        return res.status(400).json({ success: false, message: "Return request already submitted for this order" });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Return request already submitted for this order",
+          });
       }
 
       order.returnRequested = true;
       order.status = "Return Requested";
       order.returnReason = reason;
-      order.returnComment = comment; 
+      order.returnComment = comment;
       await order.save();
 
-      res.status(200).json({ success: true, message: "Return request submitted successfully" });
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Return request submitted successfully",
+        });
     } else {
-      res.status(400).json({ success: false, message: "This order cannot be returned as it is not delivered" });
+      res
+        .status(400)
+        .json({
+          success: false,
+          message: "This order cannot be returned as it is not delivered",
+        });
     }
   } catch (error) {
     console.error(error);
@@ -622,69 +648,90 @@ const downloadInvoice = async (req, res) => {
 
     const pdfDoc = new PDFDocument({ margin: 50 });
 
-    const rupeeFontPath = path.join(__dirname, '..', 'public', 'fonts', 'NotoSans-Regular.ttf');
-    pdfDoc.registerFont('NotoSans', rupeeFontPath);
+    const rupeeFontPath = path.join(
+      __dirname,
+      "..",
+      "public",
+      "fonts",
+      "NotoSans-Regular.ttf"
+    );
+    pdfDoc.registerFont("NotoSans", rupeeFontPath);
 
     const fileName = `invoice-${orderId}.pdf`;
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=${fileName}`
-    );
+    res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
 
     pdfDoc.pipe(res);
 
-    pdfDoc.font('NotoSans').fontSize(20).text("INVOICE", { align: "center" });
+    pdfDoc.font("NotoSans").fontSize(20).text("INVOICE", { align: "center" });
     pdfDoc.moveDown();
 
-    pdfDoc.font('NotoSans').fontSize(12).text(`Order ID: ${order._id}`);
+    pdfDoc.font("NotoSans").fontSize(12).text(`Order ID: ${order._id}`);
     pdfDoc.moveDown();
     pdfDoc.moveDown();
-    pdfDoc.font('NotoSans').text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+    pdfDoc
+      .font("NotoSans")
+      .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
     pdfDoc.moveDown();
-    pdfDoc.font('NotoSans').text(`Customer Name: ${order.userId.name}`);
-    pdfDoc.font('NotoSans').text(`Customer Email: ${order.userId.email}`);
+    pdfDoc.font("NotoSans").text(`Customer Name: ${order.userId.name}`);
+    pdfDoc.font("NotoSans").text(`Customer Email: ${order.userId.email}`);
     pdfDoc.moveDown();
     if (order.deliveryAddress) {
       const address = order.deliveryAddress;
-      pdfDoc.font('NotoSans').text("Delivery Address:");
-      pdfDoc.font('NotoSans').text(`  Full Name: ${address.fullName}`);
-      pdfDoc.font('NotoSans').text(`  Mobile: ${address.mobile}`);
-      pdfDoc.font('NotoSans').text(`  Pincode: ${address.pincode}`);
-      pdfDoc.font('NotoSans').text(`  State: ${address.state}`);
-      pdfDoc.font('NotoSans').text(`  Address: ${address.address}`);
-      pdfDoc.font('NotoSans').text(`  City: ${address.city}`);
-      pdfDoc.moveDown(); 
+      pdfDoc.font("NotoSans").text("Delivery Address:");
+      pdfDoc.font("NotoSans").text(`  Full Name: ${address.fullName}`);
+      pdfDoc.font("NotoSans").text(`  Mobile: ${address.mobile}`);
+      pdfDoc.font("NotoSans").text(`  Pincode: ${address.pincode}`);
+      pdfDoc.font("NotoSans").text(`  State: ${address.state}`);
+      pdfDoc.font("NotoSans").text(`  Address: ${address.address}`);
+      pdfDoc.font("NotoSans").text(`  City: ${address.city}`);
+      pdfDoc.moveDown();
     } else {
-      pdfDoc.font('NotoSans').text("Delivery Address: Not available");
+      pdfDoc.font("NotoSans").text("Delivery Address: Not available");
     }
-    
+
     pdfDoc.moveDown();
 
-    pdfDoc.font('NotoSans').text("Products:", { underline: true });
+    pdfDoc.font("NotoSans").text("Products:", { underline: true });
     order.products.forEach((item, index) => {
-      pdfDoc.font('NotoSans').text(
-        `${index + 1}. ${item.name} (x${item.quantity}) - ₹${item.price}`
-      );
+      pdfDoc
+        .font("NotoSans")
+        .text(
+          `${index + 1}. ${item.name} (x${item.quantity}) - ₹${item.price}`
+        );
     });
 
     pdfDoc.moveDown();
-    pdfDoc.font('NotoSans').text(`Subtotal: ₹${order.totalAmount}`);
-    pdfDoc.font('NotoSans').text(`Delivery Charges: ₹${order && order.deliveryCharges ? order.deliveryCharges : 'Free'}`);
-    pdfDoc.font('NotoSans').text(`Total Amount: ₹${order.totalAmount}`, { bold: true });
+    pdfDoc.font("NotoSans").text(`Subtotal: ₹${order.totalAmount}`);
+    pdfDoc
+      .font("NotoSans")
+      .text(
+        `Delivery Charges: ₹${
+          order && order.deliveryCharges ? order.deliveryCharges : "Free"
+        }`
+      );
+    pdfDoc
+      .font("NotoSans")
+      .text(`Total Amount: ₹${order.totalAmount}`, { bold: true });
     pdfDoc.moveDown();
 
-    pdfDoc.font('NotoSans').text("Payment Method: " + order.paymentMethod.toUpperCase());
-    pdfDoc.font('NotoSans').text("Payment Status: " + order.paymentStatus.toUpperCase());
-    pdfDoc.font('NotoSans').text("Order Status: " + order.status.toUpperCase());
-    pdfDoc.moveDown(); 
+    pdfDoc
+      .font("NotoSans")
+      .text("Payment Method: " + order.paymentMethod.toUpperCase());
+    pdfDoc
+      .font("NotoSans")
+      .text("Payment Status: " + order.paymentStatus.toUpperCase());
+    pdfDoc.font("NotoSans").text("Order Status: " + order.status.toUpperCase());
     pdfDoc.moveDown();
     pdfDoc.moveDown();
     pdfDoc.moveDown();
     pdfDoc.moveDown();
     pdfDoc.moveDown();
     pdfDoc.moveDown();
-    pdfDoc.font('NotoSans').text("Thank you for your order!", { align: "center" });
+    pdfDoc.moveDown();
+    pdfDoc
+      .font("NotoSans")
+      .text("Thank you for your order!", { align: "center" });
 
     pdfDoc.end();
   } catch (error) {
@@ -693,7 +740,6 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
-
 const retryPayment = async (req, res) => {
   const { orderId } = req.body;
 
@@ -701,13 +747,15 @@ const retryPayment = async (req, res) => {
     const existingOrder = await Order.findOne({ razorpayOrderId: orderId });
 
     if (!existingOrder) {
-      return res.status(404).json({ success: false, message: "Order not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found." });
     }
 
     const newOrder = await razorpay.orders.create({
-      amount: existingOrder.totalAmount * 100, 
+      amount: existingOrder.totalAmount * 100,
       currency: "INR",
-      receipt: `retry_${orderId}`, 
+      receipt: `retry_${orderId}`,
     });
 
     existingOrder.razorpayOrderId = newOrder.id;
@@ -728,7 +776,6 @@ const retryPayment = async (req, res) => {
   }
 };
 
-
 module.exports = {
   placeOrder,
   viewOrderConfirmation,
@@ -739,5 +786,5 @@ module.exports = {
   initiateOrder,
   confirmPayment,
   downloadInvoice,
-  retryPayment
+  retryPayment,
 };

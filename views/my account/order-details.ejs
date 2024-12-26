@@ -147,6 +147,11 @@
                   Return Order
                 </a>
               <% } %>
+              <% if (orderData.order.razorpayPaymentStatus==='failure' && orderData.order.paymentMethod==='razorpay' ) { %>
+                <button onclick="retryPayment('<%= orderData.order.razorpayOrderId %>')"
+                  class="btn btn-warning btn-sm">Retry
+                  Payment</button>
+                <% } %>
               
               
               
@@ -162,6 +167,84 @@
 
   <!-- Add SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    async function retryPayment(orderId) {
+      try {
+        const response = await fetch("/orders/retry-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: orderId }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const options = {
+            key: "rzp_test_8WQufrEYZLgebT",
+            order_id: data.newOrder.id,
+            amount: data.newOrder.amount,
+            currency: data.newOrder.currency,
+            name: "Scentmagic",
+            description: "Retry Payment for your order " + orderId,
+            image: "/img/logo.png",
+            handler: function (response) {
+              const paymentData = {
+                razorpayOrderId: data.newOrder.id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              };
+
+              fetch("/order-payment-success", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(paymentData),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.message === "Payment successful!") {
+                    window.location.href = `/order-confirmation/${data.orderId}`;
+                  } else {
+                    Swal.fire("Error!", data.message, "error");
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error confirming payment:", error);
+                  Swal.fire("Error!", "Payment confirmation failed. Please try again.", "error");
+                });
+            },
+            prefill: {
+              name: "Customer Name",
+              email: "customer@example.com",
+              contact: "1234567890",
+            },
+            theme: {
+              color: "#F37254",
+            },
+          };
+
+          const razorpay = new Razorpay(options);
+
+          razorpay.on("payment.failed", function (response) {
+            alert("Payment failed. Please try again.");
+            console.error("Payment failed:", response.error);
+          });
+
+          razorpay.open();
+        } else {
+          alert(data.error || "Failed to initiate retry. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error retrying payment:", error);
+        alert("An error occurred while retrying payment. Please try again.");
+      }
+    }
+
+
+  </script>
 
   <script>
     let currentOrderId = null;
