@@ -11,10 +11,12 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 const mongoose = require("mongoose");
 const Coupon = require("../models/coupon");
+const Wallet = require('../models/wallet')
+const Referral = require('../models/refferral')
 
 const signupUser = async (req, res) => {
   try {
-    const { name, mobile, email, password } = req.body;
+    const { name, mobile, email, password, referralCode } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -24,13 +26,29 @@ const signupUser = async (req, res) => {
       });
     }
 
+    let referrer = null;
+    if (referralCode) {
+      referrer = await Referral.findOne({ referralCode, status: "Active" }).populate("user");
+      if (!referrer) {
+        return res.status(400).render("signup", {
+          layout: false,
+          message: "Invalid referral code. Please try again.",
+        });
+      }
+    }
+
+
     const otp = generateOTP();
+    console.log(otp)
     await sendOTPEmail(email, otp);
 
     req.session.otp = otp;
-    console.log(req.session.otp);
-    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
-    req.session.tempUserData = { name, mobile, email, password };
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; 
+    req.session.tempUserData = { name, mobile, email, password, referralCode };
+
+    if (referrer) {
+      req.session.referrerId = referrer.user._id; 
+    }
 
     res.render("verify-otp", {
       layout: false,
@@ -45,6 +63,7 @@ const signupUser = async (req, res) => {
   }
 };
 
+
 const verifyOTP = async (req, res) => {
   try {
     const { otp } = req.body;
@@ -58,30 +77,81 @@ const verifyOTP = async (req, res) => {
       return res.json({ success: false, expired: true });
     }
 
-    if (otp === storedOtp) {
-      const user = req.session.tempUserData;
-
-      const newUser = new User({
-        email: user.email,
-        name: user.name,
-      });
-
-      await newUser.save();
-
-      req.session.user = newUser;
-      delete req.session.otp;
-      delete req.session.otpExpiresAt;
-      delete req.session.tempUserData;
-
-      return res.json({ success: true });
+    if (otp !== storedOtp) {
+      return res.json({ success: false, message: "Invalid OTP." });
     }
 
-    res.json({ success: false, message: "Invalid OTP." });
+    const user = req.session.tempUserData;
+
+    const newUser = new User({
+      email: user.email,
+      name: user.name,
+      mobile: user.mobile,
+      password: await bcrypt.hash(user.password, 10), 
+    });
+
+    await newUser.save();
+
+    const newWallet = new Wallet({
+      userId: newUser._id,
+      balance: 0,
+    });
+
+    await newWallet.save();
+
+    newUser.wallet = newWallet._id;
+    await newUser.save();
+
+    if (user.referralCode && req.session.referrerId) {
+      const referrer = await User.findById(req.session.referrerId);
+
+      if (referrer) {
+        const referrerWallet = await Wallet.findOne({ userId: referrer._id });
+        if (referrerWallet) {
+          referrerWallet.balance += 500;
+          referrerWallet.transactions.push({
+            id: `txn-${Date.now()}-referral`,
+            type: "Credit",
+            amount: 500,
+            date: Date.now(),
+          });
+          await referrerWallet.save();
+        }
+
+        newWallet.balance += 500;
+        newWallet.transactions.push({
+          id: `txn-${Date.now()}-bonus`,
+          type: "Credit",
+          amount: 500,
+          date: Date.now(),
+        });
+        await newWallet.save();
+
+        const referral = new Referral({
+          user: referrer._id,
+          referralCode: user.referralCode,
+          totalReferrals: (referrer.totalReferrals || 0) + 1,
+          totalEarned: (referrer.totalEarned || 0) + 500,
+        });
+
+        await referral.save();
+      }
+    }
+
+    req.session.user = newUser;
+    delete req.session.otp;
+    delete req.session.otpExpiresAt;
+    delete req.session.tempUserData;
+    delete req.session.referrerId;
+
+    return res.json({ success: true });
   } catch (error) {
     console.error("Error verifying OTP:", error);
     res.status(500).json({ success: false, message: "Internal Server Error." });
   }
 };
+
+
 
 const resendOTP = async (req, res) => {
   console.log("Resend OTP endpoint hit");
