@@ -456,8 +456,10 @@ const viewOrderDetails = async (req, res) => {
     if (!order) {
       return res.status(404).send("Order not found");
     }
-
-    const canCancel = order.status === "Pending" || order.status === "Shipped";
+    const canCancel = 
+    (order.paymentMethod === "razorpay" && order.razorpayPaymentStatus === "success" || order.razorpayPaymentStatus === "pending" && (order.status === "Pending" || order.status === "Shipped")) ||
+    (order.paymentMethod === "cod" && (order.status === "Pending" || order.status === "Shipped"));
+  
     const canReturn = order.status === "Delivered";
 
     const orderData = {
@@ -539,8 +541,8 @@ const cancelOrder = async (req, res) => {
     }
 
     order.status = "Cancelled";
-    order.cancellationReason = reason; // Store the cancellation reason
-    order.cancellationComment = comment; // Store the cancellation comment
+    order.cancellationReason = reason; 
+    order.cancellationComment = comment; 
 
     if (order.paymentMethod === "razorpay") {
       if (order.paymentStatus === "Paid") {
