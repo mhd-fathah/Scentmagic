@@ -61,6 +61,6 @@ app.use(auth.checkBlocked)
 
 connectDB();
 
-app.listen("https://scentmagic.store/", () => {
-  console.log("Server Started : https://scentmagic.store/");
+app.listen(3000, () => {
+  console.log("Server Started : http://localhost:3000/");
 });
