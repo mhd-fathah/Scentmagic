@@ -61,6 +61,6 @@ app.use(auth.checkBlocked)
 
 connectDB();
 
-app.listen(3000, () => {
+app.listen("https://scentmagic.store/", () => {
   console.log("Server Started : https://scentmagic.store/");
 });
