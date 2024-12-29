@@ -312,7 +312,7 @@ const loadHome = async (req, res) => {
 
     const relatedProducts = await Product.find({
       isDeleted: false,
-      category: latestProducts[0]?.category._id,
+      // category: latestProducts[0]?.category._id,
     })
       .select(
         "product_name discount_price regular_price product_images category stock_status"
