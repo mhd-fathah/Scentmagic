@@ -115,7 +115,7 @@
         <% categories.forEach(category=> { %>
           <div class="col-lg-3">
             <div class="categories__item set-bg">
-              <img src="http://localhost:3000/public/uploads/categories/<%= category.image %>" alt="Category Image" />
+              <img src="/public/uploads/categories/<%= category.image %>" alt="Category Image" />
               <h5><a href="/shop?category=<%= category._id %>">
                   <%= category.name %>
                 </a></h5>
@@ -147,7 +147,7 @@
             <div class="featured__item__pic set-bg">
               <a href="/product/<%= product._id %>">
                 <img
-                  src="https://scentmagic.store/public/uploads/products/<%= product.product_images.length > 0 ? product.product_images[0] : 'default-image.jpg' %>"
+                  src="/public/uploads/products/<%= product.product_images.length > 0 ? product.product_images[0] : 'default-image.jpg' %>"
                   alt="<%= product.product_name %>" />
               </a>
               <ul class="featured__item__pic__hover">
@@ -276,7 +276,7 @@
 
                     <a href="/product/<%= product._id %>" class="latest-product__item">
                       <div class="latest-product__item__pic">
-                        <img src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+                        <img src="/public/uploads/products/<%= product.product_images[0] %>"
                           alt="Product Image" />
                       </div>
                       <div class="latest-product__item__text">
