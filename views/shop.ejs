@@ -202,7 +202,7 @@
                                     <div class="product__discount__item">
                                         <div class="product__discount__item__pic set-bg">
                                             <a href="/product/<%= product._id %>">
-                                                <img src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+                                                <img src="/public/uploads/products/<%= product.product_images[0] %>"
                                                     alt="<%= product.product_name %>" />
                                             </a>
                                             <% const discountPercentage=Math.round( ((product.regular_price -
@@ -301,7 +301,7 @@
                           <div class="product__item__pic set-bg">
                             <a href="/product/<%= product._id %>">
                               <img
-                                src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+                                src="/public/uploads/products/<%= product.product_images[0] %>"
                                 alt="<%= product.product_name %>"
                               />
                             </a>
@@ -467,7 +467,7 @@
           <div class="product__item">
             <div class="product__item__pic set-bg">
               <a href="/product/${product._id}">
-                <img src="http://localhost:3000/public/uploads/products/${product.product_images[0]
+                <img src="/public/uploads/products/${product.product_images[0]
                         }" alt="${product.product_name}">
               </a>
               <ul class="product__item__pic__hover">
