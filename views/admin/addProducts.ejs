@@ -196,13 +196,17 @@
                 <div class="mb-4">
                   <label class="form-label">Category</label>
                   <select class="form-control" id="category" name="category">
+                    <!-- Default option -->
+                    <option value="" disabled selected>Select a category</option>
+                    
                     <% categories.forEach(function(category) { %>
                       <option value="<%= category._id %>">
                         <%= category.name %>
                       </option>
-                      <% }); %>
+                    <% }); %>
                   </select>
                 </div>
+                
 
                 <div class="mb-4">
                   <label for="image1" class="form-label">Product Image 1</label>
