@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const Review = require("../models/review");
+const HttpStatus = require("../constants/httpStatus")
 
 const addReview = async (req, res) => {
   const { productId, rating, comment } = req.body; 
@@ -8,7 +9,7 @@ const addReview = async (req, res) => {
   try {
     
     if (!productId || !rating || !comment) {
-      return res.status(400).json({ error: "All fields are required." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: "All fields are required." });
     }
 
     const newReview = new Review({
@@ -21,17 +22,17 @@ const addReview = async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ error: "Product not found." });
+      return res.status(HttpStatus.NOT_FOUND).json({ error: "Product not found." });
     }
 
     product.reviews.push(newReview._id); 
     product.reviewsCount = product.reviews.length; 
     await product.save();
 
-    res.status(200).json({ message: "Review added successfully!" });
+    res.status(HttpStatus.OK).json({ message: "Review added successfully!" });
   } catch (error) {
     console.error("Error adding review:", error);
-    res.status(500).json({ error: "An error occurred while adding the review." });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while adding the review." });
   }
 };
 

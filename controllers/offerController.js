@@ -1,6 +1,7 @@
 const Offer = require("../models/offerModel");
 const Category = require("../models/categories");
 const Product = require("../models/product");
+const HttpStatus = require("../constants/httpStatus")
 
 const getOffers = async (req, res) => {
   try {
@@ -32,7 +33,7 @@ const getOffers = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching offers:", error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -44,7 +45,7 @@ const getCategories = async (req, res) => {
     res.json(categories);
   } catch (err) {
     console.error("Error fetching categories:", err);
-    res.status(500).send("Error fetching categories");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Error fetching categories");
   }
 };
 
@@ -52,11 +53,11 @@ const getProducts = async (req, res) => {
   try {
     const products = await Product.find({ isDeleted: false });
 
-    return res.status(200).json(products);
+    return res.status(HttpStatus.OK).json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
 
-    return res.status(500).json({
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Failed to fetch products. Please try again later.",
     });
@@ -124,12 +125,12 @@ const addOffer = async (req, res) => {
     }
 
     return res
-      .status(201)
+      .status(HttpStatus.CREATED)
       .json({ success: true, message: "Offer added and applied successfully" });
   } catch (error) {
     console.error("Error adding offer:", error);
     return res
-      .status(500)
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: "Error adding offer" });
   }
 };
@@ -152,7 +153,7 @@ const editOffer = async (req, res) => {
     const existingOffer = await Offer.findById(id);
     if (!existingOffer) {
       return res
-        .status(404)
+        .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Offer not found" });
     }
 
@@ -202,14 +203,14 @@ const editOffer = async (req, res) => {
       }
     }
 
-    return res.status(200).json({
+    return res.status(HttpStatus.OK).json({
       success: true,
       message: "Offer updated and applied successfully",
     });
   } catch (error) {
     console.error("Error updating offer:", error);
     return res
-      .status(500)
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: "Error updating offer" });
   }
 };
@@ -220,7 +221,7 @@ const deleteOffer = async (req, res) => {
 
     const offer = await Offer.findById(offerId);
     if (!offer) {
-      return res.status(404).json({ message: "Offer not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Offer not found" });
     }
 
     if (offer.type === "Category") {
@@ -248,11 +249,11 @@ const deleteOffer = async (req, res) => {
     await offer.deleteOne();
 
     res
-      .status(200)
+      .status(HttpStatus.OK)
       .json({ message: "Offer deleted and prices reverted successfully" });
   } catch (error) {
     console.error("Error deleting offer:", error);
-    res.status(500).json({ message: "Error deleting offer" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error deleting offer" });
   }
 };
 

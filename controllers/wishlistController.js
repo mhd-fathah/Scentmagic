@@ -1,6 +1,7 @@
 const Wishlist = require("../models/wishlist");
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const HttpStatus = require("../constants/httpStatus")
 
 const addToWishlist = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ const addToWishlist = async (req, res) => {
 
     const existingItem = await Wishlist.findOne({ userId, productId });
     if (existingItem) {
-      return res.status(400).json({ message: "Product already in wishlist" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Product already in wishlist" });
     }
 
     const newWishlistItem = new Wishlist({
@@ -19,10 +20,10 @@ const addToWishlist = async (req, res) => {
       productPrice,
     });
     await newWishlistItem.save();
-    res.status(201).json({ message: "Product added to wishlist" });
+    res.status(HttpStatus.CREATED).json({ message: "Product added to wishlist" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error adding to wishlist" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error adding to wishlist" });
   }
 };
 
@@ -33,7 +34,7 @@ const getWishlist = async (req, res) => {
     res.render("my account/wishlist", { wishlistItems, layout: false });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error fetching wishlist" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error fetching wishlist" });
   }
 };
 
@@ -48,7 +49,7 @@ const getWishlistDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching wishlist details:", error);
-    res.status(500).json({ error: "Unable to fetch wishlist details" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Unable to fetch wishlist details" });
   }
 };
 
@@ -58,26 +59,26 @@ const moveToCart = async (req, res) => {
     console.log("Received productId:", productId);
 
     if (!req.session.user) {
-      return res.status(400).send("User not authenticated.");
+      return res.status(HttpStatus.BAD_REQUEST).send("User not authenticated.");
     }
 
     const wishlistItem = await Wishlist.findOne({productId});
     console.log("Wishlist Item:", wishlistItem);
 
     if (!wishlistItem) {
-      return res.status(404).send("Item not found in wishlist");
+      return res.status(HttpStatus.NOT_FOUND).send("Item not found in wishlist");
     }
 
     const product = await Product.findById(productId);
     console.log("Product:", product);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(HttpStatus.NOT_FOUND).send("Product not found");
     }
 
     if (product.leftStock === 0) {
       return res
-        .status(400)
+        .status(HttpStatus.BAD_REQUEST)
         .send("This product is out of stock and cannot be moved to the cart.");
     }
 
@@ -121,10 +122,10 @@ const moveToCart = async (req, res) => {
 
     await Wishlist.findOneAndDelete({productId});
 
-    return res.status(200).json(cart);
+    return res.status(HttpStatus.OK).json(cart);
   } catch (err) {
     console.error("Error in moveToCart:", err);
-    return res.status(500).send("Internal server error");
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal server error");
   }
 };
 
@@ -139,7 +140,7 @@ const removeFromWishlist = async (req, res) => {
   } catch (error) {
     console.error("Error removing item from wishlist:", error);
     res
-      .status(500)
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, error: "Unable to remove item from wishlist" });
   }
 };

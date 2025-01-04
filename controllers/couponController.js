@@ -1,4 +1,5 @@
 const Coupon = require("../models/coupon");
+const HttpStatus = require("../constants/httpStatus")
 
 // const getCouponsPage = async (req, res) => {
 //     try {
@@ -42,7 +43,7 @@ const getCouponsPage = async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching coupons:", err);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -71,17 +72,17 @@ const addCoupon = async (req, res) => {
       "Specific Products",
     ];
     if (!validApplicableToValues.includes(applicableTo)) {
-      return res.status(400).send('Invalid value for "applicableTo"');
+      return res.status(HttpStatus.BAD_REQUEST).send('Invalid value for "applicableTo"');
     }
 
     const validStatuses = ["active", "expired", "scheduled"];
     if (!validStatuses.includes(status.toLowerCase())) {
-      return res.status(400).send('Invalid value for "status"');
+      return res.status(HttpStatus.BAD_REQUEST).send('Invalid value for "status"');
     }
 
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
-      return res.status(400).send("Coupon code already exists.");
+      return res.status(HttpStatus.BAD_REQUEST).send("Coupon code already exists.");
     }
 
     const couponData = {
@@ -108,7 +109,7 @@ const addCoupon = async (req, res) => {
     res.redirect("/admin/coupon");
   } catch (error) {
     console.error("Error adding coupon:", error);
-    res.status(500).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
 
@@ -137,23 +138,23 @@ const editCoupon = async (req, res) => {
       "Specific Products",
     ];
     if (!validApplicableToValues.includes(applicableTo)) {
-      return res.status(400).send('Invalid value for "applicableTo"');
+      return res.status(HttpStatus.BAD_REQUEST).send('Invalid value for "applicableTo"');
     }
 
     const validStatuses = ["active", "expired", "scheduled"];
     if (!validStatuses.includes(status.toLowerCase())) {
-      return res.status(400).send('Invalid value for "status"');
+      return res.status(HttpStatus.BAD_REQUEST).send('Invalid value for "status"');
     }
 
     const coupon = await Coupon.findById(couponId);
     if (!coupon) {
-      return res.status(404).send("Coupon not found.");
+      return res.status(HttpStatus.NOT_FOUND).send("Coupon not found.");
     }
 
     if (coupon.code !== code) {
       const existingCoupon = await Coupon.findOne({ code });
       if (existingCoupon) {
-        return res.status(400).send("Coupon code already exists.");
+        return res.status(HttpStatus.BAD_REQUEST).send("Coupon code already exists.");
       }
     }
 
@@ -184,7 +185,7 @@ const editCoupon = async (req, res) => {
     res.redirect("/admin/coupon");
   } catch (error) {
     console.error("Error editing coupon:", error);
-    res.status(500).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
 
@@ -195,13 +196,13 @@ const getCouponDetails = async (req, res) => {
     const coupon = await Coupon.findById(couponId);
 
     if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Coupon not found" });
     }
 
     res.json(coupon);
   } catch (err) {
     console.error("Error fetching coupon:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Internal Server Error" });
   }
 };
 

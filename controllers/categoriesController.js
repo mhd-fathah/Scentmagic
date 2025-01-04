@@ -1,6 +1,7 @@
 const Category = require("../models/categories");
 const fs = require("fs");
 const path = require("path");
+const HttpStatus = require("../constants/httpStatus")
 
 const getCategories = async (req, res) => {
     try {
@@ -13,7 +14,7 @@ const getCategories = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching categories:", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 
@@ -23,7 +24,7 @@ const addCategory = async (req, res) => {
         const { name, description } = req.body;
 
         if (!name || !description || !req.file) {
-            return res.status(400).send("Name, description, and image are required");
+            return res.status(HttpStatus.BAD_REQUEST).send("Name, description, and image are required");
         }
 
         const image = req.file.filename;
@@ -40,19 +41,19 @@ const addCategory = async (req, res) => {
         res.redirect("/admin/categories?message=Category added successfully&status=success");
     } catch (error) {
         console.error("Error adding category:", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 
 const editCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
-        if (!category) return res.status(404).send("Category not found");
+        if (!category) return res.status(HttpStatus.NOT_FOUND).send("Category not found");
 
         res.render("admin/editCategory", { category, layout: false, message: req.query.message });
     } catch (error) {
         console.error("Error editing category:", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 
@@ -61,7 +62,7 @@ const updateCategory = async (req, res) => {
         const { name, description } = req.body;
         const category = await Category.findById(req.params.id);
 
-        if (!category) return res.status(404).send("Category not found");
+        if (!category) return res.status(HttpStatus.NOT_FOUND).send("Category not found");
 
         if (req.file) {
             const newImage = req.file.filename;
@@ -88,14 +89,14 @@ const updateCategory = async (req, res) => {
         res.redirect("/admin/categories?message=Category updated successfully&status=success");
     } catch (error) {
         console.error("Error updating category:", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 
 const deleteCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
-        if (!category) return res.status(404).send("Category not found");
+        if (!category) return res.status(HttpStatus.NOT_FOUND).send("Category not found");
 
         category.isDeleted = !category.isDeleted;
         await category.save();
@@ -103,7 +104,7 @@ const deleteCategory = async (req, res) => {
         res.redirect("/admin/categories?message=Category deleted successfully&status=success");
     } catch (error) {
         console.error("Error deleting category:", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 

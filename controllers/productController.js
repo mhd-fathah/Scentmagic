@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const Category = require("../models/categories");
 const Cart = require('../models/cart')
+const HttpStatus = require("../constants/httpStatus")
 
 const getProducts = async (req, res) => {
   try {
@@ -25,7 +26,7 @@ const getProducts = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -35,7 +36,7 @@ const showAddProducts = async (req, res) => {
     res.render("admin/addProducts", { categories, layout: false });
   } catch (error) {
     console.error("Error fetching categories:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -51,7 +52,7 @@ const addProduct = async (req, res) => {
 
     if (imagePaths.length === 0) {
       return res
-        .status(400)
+        .status(HttpStatus.BAD_REQUEST)
         .send({ error: "At least one product image is required" });
     }
 
@@ -77,7 +78,7 @@ const addProduct = async (req, res) => {
     res.redirect("/admin/products?successMessage=Product added successfully");
   } catch (error) {
     console.error("Error adding product:", error);
-    res.status(500).send({ error: "Error adding product" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ error: "Error adding product" });
   }
 };
 
@@ -88,14 +89,14 @@ const editProduct = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(HttpStatus.NOT_FOUND).send("Product not found");
     }
 
     const categories = await Category.find();
     res.render("admin/editProducts", { product, categories, layout: false });
   } catch (error) {
     console.error("Error fetching product for edit:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -112,7 +113,7 @@ const updateProduct = async (req, res) => {
 
     const existingProduct = await Product.findById(productId);
     if (!existingProduct) {
-      return res.status(404).send({ error: "Product not found" });
+      return res.status(HttpStatus.NOT_FOUND).send({ error: "Product not found" });
     }
 
     const updatedImages = [...(existingProduct.product_images || [])];
@@ -153,7 +154,7 @@ const updateProduct = async (req, res) => {
     res.redirect("/admin/products?successMessage=Product updated successfully");
   } catch (error) {
     console.error("Error updating product:", error);
-    res.status(500).send({ error: "Error updating product" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ error: "Error updating product" });
   }
 };
 
@@ -163,7 +164,7 @@ const toggleDeleteProduct = async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).send({ error: "Product not found" });
+      return res.status(HttpStatus.NOT_FOUND).send({ error: "Product not found" });
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -187,7 +188,7 @@ const toggleDeleteProduct = async (req, res) => {
     );
   } catch (error) {
     console.error("Error toggling product deletion:", error);
-    res.status(500).send("Error toggling product deletion");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Error toggling product deletion");
   }
 };
 
@@ -198,13 +199,13 @@ const getProductDetails = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(HttpStatus.NOT_FOUND).send("Product not found");
     }
 
     res.render("admin/product-details", { product, layout: false });
   } catch (error) {
     console.error("Error fetching product details:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 

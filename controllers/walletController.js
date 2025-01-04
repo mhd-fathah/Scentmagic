@@ -1,5 +1,6 @@
 const Wallet = require("../models/wallet");
 const User = require('../models/user')
+const HttpStatus = require("../constants/httpStatus")
 
 // const getWalletBalance = async (req, res) => {
 //   try {
@@ -28,7 +29,7 @@ const getWalletPage = async (req, res) => {
     const wallet = await Wallet.findOne({ userId });
 
     if (!wallet) {
-      return res.status(404).send("Wallet not found");
+      return res.status(HttpStatus.NOT_FOUND).send("Wallet not found");
     }
 
     const sortedTransactions = (wallet.transactions || []).sort((a, b) => {
@@ -43,7 +44,7 @@ const getWalletPage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error rendering wallet page:", error);
-    res.status(500).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
 

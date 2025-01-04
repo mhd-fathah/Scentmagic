@@ -1,5 +1,6 @@
 const Referral = require('../models/refferral')
 const User = require('../models/user')
+const HttpStatus = require("../constants/httpStatus")
 
 const renderReferralPage = async (req, res) => {
     try {
@@ -29,7 +30,7 @@ const renderReferralPage = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal Server Error');
     }
 };
 

@@ -10,6 +10,7 @@ const Coupon = require("../models/coupon");
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const path = require('path');
+const HttpStatus = require('../constants/httpStatus')
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -43,7 +44,7 @@ const handleLogin = async (req, res) => {
     res.redirect("/admin/dashboard");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -84,7 +85,7 @@ const listUsers = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -95,7 +96,7 @@ const blockUser = async (req, res) => {
     res.redirect("/admin/users");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -106,7 +107,7 @@ const unblockUser = async (req, res) => {
     res.redirect("/admin/users");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -122,7 +123,7 @@ const viewUserDetails = async (req, res) => {
     res.render("admin/user-details", { user, layout: false });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -156,7 +157,7 @@ const getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(500).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
 
@@ -210,7 +211,7 @@ const getOrderDetails = async (req, res) => {
     res.render("admin/order-details", { layout: false, order: orderDetails });
   } catch (error) {
     console.error("Error fetching order details:", error);
-    res.status(500).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
 
@@ -222,7 +223,7 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findOne({ orderId: orderId });
 
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Order not found" });
     }
 
     order.status = status;
@@ -239,10 +240,10 @@ const updateOrderStatus = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ message: "Order status updated successfully!" });
+    res.status(HttpStatus.OK).json({ message: "Order status updated successfully!" });
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).json({ message: "Server Error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Server Error" });
   }
 };
 
@@ -255,7 +256,7 @@ const approveReturn = async (req, res) => {
     console.log(order);
     if (!order) {
       return res
-        .status(404)
+        .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Order not found" });
     }
 
@@ -269,14 +270,14 @@ const approveReturn = async (req, res) => {
     const user = await User.findById(order.userId);
     if (!user) {
       return res
-        .status(404)
+        .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "User not found" });
     }
 
     const wallet = await Wallet.findOne({ userId: order.userId });
     if (!wallet) {
       return res
-        .status(404)
+        .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Wallet not found for this user" });
     }
 
@@ -302,7 +303,7 @@ const approveReturn = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" });
   }
 };
 
@@ -313,11 +314,11 @@ const rejectReturn = async (req, res) => {
     const order = await Order.findOne({ orderId });
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(HttpStatus.NOT_FOUND).send("Order not found");
     }
 
     if (order.status !== "Return Requested") {
-      return res.status(400).send("No return request found for this order");
+      return res.status(HttpStatus.BAD_REQUEST).send("No return request found for this order");
     }
 
     order.status = "Delivered";
@@ -329,7 +330,7 @@ const rejectReturn = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -345,16 +346,13 @@ const loadDashboard = async (req, res) => {
 
       totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
 
-      console.log(`Total Revenue: ${totalRevenue}`);
     } catch (error) {
       console.error("Error calculating total revenue:", error);
     }
 
     const orderCount = await Order.countDocuments();
-    console.log(`Total orders: ${orderCount}`);
 
     const productCount = await Product.countDocuments({ isDeleted: false });
-    console.log(`Total products: ${productCount}`);
     const products = await Product.find({ isDeleted: false });
 
     const categories = await Category.find({ isDeleted: false }).select(
@@ -522,7 +520,7 @@ const loadDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading dashboard:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -637,13 +635,13 @@ const generateSalesReport = async (req, res) => {
         const end = new Date(endDate);
         matchCriteria = { createdAt: { $gte: start, $lte: end }, paymentStatus: "Paid" }; 
       } else {
-        return res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           message: "Custom date range requires both startDate and endDate",
         });
       }
       break;
     default:
-      return res.status(400).json({ message: "Invalid report type" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid report type" });
   }
 
   try {
@@ -719,15 +717,10 @@ const generateSalesReport = async (req, res) => {
       sales: salesData,
     };
 
-    console.log(`Total Sales: ₹${totalSales}`);
-    console.log(`Total Discounts: ₹${totalDiscounts}`);
-    console.log(`Total Coupons: ₹${totalCoupons}`);
-    console.log(`Net Sales: ₹${netSales}`);
-
     res.json(reportData);
   } catch (error) {
     console.error("Error generating sales report:", error);
-    res.status(500).json({ message: "Error fetching sales data", error });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error fetching sales data", error });
   }
 };
 
@@ -771,13 +764,13 @@ const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
         const end = new Date(endDate);
         matchCriteria = { createdAt: { $gte: start, $lte: end }, paymentStatus: "Paid" };
       } else {
-        return res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           message: "Custom date range requires both startDate and endDate",
         });
       }
       break;
     default:
-      return res.status(400).json({ message: "Invalid report type" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid report type" });
   }
 
   try {
@@ -832,7 +825,7 @@ const fetchSalesReportData = async (reportType, startDate, endDate, res) => {
     };
   } catch (error) {
     console.error("Error fetching sales report data:", error);
-    return res.status(500).json({ message: "Error fetching sales data", error });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error fetching sales data", error });
   }
 };
 
@@ -947,7 +940,7 @@ const generatePdfReport = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
-    res.status(500).json({ message: 'Failed to generate PDF', error });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to generate PDF', error });
   }
 };
 
@@ -1034,7 +1027,7 @@ const generateExcelReport = async (req, res) => {
     res.end();
   } catch (error) {
     console.error('Error generating Excel:', error);
-    res.status(500).json({ message: 'Failed to generate Excel file', error });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to generate Excel file', error });
   }
 };
 
@@ -1150,7 +1143,7 @@ const getTopSellingProducts = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching top-selling products:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error: "Internal Server Error" });
   }
 };
 
@@ -1208,7 +1201,7 @@ const getTopSellingCategories = async (req, res) => {
       { $limit: 10 },
     ]);
 
-    res.status(200).json({
+    res.status(HttpStatus.OK).json({
       success: true,
       data: topCategories.map((category) => ({
         categoryId: category._id,
@@ -1219,7 +1212,7 @@ const getTopSellingCategories = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching top-selling categories:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error: "Internal Server Error" });
   }
 }
 
