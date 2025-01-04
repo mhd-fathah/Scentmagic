@@ -742,8 +742,10 @@ const downloadInvoice = async (req, res) => {
 
 const retryPayment = async (req, res) => {
   const { orderId } = req.body;
+  console.log(orderId)
 
   try {
+    // Find the existing order
     const existingOrder = await Order.findOne({ razorpayOrderId: orderId });
 
     if (!existingOrder) {
@@ -752,29 +754,36 @@ const retryPayment = async (req, res) => {
         .json({ success: false, message: "Order not found." });
     }
 
-    const newOrder = await razorpay.orders.create({
-      amount: existingOrder.totalAmount * 100,
+    // Create a new Razorpay order
+    const updatedRazorpayOrder = await razorpay.orders.create({
+      amount: existingOrder.totalAmount * 100, // Amount in paise
       currency: "INR",
-      receipt: `retry_${orderId}`,
+      receipt: `retry_${orderId}`, // Update receipt identifier
     });
 
-    existingOrder.razorpayOrderId = newOrder.id;
+    console.log(updatedRazorpayOrder)
+
+    // Update the existing order with the new Razorpay order ID and reset its status
+    existingOrder.razorpayOrderId = updatedRazorpayOrder.id;
     existingOrder.razorpayPaymentStatus = "pending";
+
     await existingOrder.save();
 
+    // Respond with updated order details
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Retry initiated successfully.",
-      newOrder,
+      message: "Retry initiated successfully, existing order updated.",
+      updatedOrder: existingOrder,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error during retry payment:", err);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: "Failed to create Razorpay order for retry.",
+      error: "Failed to update Razorpay order for retry.",
     });
   }
 };
+
 
 module.exports = {
   placeOrder,

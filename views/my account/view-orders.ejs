@@ -105,7 +105,7 @@
                         </p>
                       </div>
                       <div class="d-flex gap-2 mt-3">
-                        <a href="<%= order.trackOrderLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
+                        <a href="<%= order.detailsLink %>" class="btn btn-outline-magenta btn-sm">Track Order</a>
                         <a href="/orders/invoice/<%= order.id %>" class="btn btn-outline-magenta btn-sm">
                           Download Invoice
                         </a>
@@ -131,79 +131,91 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     async function retryPayment(orderId) {
-      try {
-        const response = await fetch("/orders/retry-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: orderId }),
-        });
+  try {
+    const response = await fetch("/orders/retry-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: orderId }),
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        if (data.success) {
-          const options = {
-            key: "rzp_test_8WQufrEYZLgebT",
-            order_id: data.newOrder.id,
-            amount: data.newOrder.amount,
-            currency: data.newOrder.currency,
-            name: "Scentmagic",
-            description: "Retry Payment for your order " + orderId,
-            image: "/img/logo.png",
-            handler: function (response) {
-              const paymentData = {
-                razorpayOrderId: data.newOrder.id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              };
+    if (data.success) {
+      const updatedOrder = data.updatedOrder;
 
-              fetch("/order-payment-success", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(paymentData),
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  if (data.message === "Payment successful!") {
-                    window.location.href = `/order-confirmation/${data.orderId}`;
-                  } else {
-                    Swal.fire("Error!", data.message, "error");
-                  }
-                })
-                .catch((error) => {
-                  console.error("Error confirming payment:", error);
-                  Swal.fire("Error!", "Payment confirmation failed. Please try again.", "error");
-                });
-            },
-            prefill: {
-              name: "Customer Name",
-              email: "customer@example.com",
-              contact: "1234567890",
-            },
-            theme: {
-              color: "#F37254",
-            },
+      const options = {
+        key: "rzp_test_8WQufrEYZLgebT", 
+        order_id: updatedOrder.razorpayOrderId, 
+        amount: updatedOrder.totalAmount * 100, 
+        currency: "INR",
+        name: "Scentmagic",
+        description: "Retry Payment for your order " + orderId,
+        image: "/img/logo.png",
+        handler: function (response) {
+          const paymentData = {
+            razorpayOrderId: updatedOrder.razorpayOrderId,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
           };
 
-          const razorpay = new Razorpay(options);
+          fetch("/order-payment-success", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(paymentData),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.message === "Payment successful!") {
+                window.location.href = `/order-confirmation/${data.orderId}`;
+              } else {
+                Swal.fire("Error!", data.message, "error");
+              }
+            })
+            .catch((error) => {
+              console.error("Error confirming payment:", error);
+              Swal.fire("Error!", "Payment confirmation failed. Please try again.", "error");
+            });
+        },
+        prefill: {
+          name: "Customer Name",
+          email: "customer@example.com",
+          contact: "1234567890",
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
 
-          razorpay.on("payment.failed", function (response) {
-            alert("Payment failed. Please try again.");
-            console.error("Payment failed:", response.error);
-          });
+      const razorpay = new Razorpay(options);
 
-          razorpay.open();
-        } else {
-          alert(data.error || "Failed to initiate retry. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error retrying payment:", error);
-        alert("An error occurred while retrying payment. Please try again.");
-      }
+      razorpay.on("payment.failed", function (response) {
+        Swal.fire(
+          "Payment Failed",
+          "Payment could not be processed. Please try again.",
+          "error"
+        );
+        console.error("Payment failed:", response.error);
+      });
+
+      razorpay.open();
+    } else {
+      Swal.fire(
+        "Retry Failed",
+        data.error || "Failed to initiate retry. Please try again.",
+        "error"
+      );
     }
-
-
+  } catch (error) {
+    console.error("Error retrying payment:", error);
+    Swal.fire(
+      "Error",
+      "An error occurred while retrying payment. Please try again.",
+      "error"
+    );
+  }
+}
   </script>
   <!-- Bootstrap JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
