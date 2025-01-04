@@ -129,6 +129,14 @@ const initiateOrder = async (req, res) => {
 
     const savedOrder = await newOrder.save();
 
+    const cart = await Cart.findOne({ user: userId });
+    if (cart) {
+      cart.items = [];
+      cart.totalPrice = 0;
+      cart.finalAmount = 0;
+      await cart.save();
+    }
+
     res.status(HttpStatus.OK).json({
       message: "Order created successfully",
       orderId: savedOrder._id,
@@ -169,14 +177,6 @@ const confirmPayment = async (req, res) => {
       order.paymentId = razorpayPaymentId;
       order.paymentDate = new Date();
       await order.save();
-
-      const cart = await Cart.findOne({ user: userId });
-      if (cart) {
-        cart.items = [];
-        cart.totalPrice = 0;
-        cart.finalAmount = 0;
-        await cart.save();
-      }
 
       for (const product of order.products) {
         const productDetail = await Product.findById(product.productId);
