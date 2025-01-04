@@ -11,6 +11,8 @@ const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const path = require('path');
 const HttpStatus = require('../constants/httpStatus')
+const Messages = require('../constants/messages')
+const URLs = require('../constants/urls')
 
 const loadLoginPage = (req, res) => {
   const errorMessage = req.session.error || null;
@@ -31,17 +33,17 @@ const handleLogin = async (req, res) => {
 
     if (!admin) {
       req.session.error = "Invalid email or password";
-      return res.redirect("/admin/login");
+      return res.redirect(URLs.ADMIN_LOGIN);
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       req.session.error = "Invalid email or password";
-      return res.redirect("/admin/login");
+      return res.redirect(URLs.ADMIN_LOGIN);
     }
 
     req.session.admin = admin;
-    res.redirect("/admin/dashboard");
+    res.redirect(URLs.ADMIN_DASHBOARD);
   } catch (err) {
     console.error(err);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
@@ -59,7 +61,7 @@ const logoutAdmin = (req, res) => {
       return res.status(500).send("Error during logout");
     }
     res.clearCookie("connect.sid");
-    res.redirect("/admin/login");
+    res.redirect(URLs.ADMIN_LOGIN);
   });
 };
 
@@ -93,7 +95,7 @@ const blockUser = async (req, res) => {
   try {
     const userId = req.params.id;
     await User.findByIdAndUpdate(userId, { isBlocked: true });
-    res.redirect("/admin/users");
+    res.redirect(URLs.ADMIN_USERS);
   } catch (error) {
     console.error(error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
@@ -104,7 +106,7 @@ const unblockUser = async (req, res) => {
   try {
     const userId = req.params.id;
     await User.findByIdAndUpdate(userId, { isBlocked: false });
-    res.redirect("/admin/users");
+    res.redirect(URLs.ADMIN_USERS);
   } catch (error) {
     console.error(error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");

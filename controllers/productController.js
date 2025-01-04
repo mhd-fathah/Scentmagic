@@ -2,6 +2,8 @@ const Product = require("../models/product");
 const Category = require("../models/categories");
 const Cart = require('../models/cart')
 const HttpStatus = require("../constants/httpStatus")
+const Messages = require('../constants/messages')
+const URLs = require('../constants/urls')
 
 const getProducts = async (req, res) => {
   try {
@@ -75,7 +77,10 @@ const addProduct = async (req, res) => {
     });
 
     await productData.save();
-    res.redirect("/admin/products?successMessage=Product added successfully");
+
+    const message = Messages.PRODUCT_ADDED_SUCCESS;
+    const status = "success"
+    res.redirect(`${URLs.ADMIN_PRODUCTS}?message=${encodeURIComponent(message)}&status=${status}`);
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ error: "Error adding product" });
@@ -151,7 +156,10 @@ const updateProduct = async (req, res) => {
     };
 
     await Product.findByIdAndUpdate(productId, updatedData, { new: true });
-    res.redirect("/admin/products?successMessage=Product updated successfully");
+
+    const message = Messages.PRODUCT_UPDATED_SUCCESS;
+    const status = "success";
+    res.redirect(`${URLs.ADMIN_PRODUCTS}?message=${encodeURIComponent(message)}&status=${status}`);
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ error: "Error updating product" });
@@ -183,8 +191,10 @@ const toggleDeleteProduct = async (req, res) => {
       console.log(`Product with ID ${productId} has been soft-deleted and removed from all carts.`);
     }
 
+    const message = Messages.PRODUCT_DELETED_SUCCESS;
+    const status = "success";
     res.redirect(
-      `/admin/products?successMessage=Product ${action} successfully`
+      `${URLs.ADMIN_PRODUCTS}?message=${encodeURIComponent(message)}&status=${status}&${action} successfully`
     );
   } catch (error) {
     console.error("Error toggling product deletion:", error);

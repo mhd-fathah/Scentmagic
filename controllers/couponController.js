@@ -1,5 +1,7 @@
 const Coupon = require("../models/coupon");
 const HttpStatus = require("../constants/httpStatus")
+const Messages = require('../constants/messages')
+const URLs = require('../constants/urls')
 
 // const getCouponsPage = async (req, res) => {
 //     try {
@@ -106,7 +108,7 @@ const addCoupon = async (req, res) => {
     const newCoupon = new Coupon(couponData);
     await newCoupon.save();
 
-    res.redirect("/admin/coupon");
+    res.redirect(URLs.ADMIN_COUPON);
   } catch (error) {
     console.error("Error adding coupon:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
@@ -182,7 +184,7 @@ const editCoupon = async (req, res) => {
       { new: true }
     );
 
-    res.redirect("/admin/coupon");
+    res.redirect(URLs.ADMIN_COUPON);
   } catch (error) {
     console.error("Error editing coupon:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
@@ -286,7 +288,7 @@ const deactivateCoupon = async (req, res) => {
         type: "success",
         title: "Success",
         message: "Coupon deactivated successfully",
-        redirect: "/admin/coupon",
+        redirect: URLs.ADMIN_COUPON,
       },
     });
   } catch (error) {

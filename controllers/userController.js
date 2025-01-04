@@ -14,6 +14,8 @@ const Coupon = require("../models/coupon");
 const Wallet = require('../models/wallet')
 const Referral = require('../models/refferral')
 const HttpStatus = require("../constants/httpStatus")
+const Messages = require('../constants/messages')
+const URLs = require('../constants/urls')
 
 const signupUser = async (req, res) => {
   try {
@@ -199,7 +201,7 @@ const loginUser = async (req, res) => {
     }
 
     if (user.isBlocked) {
-      return res.redirect("/banned");
+      return res.redirect(URLs.USER_BANNED);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
@@ -213,7 +215,7 @@ const loginUser = async (req, res) => {
     req.session.user = user;
     console.log("Session after login:", req.session);
 
-    return res.redirect("/");
+    return res.redirect(URLs.USER_HOME);
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("login", {
@@ -229,7 +231,7 @@ const googleAuth = passport.authenticate("google", {
 const googleAuthCallback = (req, res, next) => {
   passport.authenticate(
     "google",
-    { failureRedirect: "/login" },
+    { failureRedirect: URLs.USER_LOGIN },
     (err, user) => {
       if (err) {
         console.error("Google Auth Error:", err);
@@ -237,7 +239,7 @@ const googleAuthCallback = (req, res, next) => {
       }
       if (!user) {
         console.log("No user found, redirecting to login.");
-        return res.redirect("/login");
+        return res.redirect(URLs.USER_LOGIN);
       }
 
       req.logIn(user, (loginErr) => {
@@ -247,7 +249,7 @@ const googleAuthCallback = (req, res, next) => {
         }
 
         if (user.isBlocked) {
-          return res.redirect("/banned");
+          return res.redirect(URLs.USER_BANNED);
         }
 
         req.session.user = user;
@@ -257,7 +259,7 @@ const googleAuthCallback = (req, res, next) => {
             return next(saveErr);
           }
           console.log("Session saved successfully, redirecting to home.");
-          res.redirect("/");
+          res.redirect(URLs.USER_HOME);
         });
       });
     }
@@ -267,7 +269,7 @@ const googleAuthCallback = (req, res, next) => {
 const logout = (req, res) => {
   req.session.user = null;
   req.session.message = "You are Successfully Logged Out.";
-  res.redirect("/login");
+  res.redirect(URLs.USER_LOGIN);
 };
 
 const loadSignup = (req, res) => {
@@ -461,7 +463,7 @@ async function resetPassword(req, res) {
     res.locals.message =
       "Password successfully reset. You can now log in with your new password.";
 
-    res.redirect("/login");
+    res.redirect(URLs.USER_LOGIN);
   } catch (err) {
     console.error(err);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
@@ -475,7 +477,7 @@ const loadForgotPassword = (req, res) => {
 const getBannedPage = (req, res) => {
   if (req.session.user) {
     if (!req.session.user.isBlocked) {
-      return res.redirect("/");
+      return res.redirect(URLs.USER_HOME);
     }
   }
   res.render("banned", {
@@ -1098,7 +1100,7 @@ const loadCheckout = async (req, res) => {
       if (hasExceedingQuantity) {
         req.session.cartError =
           "Cart contains items with quantity exceeding available stock. We are adjusted your cart. Now you can proceed to checkout.";
-        return res.redirect("/cart");
+        return res.redirect(URLs.USER_CART);
       }
 
     const products = cart.items.map((item) => ({
