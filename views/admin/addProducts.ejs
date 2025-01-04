@@ -24,83 +24,82 @@
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
-            <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard">
-        </a>
-        <div>
-            <button class="btn btn-icon btn-aside-minimize text-muted">
-                <i class="fas fa-bars"></i> 
-              </button>
-              
-        </div>
+      <a href="index.html" class="brand-wrap">
+        <img src="/img/logo.png" class="logo" alt="Scentmagic Dashboard">
+      </a>
+      <div>
+        <button class="btn btn-icon btn-aside-minimize text-muted">
+          <i class="fas fa-bars"></i>
+        </button>
+
+      </div>
     </div>
     <nav>
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/dashboard">
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products">
-              <span class="text">Products</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/categories">
-              <span class="text" >Categories</span>
-            </a>
-          </li>
-          
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/orders">
-              <span class="text" >Orders</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/users">
-              <span class="text" >Users</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products/add">
-              <span class="text">Add Product</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/coupon">
-              <span class="text">Coupons</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/offers">
-              <span class="text">Offers</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Reviews</span>
-            </a>
-          </li>
-        </ul>
-        <hr />
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Account</span>
-            </a>
-          </li>
-        </ul>
-        <br />
-        <br />
-      </nav>
-</aside>
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/dashboard">
+            <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products">
+            <span class="text">Products</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/categories">
+            <span class="text">Categories</span>
+          </a>
+        </li>
+
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/orders">
+            <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/users">
+            <span class="text">Users</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products/add">
+            <span class="text">Add Product</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/coupon">
+            <span class="text">Coupons</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/offers">
+            <span class="text">Offers</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Reviews</span>
+          </a>
+        </li>
+      </ul>
+      <hr />
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Account</span>
+          </a>
+        </li>
+      </ul>
+      <br />
+      <br />
+    </nav>
+  </aside>
   <main class="main-wrap">
     <header class="main-header navbar">
       <div class="col-nav d-flex justify-content-end align-items-center w-100">
         <!-- Mobile Menu Button -->
-        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
-          data-bs-target="#offcanvas_aside">
+        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_aside">
           <i class="fas fa-bars"></i>
         </button>
 
@@ -163,32 +162,37 @@
               <form id="productForm" action="/admin/products/add" method="POST" enctype="multipart/form-data">
                 <div class="mb-4">
                   <label for="product_name" class="form-label">Product title</label>
-                  <input type="text" placeholder="Type here" class="form-control" id="product_name"
-                    name="product_name" />
+                  <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
                 <div class="mb-4">
                   <label class="form-label">Description</label>
                   <textarea placeholder="Type here" class="form-control" rows="4" name="shortDescription"></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
                 <div class="mb-4">
                   <label class="form-label">Full description</label>
                   <textarea placeholder="Type here" class="form-control" rows="4" name="longDescription"></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
                 <div class="mb-4">
                   <label class="form-label">Highlights</label>
                   <textarea placeholder="Type here" class="form-control" rows="4" name="highlights"></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
                 <div class="row">
                   <div class="col-lg-4">
                     <div class="mb-4">
                       <label class="form-label">Regular price</label>
                       <input placeholder="₹" type="text" class="form-control" name="regular_price" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-4">
                     <div class="mb-4">
                       <label class="form-label">Discount price</label>
                       <input placeholder="₹" type="text" class="form-control" name="discount_price" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                 </div>
@@ -198,34 +202,39 @@
                   <select class="form-control" id="category" name="category">
                     <!-- Default option -->
                     <option value="" disabled selected>Select a category</option>
-                    
+
                     <% categories.forEach(function(category) { %>
-                      <option value="<%= category._id %>">
-                        <%= category.name %>
-                      </option>
+                    <option value="<%= category._id %>">
+                      <%= category.name %>
+                    </option>
                     <% }); %>
                   </select>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
-                
+
 
                 <div class="mb-4">
                   <label for="image1" class="form-label">Product Image 1</label>
-                  <input type="file" class="form-control" id="image1" name="image1" accept="image/*" required />
+                  <input type="file" class="form-control" id="image1" name="image1" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image2" class="form-label">Product Image 2</label>
                   <input type="file" class="form-control" id="image2" name="image2" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image3" class="form-label">Product Image 3</label>
                   <input type="file" class="form-control" id="image3" name="image3" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image4" class="form-label">Product Image 4</label>
                   <input type="file" class="form-control" id="image4" name="image4" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <!-- Cropping containers for each image -->
@@ -260,24 +269,28 @@
                 <div class="mb-4">
                   <label class="form-label">Stock</label>
                   <input type="number" placeholder="Enter left stock" class="form-control" name="leftStock" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-4">
                   <label class="form-label">Quantity</label>
                   <input type="text" placeholder="Enter quantity" class="form-control" name="quantity" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-4">
                   <label class="form-label">Net Quantity</label>
                   <input type="text" placeholder="Enter net quantity" class="form-control" name="netQuantity" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="mb-4">
                   <label class="form-label">Sales Package</label>
                   <input type="text" placeholder="Enter sales package" class="form-control" name="salesPackage" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
               </div>
               <div class="col-lg-6">
@@ -287,6 +300,7 @@
                     <option value="in_stock">In Stock</option>
                     <option value="out_of_stock">Out of Stock</option>
                   </select>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
               </div>
             </div>
@@ -311,17 +325,17 @@
     let cropper1, cropper2, cropper3, cropper4;
 
     function initializeCropper(imageId, cropperId, containerId, cropBtnId, inputId) {
-      document.getElementById(imageId).addEventListener('change', function (e) {
+      document.getElementById(imageId).addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function (event) {
+          reader.onload = function(event) {
             const imageUrl = event.target.result;
             document.getElementById(cropperId).src = imageUrl;
             document.getElementById(containerId).style.display = 'block';
 
             window[cropperId] = new Cropper(document.getElementById(cropperId), {
-              aspectRatio: 4 / 5, 
+              aspectRatio: 4 / 5,
               viewMode: 2,
               autoCropArea: 1,
             });
@@ -331,10 +345,12 @@
         }
       });
 
-      document.getElementById(cropBtnId).addEventListener('click', function () {
+      document.getElementById(cropBtnId).addEventListener('click', function() {
         const canvas = window[cropperId].getCroppedCanvas();
-        canvas.toBlob(function (blob) {
-          const croppedFile = new File([blob], "cropped-image.jpg", { type: 'image/jpeg' });
+        canvas.toBlob(function(blob) {
+          const croppedFile = new File([blob], "cropped-image.jpg", {
+            type: 'image/jpeg'
+          });
 
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(croppedFile);
@@ -359,6 +375,127 @@
     initializeCropper('image3', 'crop-image-3', 'cropper-container-3', 'cropBtn-3', 'image3');
     initializeCropper('image4', 'crop-image-4', 'cropper-container-4', 'cropBtn-4', 'image4');
   </script>
+
+<script>
+  const productForm = document.getElementById('productForm');
+
+  productForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(productForm);
+    const errorMessages = document.querySelectorAll('.error-message');
+
+    // Clear all previous error messages
+    errorMessages.forEach((error) => {
+      error.textContent = '';
+      error.style.display = 'none'; // Hide all error messages initially
+    });
+
+    // Helper function to display an error and stop further validation
+    const displayError = (index, message) => {
+      errorMessages[index].textContent = message;
+      errorMessages[index].style.display = 'block'; // Show the error message
+      return false; // Stop further validation
+    };
+
+    // Validation for product name
+    const productName = formData.get('product_name');
+    if (!productName.trim()) {
+      return displayError(0, 'Product title cannot be empty!');
+    }
+
+    // Validation for short description
+    const shortDescription = formData.get('shortDescription');
+    if (!shortDescription.trim()) {
+      return displayError(1, 'Short description cannot be empty!');
+    }
+
+    // Validation for long description
+    const longDescription = formData.get('longDescription');
+    if (!longDescription.trim()) {
+      return displayError(2, 'Full description cannot be empty!');
+    }
+
+    // Validation for highlights
+    const highlights = formData.get('highlights');
+    if (!highlights.trim()) {
+      return displayError(3, 'Highlights cannot be empty!');
+    }
+
+    // Validation for regular price
+    const regularPrice = formData.get('regular_price');
+    if (!regularPrice.trim()) {
+      return displayError(4, 'Regular price cannot be empty!');
+    } else if (isNaN(regularPrice) || regularPrice <= 0) {
+      return displayError(4, 'Regular price must be a positive number!');
+    }
+
+    // Validation for discount price
+    const discountPrice = formData.get('discount_price');
+    if (!discountPrice.trim()) {
+      return displayError(5, 'Discount price cannot be empty!');
+    } else if (isNaN(discountPrice) || discountPrice <= 0) {
+      return displayError(5, 'Discount price must be a positive number!');
+    } else if (Number(discountPrice) >= Number(regularPrice)) {
+      return displayError(5, 'Discount price must be less than regular price!');
+    }
+
+    // Validation for category selection
+    const category = formData.get('category');
+    if (!category) {
+      return displayError(6, 'Please select a category!');
+    }
+
+    // Validation for product images
+    for (let i = 1; i <= 4; i++) {
+      const image = document.getElementById(`image${i}`).files[0];
+      if (!image) {
+        return displayError(6 + i, `Product Image ${i} cannot be empty!`);
+      }
+    }
+
+    // Validation for left stock
+    const leftStock = formData.get('leftStock');
+    if (!leftStock.trim()) {
+      return displayError(11, 'Stock cannot be empty!');
+    } else if (isNaN(leftStock) || leftStock < 0) {
+      return displayError(11, 'Stock must be a non-negative number!');
+    }
+
+    // Validation for quantity
+    const quantity = formData.get('quantity');
+    if (!quantity.trim()) {
+      return displayError(12, 'Quantity cannot be empty!');
+    } else if (isNaN(quantity) || quantity <= 0) {
+      return displayError(12, 'Quantity must be a positive number!');
+    }
+
+    // Validation for net quantity
+    const netQuantity = formData.get('netQuantity');
+    if (!netQuantity.trim()) {
+      return displayError(13, 'Net quantity cannot be empty!');
+    } else if (isNaN(netQuantity) || netQuantity <= 0) {
+      return displayError(13, 'Net quantity must be a positive number!');
+    }
+
+    // Validation for sales package
+    const salesPackage = formData.get('salesPackage');
+    if (!salesPackage.trim()) {
+      return displayError(14, 'Sales package cannot be empty!');
+    }
+
+    // Validation for stock status
+    const stockStatus = formData.get('stock_status');
+    if (!stockStatus) {
+      return displayError(15, 'Please select a stock status!');
+    }
+
+    // If all validations pass, submit the form
+    productForm.submit();
+  });
+</script>
+
+
 
 
 </body>

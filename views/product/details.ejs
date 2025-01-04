@@ -199,7 +199,7 @@
           <!-- Main Image -->
           <div class="product__details__pic__item" id="mainImageContainer">
             <img id="mainImage" class="product__details__pic__item--large"
-              src="http://localhost:3000/public/uploads/products/<%= product.product_images[0] %>"
+              src="https://scentmagic.store/public/uploads/products/<%= product.product_images[0] %>"
               alt="<%= product.product_name %>">
           </div>
 
@@ -208,7 +208,7 @@
             <div class="product__details__pic__slider owl-carousel">
               <% product.product_images.forEach((img, index)=> { %>
                 <img class="carousel-image" data-imgbigurl="http://localhost:3000/public/uploads/products/<%= img %>"
-                  src="http://localhost:3000/public/uploads/products/<%= img %>" alt="Image <%= index + 1 %>">
+                  src="https://scentmagic.store/public/uploads/products/<%= img %>" alt="Image <%= index + 1 %>">
                 <% }) %>
             </div>
             <% } %>
@@ -302,13 +302,13 @@
                       <%= categories.name || 'Standard Shipping' %>
                     </span></li>
                   <li><b>Quantity</b> <span>
-                      <%= product.quantity || 'N/A' %>
+                      <%= product.quantity + "ml"|| 'N/A' %>
                     </span></li>
                   <li><b>Net Quantity</b> <span>
-                      <%= product.netQuantity || 'N/A' %>
+                      <%= product.netQuantity + "ml"|| 'N/A' %>
                     </span></li>
                   <li><b>Sales Package</b> <span>
-                      <%= product.salesPackage || 'N/A' %>
+                      <%= product.salesPackage + "package"|| 'N/A' %>
                     </span></li>
                 </ul>
 
@@ -432,7 +432,7 @@
           <div class="col-lg-3 col-md-4 col-sm-6">
             <div class="product__item">
               <a href="/product/<%= related._id %>" class="product__item__pic set-bg">
-                <img src="http://localhost:3000/public/uploads/products/<%= related.product_images[0] %>"
+                <img src="https://scentmagic.store/public/uploads/products/<%= related.product_images[0] %>"
                   alt="Category Image">
               </a>
               <div class="product__item__text">
