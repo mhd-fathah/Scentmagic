@@ -11,11 +11,11 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 const mongoose = require("mongoose");
 const Coupon = require("../models/coupon");
-const Wallet = require('../models/wallet')
-const Referral = require('../models/refferral')
-const HttpStatus = require("../constants/httpStatus")
-const Messages = require('../constants/messages')
-const URLs = require('../constants/urls')
+const Wallet = require("../models/wallet");
+const Referral = require("../models/refferral");
+const HttpStatus = require("../constants/httpStatus");
+const Messages = require("../constants/messages");
+const URLs = require("../constants/urls");
 
 const signupUser = async (req, res) => {
   try {
@@ -31,7 +31,10 @@ const signupUser = async (req, res) => {
 
     let referrer = null;
     if (referralCode) {
-      referrer = await Referral.findOne({ referralCode, status: "Active" }).populate("user");
+      referrer = await Referral.findOne({
+        referralCode,
+        status: "Active",
+      }).populate("user");
       if (!referrer) {
         return res.status(HttpStatus.BAD_REQUEST).render("signup", {
           layout: false,
@@ -40,17 +43,16 @@ const signupUser = async (req, res) => {
       }
     }
 
-
     const otp = generateOTP();
-    console.log(otp)
+    console.log(otp);
     await sendOTPEmail(email, otp);
 
     req.session.otp = otp;
-    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; 
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
     req.session.tempUserData = { name, mobile, email, password, referralCode };
 
     if (referrer) {
-      req.session.referrerId = referrer.user._id; 
+      req.session.referrerId = referrer.user._id;
     }
 
     res.render("verify-otp", {
@@ -65,7 +67,6 @@ const signupUser = async (req, res) => {
     });
   }
 };
-
 
 const verifyOTP = async (req, res) => {
   try {
@@ -90,7 +91,7 @@ const verifyOTP = async (req, res) => {
       email: user.email,
       name: user.name,
       mobile: user.mobile,
-      password: await bcrypt.hash(user.password, 10), 
+      password: await bcrypt.hash(user.password, 10),
     });
 
     await newUser.save();
@@ -150,11 +151,11 @@ const verifyOTP = async (req, res) => {
     return res.json({ success: true });
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error." });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Internal Server Error." });
   }
 };
-
-
 
 const resendOTP = async (req, res) => {
   console.log("Resend OTP endpoint hit");
@@ -232,7 +233,7 @@ const googleAuthCallback = (req, res, next) => {
   passport.authenticate(
     "google",
     { failureRedirect: URLs.USER_LOGIN },
-    (err, user) => {
+    async (err, user) => {
       if (err) {
         console.error("Google Auth Error:", err);
         return next(err);
@@ -242,7 +243,7 @@ const googleAuthCallback = (req, res, next) => {
         return res.redirect(URLs.USER_LOGIN);
       }
 
-      req.logIn(user, (loginErr) => {
+      req.logIn(user, async (loginErr) => {
         if (loginErr) {
           console.error("Error logging in user:", loginErr);
           return next(loginErr);
@@ -252,15 +253,34 @@ const googleAuthCallback = (req, res, next) => {
           return res.redirect(URLs.USER_BANNED);
         }
 
-        req.session.user = user;
-        req.session.save((saveErr) => {
-          if (saveErr) {
-            console.error("Session Save Error:", saveErr);
-            return next(saveErr);
+        try {
+          let wallet = await Wallet.findOne({ userId: user._id });
+          if (!wallet) {
+            wallet = new Wallet({
+              userId: user._id,
+              balance: 0,
+              transactions: [],
+            });
+            await wallet.save();
+            console.log(
+              "Default wallet created successfully for user:",
+              user._id
+            );
           }
-          console.log("Session saved successfully, redirecting to home.");
-          res.redirect(URLs.USER_HOME);
-        });
+
+          req.session.user = user;
+          req.session.save((saveErr) => {
+            if (saveErr) {
+              console.error("Session Save Error:", saveErr);
+              return next(saveErr);
+            }
+            console.log("Session saved successfully, redirecting to home.");
+            res.redirect(URLs.USER_HOME);
+          });
+        } catch (walletErr) {
+          console.error("Wallet Creation Error:", walletErr);
+          return next(walletErr);
+        }
       });
     }
   )(req, res, next);
@@ -277,7 +297,9 @@ const loadSignup = (req, res) => {
     res.render("signup", { layout: false, message: null });
   } catch (error) {
     console.error("Error loading signup page:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Error loading signup page");
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("Error loading signup page");
   }
 };
 
@@ -293,7 +315,9 @@ const loadLogin = (req, res) => {
     });
   } catch (error) {
     console.error("Error loading login page:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Error loading login page");
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("Error loading login page");
   }
 };
 
@@ -451,7 +475,9 @@ async function resetPassword(req, res) {
     const user = await User.findOne({ resetPasswordToken: token });
 
     if (!user) {
-      return res.status(HttpStatus.BAD_REQUEST).send("Invalid or expired token");
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send("Invalid or expired token");
     }
 
     user.password = hashedPassword;
@@ -768,14 +794,16 @@ const loadEditProfile = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(HttpStatus.NOT_FOUND).render("my account/view-profile", {
-        title: "Edit Profile",
-        user: null,
-        passwordResetSuccess: false,
-        addresses: [],
-        layout: false,
-        message: "User not found.",
-      });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .render("my account/view-profile", {
+          title: "Edit Profile",
+          user: null,
+          passwordResetSuccess: false,
+          addresses: [],
+          layout: false,
+          message: "User not found.",
+        });
     }
 
     res.render("my account/view-profile", {
@@ -788,14 +816,16 @@ const loadEditProfile = async (req, res) => {
     });
   } catch (err) {
     console.error("Error loading profile page:", err);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("my account/view-profile", {
-      title: "Edit Profile",
-      user: req.user || null,
-      passwordResetSuccess: false,
-      addresses: [],
-      layout: false,
-      message: "Internal Server Error. Please try again later.",
-    });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .render("my account/view-profile", {
+        title: "Edit Profile",
+        user: req.user || null,
+        passwordResetSuccess: false,
+        addresses: [],
+        layout: false,
+        message: "Internal Server Error. Please try again later.",
+      });
   }
 };
 
@@ -805,25 +835,29 @@ const updateUserProfile = async (req, res) => {
     const { fullName, firstName, lastName, email, phone, gender } = req.body;
 
     if (!email || !fullName || !phone) {
-      return res.status(HttpStatus.BAD_REQUEST).render("my account/view-profile", {
-        message: "Required fields cannot be empty.",
-        passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses,
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .render("my account/view-profile", {
+          message: "Required fields cannot be empty.",
+          passwordResetSuccess: req.query.passwordResetSuccess === "true",
+          addresses: req.user.addresses,
+          user: req.user,
+          layout: false,
+        });
     }
 
     const existingUser = await User.findById(userId);
 
     if (!existingUser) {
-      return res.status(HttpStatus.NOT_FOUND).render("my account/view-profile", {
-        message: "User not found.",
-        passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: [],
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .render("my account/view-profile", {
+          message: "User not found.",
+          passwordResetSuccess: req.query.passwordResetSuccess === "true",
+          addresses: [],
+          user: req.user,
+          layout: false,
+        });
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -841,13 +875,15 @@ const updateUserProfile = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(HttpStatus.NOT_FOUND).render("my account/view-profile", {
-        message: "User not found.",
-        passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: existingUser.addresses,
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .render("my account/view-profile", {
+          message: "User not found.",
+          passwordResetSuccess: req.query.passwordResetSuccess === "true",
+          addresses: existingUser.addresses,
+          user: req.user,
+          layout: false,
+        });
     }
 
     res.render("my account/view-profile", {
@@ -859,14 +895,16 @@ const updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating profile:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("my account/view-profile", {
-      message:
-        "An error occurred while updating your profile. Please try again.",
-      passwordResetSuccess: req.query.passwordResetSuccess === "true",
-      addresses: req.user ? req.user.addresses : [],
-      user: req.user,
-      layout: false,
-    });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .render("my account/view-profile", {
+        message:
+          "An error occurred while updating your profile. Please try again.",
+        passwordResetSuccess: req.query.passwordResetSuccess === "true",
+        addresses: req.user ? req.user.addresses : [],
+        user: req.user,
+        layout: false,
+      });
   }
 };
 
@@ -894,13 +932,15 @@ const addNewAddress = async (req, res) => {
     const { name, mobile, pincode, state, address, city, type } = req.body;
 
     if (!name || !mobile || !pincode || !state || !address || !city || !type) {
-      return res.status(HttpStatus.BAD_REQUEST).render("my account/view-profile", {
-        message: "All fields are required.",
-        passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses,
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .render("my account/view-profile", {
+          message: "All fields are required.",
+          passwordResetSuccess: req.query.passwordResetSuccess === "true",
+          addresses: req.user.addresses,
+          user: req.user,
+          layout: false,
+        });
     }
 
     const newAddress = {
@@ -916,13 +956,15 @@ const addNewAddress = async (req, res) => {
     const user = await User.findById(req.session.user._id);
 
     if (!user) {
-      return res.status(HttpStatus.NOT_FOUND).render("my account/view-profile", {
-        message: "User not found.",
-        passwordResetSuccess: req.query.passwordResetSuccess === "true",
-        addresses: req.user.addresses,
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .render("my account/view-profile", {
+          message: "User not found.",
+          passwordResetSuccess: req.query.passwordResetSuccess === "true",
+          addresses: req.user.addresses,
+          user: req.user,
+          layout: false,
+        });
     }
 
     user.addresses.push(newAddress);
@@ -938,12 +980,15 @@ const addNewAddress = async (req, res) => {
     });
   } catch (err) {
     console.error("Error adding address:", err);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("my account/view-profile", {
-      message: "An error occurred while adding the address. Please try again.",
-      passwordResetSuccess: req.query.passwordResetSuccess === "true",
-      user: req.user,
-      layout: false,
-    });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .render("my account/view-profile", {
+        message:
+          "An error occurred while adding the address. Please try again.",
+        passwordResetSuccess: req.query.passwordResetSuccess === "true",
+        user: req.user,
+        layout: false,
+      });
   }
 };
 
@@ -970,7 +1015,9 @@ const getEditAddressForm = async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching address:", err);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("An error occurred while fetching the address.");
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send("An error occurred while fetching the address.");
   }
 };
 
@@ -980,12 +1027,14 @@ const updateAddress = async (req, res) => {
     const addressId = req.params.id;
 
     if (!name || !mobile || !pincode || !state || !address || !city || !type) {
-      return res.status(HttpStatus.BAD_REQUEST).render("my account/edit-address", {
-        message: "All fields are required.",
-        address: { ...req.body },
-        user: req.user,
-        layout: false,
-      });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .render("my account/edit-address", {
+          message: "All fields are required.",
+          address: { ...req.body },
+          user: req.user,
+          layout: false,
+        });
     }
 
     const user = await User.findById(req.session.user._id);
@@ -1014,13 +1063,15 @@ const updateAddress = async (req, res) => {
     });
   } catch (err) {
     console.error("Error updating address:", err);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("my account/edit-address", {
-      message:
-        "An error occurred while updating the address. Please try again.",
-      address: { ...req.body },
-      user: req.user,
-      layout: false,
-    });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .render("my account/edit-address", {
+        message:
+          "An error occurred while updating the address. Please try again.",
+        address: { ...req.body },
+        user: req.user,
+        layout: false,
+      });
   }
 };
 
@@ -1088,20 +1139,20 @@ const loadCheckout = async (req, res) => {
       });
     }
 
-      const hasExceedingQuantity = await Promise.any(
-        cart.items.map(async (item) => {
-          const product = await Product.findById(item.productId._id).select(
-            "leftStock"
-          );
-          return item.quantity > (product ? product.leftStock : 0);
-        })
-      );
-  
-      if (hasExceedingQuantity) {
-        req.session.cartError =
-          "Cart contains items with quantity exceeding available stock. We are adjusted your cart. Now you can proceed to checkout.";
-        return res.redirect(URLs.USER_CART);
-      }
+    const hasExceedingQuantity = await Promise.any(
+      cart.items.map(async (item) => {
+        const product = await Product.findById(item.productId._id).select(
+          "leftStock"
+        );
+        return item.quantity > (product ? product.leftStock : 0);
+      })
+    );
+
+    if (hasExceedingQuantity) {
+      req.session.cartError =
+        "Cart contains items with quantity exceeding available stock. We are adjusted your cart. Now you can proceed to checkout.";
+      return res.redirect(URLs.USER_CART);
+    }
 
     const products = cart.items.map((item) => ({
       ...item.productId,
@@ -1142,7 +1193,6 @@ const loadCheckout = async (req, res) => {
   }
 };
 
-
 const applyCoupon = async (req, res) => {
   try {
     const { code } = req.query;
@@ -1156,14 +1206,18 @@ const applyCoupon = async (req, res) => {
     });
 
     if (!coupon) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Invalid or expired coupon." });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: "Invalid or expired coupon." });
     }
 
     const cart = await Cart.findOne({ user: req.session.user._id })
       .populate("items.productId", "discount_price")
       .lean();
     if (!cart) {
-      return res.status(HttpStatus.NOT_FOUND).json({ message: "Cart not found." });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "Cart not found." });
     }
 
     const totalPrice = cart.items.reduce(
@@ -1199,7 +1253,9 @@ const removeCoupon = async (req, res) => {
       .populate("items.productId", "discount_price")
       .lean();
     if (!cart) {
-      return res.status(HttpStatus.NOT_FOUND).json({ message: "Cart not found." });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "Cart not found." });
     }
 
     const totalPrice = cart.items.reduce(
@@ -1224,7 +1280,9 @@ const notifyUser = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(HttpStatus.BAD_REQUEST).json({ message: "Email is required" });
+    return res
+      .status(HttpStatus.BAD_REQUEST)
+      .json({ message: "Email is required" });
   }
 
   try {
@@ -1245,10 +1303,14 @@ const notifyUser = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(HttpStatus.OK).json({ message: "Notification email sent successfully" });
+    res
+      .status(HttpStatus.OK)
+      .json({ message: "Notification email sent successfully" });
   } catch (err) {
     console.error("Error sending email:", err);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Failed to send notification email" });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: "Failed to send notification email" });
   }
 };
 
