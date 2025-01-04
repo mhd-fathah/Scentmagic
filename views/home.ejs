@@ -185,7 +185,7 @@
               <% if (product.extra_offer_percentage > 0) { %>
                 <p style="color: rgb(255, 17, 0)"><%= product.extra_offer_percentage %>% Off</p>
               <% } %>
-              <% if (product.stock_status === 'in_stock') { %>
+              <% if (product.stock_status === 'in_stock' && product.leftStock > 0) { %>
                 <p style="color: green;">In Stock</p>
               <% } else { %>
                 <p style="color: red;">Out of Stock</p>

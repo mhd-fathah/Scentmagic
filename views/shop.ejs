@@ -246,7 +246,7 @@
                                             <% if (product.extra_offer_percentage > 0) { %>
                                                 <p style="color: rgb(214, 2, 2); font-weight: bold;">Extra Offer: <%= product.extra_offer_percentage %>%</p>
                                               <% } %>
-                                            <% if (product.stock_status==='in_stock' ) { %>
+                                            <% if (product.stock_status==='in_stock' && product.leftStock > 0) { %>
                                                 <p style="color: green">In Stock</p>
                                                 <% } else { %>
                                                     <p style="color: red">Out of Stock</p>
@@ -344,7 +344,7 @@
                             <% if (product.extra_offer_percentage > 0) { %>
                               <p style="color: rgb(214, 2, 2); font-weight: bold;">Extra Offer: <%= product.extra_offer_percentage %>%</p>
                             <% } %>
-                            <% if (product.stock_status === "in_stock") { %>
+                            <% if (product.stock_status === "in_stock" && product.leftStock > 0) { %>
                               <p style="color: green">In Stock</p>
                             <% } else { %>
                               <p style="color: red">Out of Stock</p>

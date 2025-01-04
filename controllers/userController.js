@@ -342,7 +342,7 @@ const loadHome = async (req, res) => {
       // category: latestProducts[0]?.category._id,
     })
       .select(
-        "product_name discount_price regular_price product_images category stock_status"
+        "product_name discount_price regular_price product_images category stock_status leftStock"
       )
       .populate("category", "name")
       .lean();
