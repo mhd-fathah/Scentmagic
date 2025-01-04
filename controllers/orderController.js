@@ -426,7 +426,6 @@ const getUserOrders = async (req, res) => {
     res.render("my account/view-orders", {
       orders: transformedOrders,
       message: req.query.message,
-      layout: false,
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -515,7 +514,7 @@ const viewOrderDetails = async (req, res) => {
       },
     };
 
-    res.render("my account/order-details", { orderData, layout: false });
+    res.render("my account/order-details", { orderData });
   } catch (err) {
     console.error("Error fetching order details:", err);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");

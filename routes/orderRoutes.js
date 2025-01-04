@@ -3,6 +3,8 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const auth = require("../middleware/authMiddleware");
 
+router.use(auth.setAuthStatus);
+
 router.post(
   "/order-confirmation",
   auth.checkSession,
