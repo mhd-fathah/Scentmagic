@@ -24,77 +24,77 @@
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
-            <img src="/img/logo.png" class="logo" alt="Scentmagic logo">
-        </a>
-        <div>
-            <button class="btn btn-icon btn-aside-minimize text-muted">
-                <i class="fas fa-bars"></i> 
-              </button>
-              
-        </div>
+      <a href="index.html" class="brand-wrap">
+        <img src="/img/logo.png" class="logo" alt="Scentmagic logo">
+      </a>
+      <div>
+        <button class="btn btn-icon btn-aside-minimize text-muted">
+          <i class="fas fa-bars"></i>
+        </button>
+
+      </div>
     </div>
     <nav>
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/dashboard">
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products">
-              <span class="text">Products</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/categories">
-              <span class="text" >Categories</span>
-            </a>
-          </li>
-          
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/orders">
-              <span class="text" >Orders</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/users">
-              <span class="text" >Users</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/products/add">
-              <span class="text">Add Product</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/coupon">
-              <span class="text">Coupons</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="/admin/offers">
-              <span class="text">Offers</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Reviews</span>
-            </a>
-          </li>
-        </ul>
-        <hr />
-        <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="#">
-              <span class="text">Account</span>
-            </a>
-          </li>
-        </ul>
-        <br />
-        <br />
-      </nav>
-</aside>
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/dashboard">
+            <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products">
+            <span class="text">Products</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/categories">
+            <span class="text">Categories</span>
+          </a>
+        </li>
+
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/orders">
+            <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/users">
+            <span class="text">Users</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/products/add">
+            <span class="text">Add Product</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/coupon">
+            <span class="text">Coupons</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/offers">
+            <span class="text">Offers</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Reviews</span>
+          </a>
+        </li>
+      </ul>
+      <hr />
+      <ul class="menu-aside">
+        <li class="menu-item">
+          <a class="menu-link" href="#">
+            <span class="text">Account</span>
+          </a>
+        </li>
+      </ul>
+      <br />
+      <br />
+    </nav>
+  </aside>
   <main class="main-wrap">
     <header class="main-header navbar">
       <div class="col-nav d-flex justify-content-end align-items-center w-100">
@@ -165,6 +165,7 @@
                   <label for="product_name" class="form-label">Product Title</label>
                   <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name"
                     value="<%= product.product_name %>" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <!-- Full Description -->
@@ -172,18 +173,21 @@
                   <label class="form-label">Description</label>
                   <textarea placeholder="Type here" class="form-control" rows="4"
                     name="shortDescription"><%= product.shortDescription %></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label class="form-label">Full description</label>
                   <textarea placeholder="Type here" class="form-control" rows="4"
                     name="longDescription"><%= product.longDescription %></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label class="form-label">Highlights</label>
                   <textarea placeholder="Type here" class="form-control" rows="4"
                     name="highlights"><%= product.highlights %></textarea>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <!-- Price Fields -->
@@ -193,6 +197,7 @@
                       <label class="form-label">Regular Price</label>
                       <input placeholder="₹" type="text" class="form-control" name="regular_price"
                         value="<%= product.regular_price %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-4">
@@ -200,6 +205,7 @@
                       <label class="form-label">Discount Price</label>
                       <input placeholder="₹" type="text" class="form-control" name="discount_price"
                         value="<%= product.discount_price %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                 </div>
@@ -215,6 +221,7 @@
                       </option>
                       <% }); %>
                   </select>
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <!-- Existing Images Preview -->
@@ -224,7 +231,8 @@
                     <div class="col-lg-3">
                       <label class="form-label">Image 1</label>
                       <% if (product.product_images && product.product_images[0]) { %>
-                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[0] %> " alt="Product Image 1" class="img-fluid" />
+                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[0] %> "
+                          alt="Product Image 1" class="img-fluid" />
                         <% } else { %>
                           <p>No image uploaded</p>
                           <% } %>
@@ -233,7 +241,8 @@
                     <div class="col-lg-3">
                       <label class="form-label">Image 2</label>
                       <% if (product.product_images && product.product_images[1]) { %>
-                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[1] %>" alt="Product Image 2" class="img-fluid" />
+                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[1] %>"
+                          alt="Product Image 2" class="img-fluid" />
                         <% } else { %>
                           <p>No image uploaded</p>
                           <% } %>
@@ -242,7 +251,8 @@
                     <div class="col-lg-3">
                       <label class="form-label">Image 3</label>
                       <% if (product.product_images && product.product_images[2]) { %>
-                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[2] %>" alt="Product Image 3" class="img-fluid" />
+                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[2] %>"
+                          alt="Product Image 3" class="img-fluid" />
                         <% } else { %>
                           <p>No image uploaded</p>
                           <% } %>
@@ -251,7 +261,8 @@
                     <div class="col-lg-3">
                       <label class="form-label">Image 4</label>
                       <% if (product.product_images && product.product_images[3]) { %>
-                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[3] %>" alt="Product Image 4" class="img-fluid" />
+                        <img src="https://scentmagic.store/public/uploads/products/<%= product.product_images[3] %>"
+                          alt="Product Image 4" class="img-fluid" />
                         <% } else { %>
                           <p>No image uploaded</p>
                           <% } %>
@@ -265,21 +276,25 @@
                 <div class="mb-4">
                   <label for="image1" class="form-label">Product Image 1</label>
                   <input type="file" class="form-control" id="image1" name="image1" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image2" class="form-label">Product Image 2</label>
                   <input type="file" class="form-control" id="image2" name="image2" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image3" class="form-label">Product Image 3</label>
                   <input type="file" class="form-control" id="image3" name="image3" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <div class="mb-4">
                   <label for="image4" class="form-label">Product Image 4</label>
                   <input type="file" class="form-control" id="image4" name="image4" accept="image/*" />
+                  <p class="error-message" style="color: red;"></p>
                 </div>
 
                 <!-- Cropping containers for each image -->
@@ -310,6 +325,7 @@
                       <label class="form-label">Stock</label>
                       <input type="number" placeholder="Enter left stock" class="form-control" name="leftStock"
                         value="<%= product.leftStock %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -317,6 +333,7 @@
                       <label class="form-label">Quantity</label>
                       <input type="text" placeholder="Enter quantity" class="form-control" name="quantity"
                         value="<%= product.quantity %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -324,6 +341,7 @@
                       <label class="form-label">Net Quantity</label>
                       <input type="text" placeholder="Enter net quantity" class="form-control" name="netQuantity"
                         value="<%= product.netQuantity %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -331,6 +349,7 @@
                       <label class="form-label">Sales Package</label>
                       <input type="text" placeholder="Enter sales package" class="form-control" name="salesPackage"
                         value="<%= product.salesPackage %>" />
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -342,6 +361,7 @@
                         <option value="out_of_stock" <%=product.stock_status==="out_of_stock" ? "selected" : "" %>>Out
                           of Stock</option>
                       </select>
+                      <p class="error-message" style="color: red;"></p>
                     </div>
                   </div>
                 </div>
@@ -412,6 +432,108 @@
       initializeCropper('image4', 'crop-image-4', 'cropper-container-4', 'cropBtn-4', 'image4');
     </script>
 
+    <script>
+      const productForm = document.getElementById('productForm');
+
+      productForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(productForm);
+        const errorMessages = document.querySelectorAll('.error-message');
+
+        errorMessages.forEach((error) => {
+          error.textContent = '';
+          error.style.display = 'none';
+        });
+
+        const displayError = (index, message) => {
+          errorMessages[index].textContent = message;
+          errorMessages[index].style.display = 'block';
+          return false;
+        };
+
+        const productName = formData.get('product_name');
+        if (!productName.trim()) {
+          return displayError(0, 'Product title is required!');
+        }
+
+        const shortDescription = formData.get('shortDescription');
+        if (!shortDescription.trim()) {
+          return displayError(1, 'Short description is required!');
+        }
+
+        const longDescription = formData.get('longDescription');
+        if (!longDescription.trim()) {
+          return displayError(2, 'Full description is required!');
+        }
+
+        const highlights = formData.get('highlights');
+        if (!highlights.trim()) {
+          return displayError(3, 'Please add product highlights!');
+        }
+
+        const regularPrice = formData.get('regular_price');
+        if (!regularPrice.trim()) {
+          return displayError(4, 'Regular price is required!');
+        } else if (isNaN(regularPrice) || regularPrice <= 0) {
+          return displayError(4, 'Regular price must be a positive number!');
+        }
+
+        const discountPrice = formData.get('discount_price');
+        if (!discountPrice.trim()) {
+          return displayError(5, 'Discount price is required!');
+        } else if (isNaN(discountPrice) || discountPrice <= 0) {
+          return displayError(5, 'Discount price must be a positive number!');
+        } else if (Number(discountPrice) >= Number(regularPrice)) {
+          return displayError(5, 'Discount price must be less than regular price!');
+        }
+
+        const category = formData.get('category');
+        if (!category) {
+          return displayError(6, 'Please select a category for the product!');
+        }
+
+        for (let i = 1; i <= 4; i++) {
+          const image = document.getElementById(`image${i}`).files[0];
+          if (image && image.size > 5 * 1024 * 1024) {
+            return displayError(6 + i, `Image ${i} is too large, must be less than 5MB!`);
+          }
+        }
+
+        const leftStock = formData.get('leftStock');
+        if (!leftStock.trim()) {
+          return displayError(11, 'Stock quantity is required!');
+        } else if (isNaN(leftStock) || leftStock < 0) {
+          return displayError(11, 'Stock quantity must be a non-negative number!');
+        }
+
+        const quantity = formData.get('quantity');
+        if (!quantity.trim()) {
+          return displayError(12, 'Product quantity is required!');
+        } else if (isNaN(quantity) || quantity <= 0) {
+          return displayError(12, 'Quantity must be a positive number!');
+        }
+
+        const netQuantity = formData.get('netQuantity');
+        if (!netQuantity.trim()) {
+          return displayError(13, 'Net quantity is required!');
+        } else if (isNaN(netQuantity) || netQuantity <= 0) {
+          return displayError(13, 'Net quantity must be a positive number!');
+        }
+
+        const salesPackage = formData.get('salesPackage');
+        if (!salesPackage.trim()) {
+          return displayError(14, 'Sales package is required!');
+        }
+
+        const stockStatus = formData.get('stock_status');
+        if (!stockStatus) {
+          return displayError(15, 'Please select a stock status!');
+        }
+
+        productForm.submit();
+      });
+    </script>
 
 </body>
 

@@ -385,44 +385,37 @@
     const formData = new FormData(productForm);
     const errorMessages = document.querySelectorAll('.error-message');
 
-    // Clear all previous error messages
     errorMessages.forEach((error) => {
       error.textContent = '';
-      error.style.display = 'none'; // Hide all error messages initially
+      error.style.display = 'none';
     });
 
-    // Helper function to display an error and stop further validation
     const displayError = (index, message) => {
       errorMessages[index].textContent = message;
-      errorMessages[index].style.display = 'block'; // Show the error message
-      return false; // Stop further validation
+      errorMessages[index].style.display = 'block';
+      return false; 
     };
 
-    // Validation for product name
     const productName = formData.get('product_name');
     if (!productName.trim()) {
       return displayError(0, 'Product title cannot be empty!');
     }
 
-    // Validation for short description
     const shortDescription = formData.get('shortDescription');
     if (!shortDescription.trim()) {
       return displayError(1, 'Short description cannot be empty!');
     }
 
-    // Validation for long description
     const longDescription = formData.get('longDescription');
     if (!longDescription.trim()) {
       return displayError(2, 'Full description cannot be empty!');
     }
 
-    // Validation for highlights
     const highlights = formData.get('highlights');
     if (!highlights.trim()) {
       return displayError(3, 'Highlights cannot be empty!');
     }
 
-    // Validation for regular price
     const regularPrice = formData.get('regular_price');
     if (!regularPrice.trim()) {
       return displayError(4, 'Regular price cannot be empty!');
@@ -430,7 +423,6 @@
       return displayError(4, 'Regular price must be a positive number!');
     }
 
-    // Validation for discount price
     const discountPrice = formData.get('discount_price');
     if (!discountPrice.trim()) {
       return displayError(5, 'Discount price cannot be empty!');
@@ -440,13 +432,11 @@
       return displayError(5, 'Discount price must be less than regular price!');
     }
 
-    // Validation for category selection
     const category = formData.get('category');
     if (!category) {
       return displayError(6, 'Please select a category!');
     }
 
-    // Validation for product images
     for (let i = 1; i <= 4; i++) {
       const image = document.getElementById(`image${i}`).files[0];
       if (!image) {
@@ -454,7 +444,6 @@
       }
     }
 
-    // Validation for left stock
     const leftStock = formData.get('leftStock');
     if (!leftStock.trim()) {
       return displayError(11, 'Stock cannot be empty!');
@@ -462,7 +451,6 @@
       return displayError(11, 'Stock must be a non-negative number!');
     }
 
-    // Validation for quantity
     const quantity = formData.get('quantity');
     if (!quantity.trim()) {
       return displayError(12, 'Quantity cannot be empty!');
@@ -470,7 +458,6 @@
       return displayError(12, 'Quantity must be a positive number!');
     }
 
-    // Validation for net quantity
     const netQuantity = formData.get('netQuantity');
     if (!netQuantity.trim()) {
       return displayError(13, 'Net quantity cannot be empty!');
@@ -478,19 +465,16 @@
       return displayError(13, 'Net quantity must be a positive number!');
     }
 
-    // Validation for sales package
     const salesPackage = formData.get('salesPackage');
     if (!salesPackage.trim()) {
       return displayError(14, 'Sales package cannot be empty!');
     }
 
-    // Validation for stock status
     const stockStatus = formData.get('stock_status');
     if (!stockStatus) {
       return displayError(15, 'Please select a stock status!');
     }
 
-    // If all validations pass, submit the form
     productForm.submit();
   });
 </script>
