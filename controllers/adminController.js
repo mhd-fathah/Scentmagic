@@ -163,7 +163,6 @@ const getAllOrders = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-zz
 
 const getOrderDetails = async (req, res) => {
   try {
