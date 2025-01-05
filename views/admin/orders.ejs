@@ -196,34 +196,35 @@
             </div>
             <!-- Add Pagination if necessary -->
             <div class="pagination-area mt-4">
-                <% if (pagination) { %>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <% if (pagination.hasPreviousPage) { %>
-                                <li class="page-item">
-                                    <a class="page-link" href="/orders?page=<%= pagination.previousPage %>" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                            <% } %>
+              <% if (pagination) { %>
+                <nav aria-label="Page navigation">
+                  <ul class="pagination">
+                    <% if (pagination.hasPreviousPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/orders?page=<%= pagination.previousPage %>" aria-label="Previous">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                    <% } %>
             
-                            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
-                                <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
-                                    <a class="page-link" href="/orders?page=<%= i %>"><%= i %></a>
-                                </li>
-                            <% } %>
+                    <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                      <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/orders?page=<%= i %>" aria-current="<%= i === pagination.currentPage ? 'page' : '' %>"><%= i %></a>
+                      </li>
+                    <% } %>
             
-                            <% if (pagination.hasNextPage) { %>
-                                <li class="page-item">
-                                    <a class="page-link" href="/orders?page=<%= pagination.nextPage %>" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            <% } %>
-                        </ul>
-                    </nav>
-                <% } %>
+                    <% if (pagination.hasNextPage) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/orders?page=<%= pagination.nextPage %>" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                    <% } %>
+                  </ul>
+                </nav>
+              <% } %>
             </div>
+            
             
         </section>
         

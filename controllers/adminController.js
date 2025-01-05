@@ -135,13 +135,14 @@ const getAllOrders = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const totalOrders = await Order.countDocuments();
-
-    const orders = await Order.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const [totalOrders, orders] = await Promise.all([
+      Order.countDocuments(),
+      Order.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+    ]);
 
     const totalPages = Math.ceil(totalOrders / limit);
 
@@ -159,9 +160,10 @@ const getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    res.status(500).send("Server Error");
   }
 };
+
 
 const getOrderDetails = async (req, res) => {
   try {
