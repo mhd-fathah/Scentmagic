@@ -18,6 +18,8 @@
   <link href="/css/admin/main.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -99,7 +101,8 @@
     <header class="main-header navbar">
       <div class="col-nav d-flex justify-content-end align-items-center w-100">
         <!-- Mobile Menu Button -->
-        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_aside">
+        <button class="btn btn-icon btn-mobile me-auto d-lg-none" data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvas_aside">
           <i class="fas fa-bars"></i>
         </button>
 
@@ -162,7 +165,8 @@
               <form id="productForm" action="/admin/products/add" method="POST" enctype="multipart/form-data">
                 <div class="mb-4">
                   <label for="product_name" class="form-label">Product title</label>
-                  <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" />
+                  <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                    name="product_name" />
                   <p class="error-message" style="color: red;"></p>
                 </div>
                 <div class="mb-4">
@@ -204,10 +208,10 @@
                     <option value="" disabled selected>Select a category</option>
 
                     <% categories.forEach(function(category) { %>
-                    <option value="<%= category._id %>">
-                      <%= category.name %>
-                    </option>
-                    <% }); %>
+                      <option value="<%= category._id %>">
+                        <%= category.name %>
+                      </option>
+                      <% }); %>
                   </select>
                   <p class="error-message" style="color: red;"></p>
                 </div>
@@ -260,6 +264,10 @@
 
 
             </div>
+
+           
+            
+            
 
 
 
@@ -316,20 +324,43 @@
       </div>
       </div>
     </section>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="invalidFileToast" class="toast text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-danger text-white">
+          <strong class="me-auto">Invalid file type!</strong>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          Please select a valid image file.
+        </div>
+      </div>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
   <script>
     let cropper1, cropper2, cropper3, cropper4;
 
     function initializeCropper(imageId, cropperId, containerId, cropBtnId, inputId) {
-      document.getElementById(imageId).addEventListener('change', function(e) {
+      document.getElementById(imageId).addEventListener('change', function (e) {
         const file = e.target.files[0];
+        const applicable = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+        if (!applicable.includes(file.type)) {
+          event.target.value = "";
+
+          const toastElement = document.getElementById("invalidFileToast");
+          const toast = new bootstrap.Toast(toastElement); 
+          toast.show();
+          return
+        }
+
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(event) {
+          reader.onload = function (event) {
             const imageUrl = event.target.result;
             document.getElementById(cropperId).src = imageUrl;
             document.getElementById(containerId).style.display = 'block';
@@ -345,9 +376,9 @@
         }
       });
 
-      document.getElementById(cropBtnId).addEventListener('click', function() {
+      document.getElementById(cropBtnId).addEventListener('click', function () {
         const canvas = window[cropperId].getCroppedCanvas();
-        canvas.toBlob(function(blob) {
+        canvas.toBlob(function (blob) {
           const croppedFile = new File([blob], "cropped-image.jpg", {
             type: 'image/jpeg'
           });
@@ -376,108 +407,108 @@
     initializeCropper('image4', 'crop-image-4', 'cropper-container-4', 'cropBtn-4', 'image4');
   </script>
 
-<script>
-  const productForm = document.getElementById('productForm');
+  <script>
+    const productForm = document.getElementById('productForm');
 
-  productForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+    productForm.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-    const formData = new FormData(productForm);
-    const errorMessages = document.querySelectorAll('.error-message');
+      const formData = new FormData(productForm);
+      const errorMessages = document.querySelectorAll('.error-message');
 
-    errorMessages.forEach((error) => {
-      error.textContent = '';
-      error.style.display = 'none';
-    });
+      errorMessages.forEach((error) => {
+        error.textContent = '';
+        error.style.display = 'none';
+      });
 
-    const displayError = (index, message) => {
-      errorMessages[index].textContent = message;
-      errorMessages[index].style.display = 'block';
-      return false; 
-    };
+      const displayError = (index, message) => {
+        errorMessages[index].textContent = message;
+        errorMessages[index].style.display = 'block';
+        return false;
+      };
 
-    const productName = formData.get('product_name');
-    if (!productName.trim()) {
-      return displayError(0, 'Product title cannot be empty!');
-    }
-
-    const shortDescription = formData.get('shortDescription');
-    if (!shortDescription.trim()) {
-      return displayError(1, 'Short description cannot be empty!');
-    }
-
-    const longDescription = formData.get('longDescription');
-    if (!longDescription.trim()) {
-      return displayError(2, 'Full description cannot be empty!');
-    }
-
-    const highlights = formData.get('highlights');
-    if (!highlights.trim()) {
-      return displayError(3, 'Highlights cannot be empty!');
-    }
-
-    const regularPrice = formData.get('regular_price');
-    if (!regularPrice.trim()) {
-      return displayError(4, 'Regular price cannot be empty!');
-    } else if (isNaN(regularPrice) || regularPrice <= 0) {
-      return displayError(4, 'Regular price must be a positive number!');
-    }
-
-    const discountPrice = formData.get('discount_price');
-    if (!discountPrice.trim()) {
-      return displayError(5, 'Discount price cannot be empty!');
-    } else if (isNaN(discountPrice) || discountPrice <= 0) {
-      return displayError(5, 'Discount price must be a positive number!');
-    } else if (Number(discountPrice) >= Number(regularPrice)) {
-      return displayError(5, 'Discount price must be less than regular price!');
-    }
-
-    const category = formData.get('category');
-    if (!category) {
-      return displayError(6, 'Please select a category!');
-    }
-
-    for (let i = 1; i <= 4; i++) {
-      const image = document.getElementById(`image${i}`).files[0];
-      if (!image) {
-        return displayError(6 + i, `Product Image ${i} cannot be empty!`);
+      const productName = formData.get('product_name');
+      if (!productName.trim()) {
+        return displayError(0, 'Product title cannot be empty!');
       }
-    }
 
-    const leftStock = formData.get('leftStock');
-    if (!leftStock.trim()) {
-      return displayError(11, 'Stock cannot be empty!');
-    } else if (isNaN(leftStock) || leftStock < 0) {
-      return displayError(11, 'Stock must be a non-negative number!');
-    }
+      const shortDescription = formData.get('shortDescription');
+      if (!shortDescription.trim()) {
+        return displayError(1, 'Short description cannot be empty!');
+      }
 
-    const quantity = formData.get('quantity');
-    if (!quantity.trim()) {
-      return displayError(12, 'Quantity cannot be empty!');
-    } else if (isNaN(quantity) || quantity <= 0) {
-      return displayError(12, 'Quantity must be a positive number!');
-    }
+      const longDescription = formData.get('longDescription');
+      if (!longDescription.trim()) {
+        return displayError(2, 'Full description cannot be empty!');
+      }
 
-    const netQuantity = formData.get('netQuantity');
-    if (!netQuantity.trim()) {
-      return displayError(13, 'Net quantity cannot be empty!');
-    } else if (isNaN(netQuantity) || netQuantity <= 0) {
-      return displayError(13, 'Net quantity must be a positive number!');
-    }
+      const highlights = formData.get('highlights');
+      if (!highlights.trim()) {
+        return displayError(3, 'Highlights cannot be empty!');
+      }
 
-    const salesPackage = formData.get('salesPackage');
-    if (!salesPackage.trim()) {
-      return displayError(14, 'Sales package cannot be empty!');
-    }
+      const regularPrice = formData.get('regular_price');
+      if (!regularPrice.trim()) {
+        return displayError(4, 'Regular price cannot be empty!');
+      } else if (isNaN(regularPrice) || regularPrice <= 0) {
+        return displayError(4, 'Regular price must be a positive number!');
+      }
 
-    const stockStatus = formData.get('stock_status');
-    if (!stockStatus) {
-      return displayError(15, 'Please select a stock status!');
-    }
+      const discountPrice = formData.get('discount_price');
+      if (!discountPrice.trim()) {
+        return displayError(5, 'Discount price cannot be empty!');
+      } else if (isNaN(discountPrice) || discountPrice <= 0) {
+        return displayError(5, 'Discount price must be a positive number!');
+      } else if (Number(discountPrice) >= Number(regularPrice)) {
+        return displayError(5, 'Discount price must be less than regular price!');
+      }
 
-    productForm.submit();
-  });
-</script>
+      const category = formData.get('category');
+      if (!category) {
+        return displayError(6, 'Please select a category!');
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        const image = document.getElementById(`image${i}`).files[0];
+        if (!image) {
+          return displayError(6 + i, `Product Image ${i} cannot be empty!`);
+        }
+      }
+
+      const leftStock = formData.get('leftStock');
+      if (!leftStock.trim()) {
+        return displayError(11, 'Stock cannot be empty!');
+      } else if (isNaN(leftStock) || leftStock < 0) {
+        return displayError(11, 'Stock must be a non-negative number!');
+      }
+
+      const quantity = formData.get('quantity');
+      if (!quantity.trim()) {
+        return displayError(12, 'Quantity cannot be empty!');
+      } else if (isNaN(quantity) || quantity <= 0) {
+        return displayError(12, 'Quantity must be a positive number!');
+      }
+
+      const netQuantity = formData.get('netQuantity');
+      if (!netQuantity.trim()) {
+        return displayError(13, 'Net quantity cannot be empty!');
+      } else if (isNaN(netQuantity) || netQuantity <= 0) {
+        return displayError(13, 'Net quantity must be a positive number!');
+      }
+
+      const salesPackage = formData.get('salesPackage');
+      if (!salesPackage.trim()) {
+        return displayError(14, 'Sales package cannot be empty!');
+      }
+
+      const stockStatus = formData.get('stock_status');
+      if (!stockStatus) {
+        return displayError(15, 'Please select a stock status!');
+      }
+
+      productForm.submit();
+    });
+  </script>
 
 
 
