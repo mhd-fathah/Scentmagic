@@ -143,7 +143,8 @@
                           placeholder="Additional comments (optional)"></textarea>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="history.back()">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                          onclick="history.back()">Close</button>
                         <button type="button" class="btn btn-danger" id="confirmCancellationBtn">Confirm
                           Cancellation</button>
                       </div>
@@ -171,7 +172,8 @@
                           placeholder="Additional comments (optional)"></textarea>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="history.back()">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                          onclick="history.back()">Close</button>
                         <button type="button" class="btn btn-warning" id="confirmReturnBtn">Confirm Return</button>
                       </div>
                     </div>
@@ -362,6 +364,15 @@
     });
 
     function processCancellation(orderId, reason, comment) {
+      if (!orderId || !reason) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Invalid Input',
+          text: 'Please provide all required details for cancellation.',
+        });
+        return;
+      }
+
       fetch('/orders/cancel', {
         method: 'POST',
         headers: {
@@ -370,18 +381,32 @@
         body: JSON.stringify({
           orderId: orderId,
           reason: reason,
-          comment: comment
-        })
+          comment: comment || '',
+        }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('cancellationReasonModal'));
-            modal.hide();
+            const modalElement = document.getElementById('cancellationReasonModal');
+            if (modalElement) {
+              let modal;
+              if (bootstrap.Modal.getOrCreateInstance) {
+                modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+              } else {
+                modal = new bootstrap.Modal(modalElement);
+              }
+              modal.hide();
+            }
+
             Swal.fire({
               icon: 'success',
               title: 'Order Cancelled',
-              text: 'Your order was successfully cancelled',
+              text: 'Your order was successfully cancelled.',
             }).then(() => {
               location.reload();
             });
@@ -389,7 +414,7 @@
             Swal.fire({
               icon: 'error',
               title: 'Cancellation Failed',
-              text: 'Failed to cancel order: ' + data.message,
+              text: 'Failed to cancel order: ' + (data.message || 'Unknown error'),
             });
           }
         })
@@ -398,10 +423,11 @@
           Swal.fire({
             icon: 'error',
             title: 'Server Error',
-            text: 'An error occurred while cancelling the order',
+            text: 'An error occurred while cancelling the order. Please try again later.',
           });
         });
     }
+
 
     function processReturn(orderId, reason, comment) {
       fetch('/orders/return', {
