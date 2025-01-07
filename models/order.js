@@ -94,7 +94,7 @@ const orderSchema = new mongoose.Schema(
     },
     razorpayPaymentStatus: {
       type: String,
-      enum: ["success", "failure", "pending"],
+      enum: ["success", "failure", "pending","Refunded"],
       default: "failure",
     },
     totalAmount: {

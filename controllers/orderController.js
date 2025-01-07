@@ -570,6 +570,7 @@ const cancelOrder = async (req, res) => {
 
         await wallet.save();
 
+        order.razorpayPaymentStatus = "Refunded";
         order.paymentStatus = "Refunded";
       } else {
         order.paymentStatus = "Unpaid";
